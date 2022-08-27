@@ -13,7 +13,7 @@ load("@build_bazel_rules_apple//apple:ios.bzl",
 )
 load("@rules_cc//cc:defs.bzl", "objc_library")
 
-objc_library(name="Test", deps=["//Vendor/Texture:Texture"])
+objc_library(name="all", deps=["//Vendor/Texture:Texture"])
 
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
