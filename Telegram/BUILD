@@ -183,6 +183,7 @@ swift_library(
     ],
     deps = [
         "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/AppBundle:AppBundle",
         "//submodules/ObjCRuntimeUtils:ObjCRuntimeUtils",
         "//submodules/UIKitRuntimeUtils:UIKitRuntimeUtils",
