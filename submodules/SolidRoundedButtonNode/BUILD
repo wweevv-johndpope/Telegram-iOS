@@ -11,7 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/Display:Display",
         "//submodules/ShimmerEffect:ShimmerEffect",
         "//submodules/Components/HierarchyTrackingLayer:HierarchyTrackingLayer",

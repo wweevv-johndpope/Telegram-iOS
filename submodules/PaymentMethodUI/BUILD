@@ -27,7 +27,7 @@ swift_library(
         "//submodules/Components/Forms/TextInputComponent:TextInputComponent",
         "//submodules/Markdown:Markdown",
         "//submodules/InviteLinksUI:InviteLinksUI",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/Postbox:Postbox",
         "//submodules/TelegramCore:TelegramCore",

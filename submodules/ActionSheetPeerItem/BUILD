@@ -11,7 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/TelegramCore:TelegramCore",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/Display:Display",
         "//submodules/AvatarNode:AvatarNode",
         "//submodules/TelegramPresentationData:TelegramPresentationData",

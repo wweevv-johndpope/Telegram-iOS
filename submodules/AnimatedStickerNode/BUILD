@@ -25,7 +25,7 @@ swift_library(
     ] + optimization_flags,
     deps = [
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/Display:Display",
         "//submodules/YuvConversion:YuvConversion",
         "//submodules/GZip:GZip",

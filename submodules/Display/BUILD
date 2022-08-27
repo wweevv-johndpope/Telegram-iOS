@@ -15,7 +15,7 @@ swift_library(
         "//submodules/AppBundle:AppBundle",
     	"//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/Markdown:Markdown",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
     ],
     visibility = [
         "//visibility:public",

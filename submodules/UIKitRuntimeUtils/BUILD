@@ -16,7 +16,7 @@ objc_library(
       #"Source",
     ],
     deps = [
-      "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+      "//Vendor/Texture:Texture",
       "//submodules/ObjCRuntimeUtils:ObjCRuntimeUtils",
     ],
     sdk_frameworks = [

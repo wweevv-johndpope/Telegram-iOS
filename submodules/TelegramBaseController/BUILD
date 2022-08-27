@@ -13,7 +13,7 @@ swift_library(
     	"//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/Postbox:Postbox",
         "//submodules/TelegramCore:TelegramCore",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/Display:Display",
         "//submodules/AvatarNode:AvatarNode",
         "//submodules/TelegramStringFormatting:TelegramStringFormatting",

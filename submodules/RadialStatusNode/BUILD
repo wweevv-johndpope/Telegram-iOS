@@ -11,7 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/Display:Display",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/LegacyComponents:LegacyComponents",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
     ],

@@ -22,7 +22,7 @@ public final class TelegramRootController: NavigationController {
     private let context: AccountContext
     
     public var rootTabController: TabBarController?
-    
+    var test:ASCollection
     public var contactsController: ContactsController?
     public var callListController: CallListController?
     public var chatListController: ChatListController?

@@ -12,7 +12,7 @@ swift_library(
     deps = [
         "//submodules/Display:Display",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/TelegramCore:TelegramCore",
         "//submodules/GZip:GZip",
         "//submodules/rlottie:RLottieBinding",

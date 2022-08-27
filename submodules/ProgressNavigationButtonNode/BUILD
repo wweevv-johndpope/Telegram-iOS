@@ -11,7 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/Display:Display",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/ActivityIndicator:ActivityIndicator",
     ],
     visibility = [

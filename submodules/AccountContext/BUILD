@@ -11,7 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/TelegramAudio:TelegramAudio",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/TemporaryCachedPeerDataManager:TemporaryCachedPeerDataManager",
         "//submodules/DeviceLocationManager:DeviceLocationManager",
         "//submodules/MediaPlayer:UniversalMediaPlayer",

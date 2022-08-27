@@ -49,9 +49,11 @@ swift_library(
         "-warnings-as-errors",
     ],
     deps = [
+    #        "//Vendor/Texture:Texture",
+        "//Vendor/Texture:Texture",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/SSignalKit/SSignalKit:SSignalKit",
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+
         "//submodules/Display:Display",
         "//submodules/Postbox:Postbox",
         "//submodules/TelegramCore:TelegramCore",

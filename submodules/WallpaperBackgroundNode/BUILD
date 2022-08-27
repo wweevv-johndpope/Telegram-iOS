@@ -53,7 +53,7 @@ swift_library(
         ":WallpaperBackgroundNodeBundle",
     ],
     deps = [
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
         "//submodules/Display:Display",
         "//submodules/GradientBackground:GradientBackground",
         "//submodules/TelegramPresentationData:TelegramPresentationData",

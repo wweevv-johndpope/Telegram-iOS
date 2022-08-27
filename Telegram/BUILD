@@ -182,7 +182,6 @@ swift_library(
         "-serialize-debugging-options",
     ],
     deps = [
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
         "//Vendor/Texture:Texture",
         "//submodules/AppBundle:AppBundle",
         "//submodules/ObjCRuntimeUtils:ObjCRuntimeUtils",
@@ -972,7 +971,7 @@ ios_framework(
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
-        "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+        "//Vendor/Texture:Texture",
     ],
 )
 
