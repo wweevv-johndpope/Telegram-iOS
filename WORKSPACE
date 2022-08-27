@@ -63,3 +63,13 @@ http_archive(
     sha256 = "032907801dc7784744a1ca8fd40d3eecc34a2e27a93a4b3993f617cca204a9f3",
     build_file = "@//third-party/AppCenter:AppCenter.BUILD",
 )
+
+
+http_archive(
+    name = "rules_pods",
+    urls = ["https://github.com/pinterest/PodToBUILD/releases/download/4.1.0-412495/PodToBUILD.zip"],
+)
+
+load("@rules_pods//BazelExtensions:workspace.bzl", "new_pod_repository")
+
+

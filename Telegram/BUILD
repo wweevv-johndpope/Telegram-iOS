@@ -11,6 +11,10 @@ load("@build_bazel_rules_apple//apple:ios.bzl",
     "ios_unit_test",
     "ios_ui_test",
 )
+load("@rules_cc//cc:defs.bzl", "objc_library")
+
+objc_library(name="Test", deps=["//Vendor/Texture:Texture"])
+
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
     "swift_intent_library",
@@ -163,6 +167,7 @@ objc_library(
     deps = [
         "//submodules/NumberPluralizationForm:NumberPluralizationForm",
         "//submodules/AppBundle:AppBundle",
+
     ],
     visibility = [
         "//visibility:public",

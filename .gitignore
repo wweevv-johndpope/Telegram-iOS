@@ -63,3 +63,5 @@ bazel-testlogs/*
 *.swp
 build-input/*
 */*.pyc
+Vendor
+build-system/Make/__pycache__
