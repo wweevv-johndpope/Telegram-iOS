@@ -293,7 +293,7 @@ public class WEVRootViewController: ViewController {
         }
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         if self.navigationItem.rightBarButtonItem != nil {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
+//            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
             self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         }
     }
@@ -416,62 +416,62 @@ public class WEVRootViewController: ViewController {
         self.presentInGlobalOverlay(contextController)
     }
     
-    @objc func addPressed() {
-        let _ = (DeviceAccess.authorizationStatus(subject: .contacts)
-        |> take(1)
-        |> deliverOnMainQueue).start(next: { [weak self] status in
-            guard let strongSelf = self else {
-                return
-            }
-            
-            switch status {
-                case .allowed:
-                    let contactData = DeviceContactExtendedData(basicData: DeviceContactBasicData(firstName: "", lastName: "", phoneNumbers: [DeviceContactPhoneNumberData(label: "_$!<Mobile>!$_", value: "+")]), middleName: "", prefix: "", suffix: "", organization: "", jobTitle: "", department: "", emailAddresses: [], urls: [], addresses: [], birthdayDate: nil, socialProfiles: [], instantMessagingProfiles: [], note: "")
-                    if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
-                        navigationController.pushViewController(strongSelf.context.sharedContext.makeDeviceContactInfoController(context: strongSelf.context, subject: .create(peer: nil, contactData: contactData, isSharing: false, shareViaException: false, completion: { peer, stableId, contactData in
-                            guard let strongSelf = self else {
-                                return
-                            }
-                            if let peer = peer {
-                                DispatchQueue.main.async {
-                                    if let infoController = strongSelf.context.sharedContext.makePeerInfoController(context: strongSelf.context, updatedPresentationData: nil, peer: peer, mode: .generic, avatarInitiallyExpanded: false, fromChat: false, requestsContext: nil) {
-                                        if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
-                                            navigationController.pushViewController(infoController)
-                                        }
-                                    }
-                                }
-                            } else {
-                                if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
-                                    navigationController.pushViewController(strongSelf.context.sharedContext.makeDeviceContactInfoController(context: strongSelf.context, subject: .vcard(nil, stableId, contactData), completed: nil, cancelled: nil))
-                                }
-                            }
-                        }), completed: nil, cancelled: nil))
-                    }
-                case .notDetermined:
-                    DeviceAccess.authorizeAccess(to: .contacts)
-                default:
-                    let presentationData = strongSelf.presentationData
-                    if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController, let topController = navigationController.topViewController as? ViewController {
-                        topController.present(textAlertController(context: strongSelf.context, title: presentationData.strings.AccessDenied_Title, text: presentationData.strings.Contacts_AccessDeniedError, actions: [TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_NotNow, action: {}), TextAlertAction(type: .genericAction, title: presentationData.strings.AccessDenied_Settings, action: {
-                            self?.context.sharedContext.applicationBindings.openSettings()
-                        })]), in: .window(.root))
-                    }
-            }
-        })
-    }
-    
+//    @objc func addPressed() {
+//        let _ = (DeviceAccess.authorizationStatus(subject: .contacts)
+//        |> take(1)
+//        |> deliverOnMainQueue).start(next: { [weak self] status in
+//            guard let strongSelf = self else {
+//                return
+//            }
+//
+//            switch status {
+//                case .allowed:
+//                    let contactData = DeviceContactExtendedData(basicData: DeviceContactBasicData(firstName: "", lastName: "", phoneNumbers: [DeviceContactPhoneNumberData(label: "_$!<Mobile>!$_", value: "+")]), middleName: "", prefix: "", suffix: "", organization: "", jobTitle: "", department: "", emailAddresses: [], urls: [], addresses: [], birthdayDate: nil, socialProfiles: [], instantMessagingProfiles: [], note: "")
+//                    if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
+//                        navigationController.pushViewController(strongSelf.context.sharedContext.makeDeviceContactInfoController(context: strongSelf.context, subject: .create(peer: nil, contactData: contactData, isSharing: false, shareViaException: false, completion: { peer, stableId, contactData in
+//                            guard let strongSelf = self else {
+//                                return
+//                            }
+//                            if let peer = peer {
+//                                DispatchQueue.main.async {
+//                                    if let infoController = strongSelf.context.sharedContext.makePeerInfoController(context: strongSelf.context, updatedPresentationData: nil, peer: peer, mode: .generic, avatarInitiallyExpanded: false, fromChat: false, requestsContext: nil) {
+//                                        if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
+//                                            navigationController.pushViewController(infoController)
+//                                        }
+//                                    }
+//                                }
+//                            } else {
+//                                if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController {
+//                                    navigationController.pushViewController(strongSelf.context.sharedContext.makeDeviceContactInfoController(context: strongSelf.context, subject: .vcard(nil, stableId, contactData), completed: nil, cancelled: nil))
+//                                }
+//                            }
+//                        }), completed: nil, cancelled: nil))
+//                    }
+//                case .notDetermined:
+//                    DeviceAccess.authorizeAccess(to: .contacts)
+//                default:
+//                    let presentationData = strongSelf.presentationData
+//                    if let navigationController = strongSelf.context.sharedContext.mainWindow?.viewController as? NavigationController, let topController = navigationController.topViewController as? ViewController {
+//                        topController.present(textAlertController(context: strongSelf.context, title: presentationData.strings.AccessDenied_Title, text: presentationData.strings.Contacts_AccessDeniedError, actions: [TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_NotNow, action: {}), TextAlertAction(type: .genericAction, title: presentationData.strings.AccessDenied_Settings, action: {
+//                            self?.context.sharedContext.applicationBindings.openSettings()
+//                        })]), in: .window(.root))
+//                    }
+//            }
+//        })
+//    }
+//
     override public func tabBarItemContextAction(sourceNode: ContextExtractedContentContainingNode, gesture: ContextGesture) {
         var items: [ContextMenuItem] = []
-        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
-            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
-        }, action: { [weak self] c, f in
-            c.dismiss(completion: { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
-                strongSelf.addPressed()
-            })
-        })))
+//        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
+//            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
+//        }, action: { [weak self] c, f in
+//            c.dismiss(completion: { [weak self] in
+//                guard let strongSelf = self else {
+//                    return
+//                }
+//                strongSelf.addPressed()
+//            })
+//        })))
         
         
         
@@ -531,6 +531,7 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
     var openInvite: (() -> Void)?
 
 
+    var tableView:UITableView?
     private var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
     private var mServicesTableView:ASDisplayNode?
@@ -579,8 +580,13 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
     }
 
     private func updateThemeAndStrings() {
+        self.tableView?.reloadData()
+        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
+        
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
+        
     }
 
     func scrollToTop() {
@@ -620,17 +626,13 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
     }
 
     private func getCollectionView(frame:CGRect) -> UITableView {
-        let tv = UITableView(frame: frame)
-        tv.delegate = self
-        tv.dataSource = self
-        tv.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-        tv.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
-        let emptyView = UIView()
-        emptyView.backgroundColor = .clear
+        self.tableView = UITableView(frame: frame)
+        self.tableView?.delegate = self
+        self.tableView?.dataSource = self
+        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
         
-        tv.tableFooterView = emptyView
-//        let view = OffersListTableview(frame: frame)
-        return tv
+        return  self.tableView!
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -652,6 +654,10 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
             cell?.textLabel?.text = "My Schedules"
         }
         cell?.textLabel?.textColor = presentationData.theme.contextMenu.primaryColor
+//        cell?.backgroundView?.backgroundColor =presentationData.theme.contextMenu.backgroundColor
+        cell?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        cell?.selectionStyle = .none
+              
         return cell!
     }
 //
@@ -666,7 +672,7 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
             let schedules = UIViewController()
             schedules.view.backgroundColor = .red
             let navigation = UINavigationController(rootViewController: schedules)
-            navigation.modalPresentationStyle = .fullScreen
+//            navigation.modalPresentationStyle = .fullScreen
             controller.present(navigation, animated: true)
             
         } else if indexPath.row == 0 {
