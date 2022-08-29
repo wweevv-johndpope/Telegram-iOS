@@ -104,6 +104,12 @@ public final class TelegramRootController: NavigationController {
         
         var controllers: [ViewController] = []
         
+        let vc = WEVRootViewController(context: self.context)
+        vc.switchToChatsController = {  [weak self] in
+            self?.openChatsController(activateSearch: false)
+        }
+        controllers.append(vc)
+        
         let contactsController = ContactsController(context: self.context)
         contactsController.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
