@@ -20,6 +20,7 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 
+
 private final class HeaderContextReferenceContentSource: ContextReferenceContentSource {
     private let controller: ViewController
     private let sourceNode: ContextReferenceContentNode
@@ -301,6 +302,7 @@ public class WEVRootViewController: ViewController {
         self.displayNode = WEVRootNode(context: self.context, sortOrder: sortOrderPromise.get() |> distinctUntilChanged, present: { [weak self] c, a in
             self?.present(c, in: .window(.root), with: a)
         }, controller: self)
+        
         self._ready.set(self.contactsNode.contactListNode.ready)
 
         self.contactsNode.navigationBar = self.navigationBar
@@ -471,6 +473,8 @@ public class WEVRootViewController: ViewController {
             })
         })))
         
+        
+        
         items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddPeopleNearby, icon: { theme in
             return generateTintedImage(image: UIImage(bundleImageName: "Contact List/Context Menu/PeopleNearby"), color: theme.contextMenu.primaryColor)
         }, action: { [weak self] c, f in
@@ -526,15 +530,15 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
 
+
     private var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
     private var mServicesTableView:ASDisplayNode?
 
 
-//    weak var controller: ContactsController?
-
     init(context: AccountContext, sortOrder: Signal<ContactsSortOrder, NoError>, present: @escaping (ViewController, Any?) -> Void, controller: WEVRootViewController) {
         self.context = context
+       
         self.controller = controller
         //BlockchainTest().decode()
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
@@ -556,25 +560,16 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
             }
         }
 
-//        var contextAction: ((Peer, ASDisplayNode, ContextGesture?) -> Void)?
-
-//        self.contactListNode = ContactListNode(context: context, presentation: presentation, displaySortOptions: true, contextAction: { peer, node, gesture in
-//            contextAction?(peer, node, gesture)
-//        })
         
         self.contactListNode = ContactListNode.init(context: context, presentation: presentation)
-        
-//        listNode = ListView()
-//        listNode.dynamicBounceEnabled = !self.presentationData.disableAnimations
-//        listNode.backgroundColor = UIColor.red
-//        listNode.frame = CGRect(x: 0, y: 0, width: 300, height: 500)
+
         super.init()
 
         self.setViewBlock({
             return UITracingLayerView()
         })
 
-        self.backgroundColor = UIColor.white
+        self.backgroundColor = presentationData.theme.contextMenu.backgroundColor
 
     }
 
@@ -615,68 +610,24 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
         if(mServicesTableView?.supernode == nil) { // load only once
             mServicesTableView = ASDisplayNode { () -> UIView in
                 let services = self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 100), size: CGSize(width: layout.size.width, height: layout.size.height)))
-//                let btn = loadedView?.viewWithTag(100)
-//                print("btn \(btn)")
-//                loadedView?.frame = CGRect(x: 0, y: 0, width: layout.size.width, height: 200)
-//                loadedView?.backgroundColor = .green
-//                services.tableFooterView = loadedView
                 return services
             }
-
-//            MobileRTC.shared().setMobileRTCRootController(controller.navigationController)
-//            if let meetingService = MobileRTC.shared().getMeetingService() {
-//                print("call meeting service")
-//                // Set the ViewController to be the MobileRTCMeetingServiceDelegate
-////                meetingService.delegate = self
-//
-//                // Create a MobileRTCMeetingStartParam to provide the MobileRTCMeetingService with the necessary info to start an instant meeting.
-//                // In this case we will use MobileRTCMeetingStartParam4LoginlUser(), since the user has logged into Zoom.
-//                let startMeetingParameters = MobileRTCMeetingStartParam4LoginlUser()
-//
-//                // Call the startMeeting function in MobileRTCMeetingService. The Zoom SDK will handle the UI for you, unless told otherwise.
-//                meetingService.startMeeting(with: startMeetingParameters)
-//            }
 
             self.addSubnode(mServicesTableView!)
         }
 
 
-//        self.addButton(layout: layout)
-//        if(mServicesTableView?.supernode == nil) { // load only once
-//            mServicesTableView = ASDisplayNode { () -> UIView in
-//
-//                mServicesTableView = ASDisplayNode { () -> UIView in
-//                    let services = self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 100), size: CGSize(width: layout.size.width, height: layout.size.height)))
-//                    return services
-//                }
-//                self.addSubnode(mServicesTableView!)
-//
-//
-//
-////                let safeAreaTop: CGFloat
-////                if #available(iOS 11.0, *) {
-////                    safeAreaTop = self.controller.view.safeAreaInsets.top
-////                } else {
-////                    safeAreaTop = self.controller.topLayoutGuide.length
-////                }
-////                print("safeAreaTop \(safeAreaTop)")
-////                let frame = CGRect(x: 0, y: safeAreaTop+headerInsets.top, width: layout.size.width, height: layout.size.height-safeAreaTop-headerInsets.top-44)
-////                let services = OffersListTableview(frame: frame)
-////                services.context = self.context
-////                services.cvc = self.controller
-////                let services = self.getCollectionView(frame: CGRect(x: 0, y: 100, width: layout.size.width, height: layout.size.height))
-////                return services
-//            }
-//            self.addSubnode(mServicesTableView!)
-//        }
     }
 
     private func getCollectionView(frame:CGRect) -> UITableView {
         let tv = UITableView(frame: frame)
         tv.delegate = self
         tv.dataSource = self
+        tv.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        tv.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
         let emptyView = UIView()
         emptyView.backgroundColor = .clear
+        
         tv.tableFooterView = emptyView
 //        let view = OffersListTableview(frame: frame)
         return tv
@@ -694,12 +645,13 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
         }
         
         if indexPath.row == 0 {
-            cell?.imageView?.image = UIImage(named: "terms")
+//            cell?.imageView?.image = UIImage(named: "terms")
             cell?.textLabel?.text = "My Offers"
         } else {
-            cell?.imageView?.image = UIImage(named: "expiration")
+//            cell?.imageView?.image = UIImage(named: "expiration")
             cell?.textLabel?.text = "My Schedules"
         }
+        cell?.textLabel?.textColor = presentationData.theme.contextMenu.primaryColor
         return cell!
     }
 //
@@ -709,12 +661,7 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
 //        print("DetailsHeaderCell xib \(v)")
         
         if indexPath.row == 1 {
-//            let v1 = OffersListTableViewController.init(context: context)
-//            controller.switchToChatsController?()
 
-//            v1.switchToChatsController = controller.switchToChatsController!
-//            controller.present(v1, in: .current)
-//            controller.navigationController?.pushViewController(v1, animated: true)
 
             let schedules = UIViewController()
             schedules.view.backgroundColor = .red
@@ -723,18 +670,14 @@ class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
             controller.present(navigation, animated: true)
             
         } else if indexPath.row == 0 {
-//            let v = SchedulesViewController()
 
-
-//            let c = SchedulesHomeViewController.init(context: context)
             let offers = UIViewController()
+            offers.title = "offers"
             offers.view.backgroundColor = .blue
             let navigation = UINavigationController(rootViewController: offers)
-//            offers.rootPayController = self.controller
-            navigation.modalPresentationStyle = .fullScreen
+//            navigation.modalPresentationStyle = .fullScreen
             controller.present(navigation, animated: true)
-//            (controller.navigationController as? NavigationController)?.pushViewController(offers, animated: true)
-//            controller.navigationController?.pushViewController(c, animated: true)
+
         }
     }
 }
