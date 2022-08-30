@@ -295,6 +295,11 @@ swift_library(
         "//submodules/Media/LocalAudioTranscription:LocalAudioTranscription",
         "//submodules/Components/PagerComponent:PagerComponent",
         "//submodules/Components/LottieAnimationComponent:LottieAnimationComponent",
+        "//third-party/Firebase/FirebaseAnalytics:FirebaseAnalytics",
+         "//third-party/Firebase/FirebaseAuth:FirebaseAuth",
+    	 "//third-party/Firebase/GoogleSignIn:GoogleSignIn",
+        
+        
     ] + select({
         "@build_bazel_rules_apple//apple:ios_armv7": [],
         "@build_bazel_rules_apple//apple:ios_arm64": appcenter_targets,

@@ -64,3 +64,5 @@ bazel-testlogs/*
 build-input/*
 */*.pyc
 build-system/Make/__pycache__
+third-party/Firebase
+GoogleService-Info.plist
