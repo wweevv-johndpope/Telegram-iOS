@@ -1699,6 +1699,7 @@ final class PostboxImpl {
         return self.metadataTable.state()
     }
     
+
     public func keychainEntryForKey(_ key: String) -> Data? {
         precondition(self.queue.isCurrent())
         
@@ -3723,12 +3724,10 @@ public class Postbox {
     }
 
     public func keychainEntryForKey(_ key: String) -> Data? {
-        return self.impl.syncWith { impl -> Data in
-         
-                return impl.keychainEntryForKey(key)!
-           
-        }
-    }
+          return self.impl.syncWith { impl -> Data? in
+              return impl.keychainEntryForKey(key)
+          }
+      }
 
     public func setKeychainEntryForKey(_ key: String, value: Data) {
         self.impl.with { impl in

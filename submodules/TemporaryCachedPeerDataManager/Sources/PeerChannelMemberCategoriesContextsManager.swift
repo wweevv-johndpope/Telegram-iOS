@@ -491,7 +491,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
                     subscriber.putNext(value)
                 })
             })
-            return disposable! //🔥
+            return disposable
         }
         |> runOn(Queue.mainQueue())
     }
@@ -554,7 +554,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
             let disposable = strongSelf.impl.syncWith({ impl -> Disposable in
                 return impl.profileData(postbox: postbox, network: network, peerId: peerId, customData: customData)
             })
-            return disposable! //🔥
+            return disposable
         }
         |> runOn(Queue.mainQueue())
     }
@@ -571,7 +571,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
                     subscriber.putNext(value)
                 })
             })
-            return disposable! //🔥
+            return disposable
         }
         |> runOn(Queue.mainQueue())
     }

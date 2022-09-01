@@ -23,7 +23,7 @@ public func preloadVideoResource(postbox: Postbox, resourceReference: MediaResou
                 if let videoBuffer = result.buffers.videoBuffer {
                     let impl = source.syncWith({ $0 })
                     
-                    return impl!.ensureHasFrames(until: min(duration, videoBuffer.duration.seconds)) //🔥
+                    return impl.ensureHasFrames(until: min(duration, videoBuffer.duration.seconds)) //🔥
                     |> ignoreValues
                     |> castError(MediaFrameSourceSeekError.self)
                 } else {
