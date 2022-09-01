@@ -100,17 +100,17 @@ public final class CallKitIntegration {
     }
     
     private func donateIntent(peerId: PeerId, displayTitle: String) {
-        if #available(iOSApplicationExtension 10.0, iOS 10.0, *) {
-            let handle = INPersonHandle(value: "tg\(peerId.id)", type: .unknown)
-            let contact = INPerson(personHandle: handle, nameComponents: nil, displayName: displayTitle, image: nil, contactIdentifier: nil, customIdentifier: "tg\(peerId.id)")
-        
-            let intent = INStartAudioCallIntent(contacts: [contact])
-            
-            let interaction = INInteraction(intent: intent, response: nil)
-            interaction.direction = .outgoing
-            interaction.donate { _ in
-            }
-        }
+//        if #available(iOSApplicationExtension 10.0, iOS 10.0, *) { 🔥
+//            let handle = INPersonHandle(value: "tg\(peerId.id)", type: .unknown)
+//            let contact = INPerson(personHandle: handle, nameComponents: nil, displayName: displayTitle, image: nil, contactIdentifier: nil, customIdentifier: "tg\(peerId.id)")
+//
+//            let intent = INStartAudioCallIntent(contacts: [contact])
+//
+//            let interaction = INInteraction(intent: intent, response: nil)
+//            interaction.direction = .outgoing
+//            interaction.donate { _ in
+//            }
+//        }
     }
 }
 
