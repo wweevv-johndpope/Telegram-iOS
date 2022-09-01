@@ -277,9 +277,8 @@ class ChatDocumentGalleryItemNode: ZoomableContentGalleryItemNode, WKNavigationD
                                         webView.loadFileURL(URL(fileURLWithPath: data.path), allowingReadAccessTo: URL(fileURLWithPath: data.path))
                                 }
                             }
-                        } else if let webView = strongSelf.webView as? UIWebView {
-                            webView.loadRequest(URLRequest(url: URL(fileURLWithPath: data.path)))
                         }
+                        
                     }
                 }
             }))

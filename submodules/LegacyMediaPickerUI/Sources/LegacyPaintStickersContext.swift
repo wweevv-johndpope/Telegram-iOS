@@ -193,7 +193,7 @@ private class LegacyPaintStickerEntity: LegacyPaintEntity {
                         delta = max(1, frameIndex - previousFrameIndex)
                     }
                     
-                    let maybeFrame = frameQueue.syncWith { frameQueue -> AnimatedStickerFrame? in
+                    let maybeFrame = frameQueue.forcedSyncWith { frameQueue -> AnimatedStickerFrame? in
                         var frame: AnimatedStickerFrame?
                         for i in 0 ..< delta {
                             frame = frameQueue.take(draw: i == delta - 1)

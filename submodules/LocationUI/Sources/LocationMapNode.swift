@@ -253,7 +253,7 @@ final class LocationMapNode: ASDisplayNode, MKMapViewDelegate {
         self.mapView?.mapType = self.mapMode.mapType
         self.mapView?.isRotateEnabled = self.isRotateEnabled
         self.mapView?.showsUserLocation = true
-        self.mapView?.showsPointsOfInterest = false
+//        self.mapView?.showsPointsOfInterest = false
         self.mapView?.customHitTest = { [weak self] point in
             guard let strongSelf = self else {
                 return false
