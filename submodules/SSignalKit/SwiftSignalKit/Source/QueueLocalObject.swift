@@ -20,6 +20,11 @@ public final class QueueLocalObject<T: AnyObject> {
         }
     }
     
+    public func unsafeGet() -> T? {
+        assert(self.queue.isCurrent())
+        return self.valueRef?.takeUnretainedValue()
+    }
+    
     public func with(_ f: @escaping (T) -> Void) {
         self.queue.async {
             if let valueRef = self.valueRef {
@@ -41,6 +46,29 @@ public final class QueueLocalObject<T: AnyObject> {
     }
     
     public func signalWith<R, E>(_ f: @escaping (T, Subscriber<R, E>) -> Disposable) -> Signal<R, E> {
+        return Signal { [weak self] subscriber in
+            if let strongSelf = self, let valueRef = strongSelf.valueRef {
+                let value = valueRef.takeUnretainedValue()
+                return f(value, subscriber)
+            } else {
+                return EmptyDisposable
+            }
+        } |> runOn(self.queue)
+    }
+
+    
+    public func forcedSyncWith<R>(_ f: @escaping (T) -> R) -> R {
+        var result: R?
+        self.queue.sync {
+            if let valueRef = self.valueRef {
+                let value = valueRef.takeUnretainedValue()
+                result = f(value)
+            }
+        }
+        return result!
+    }
+    
+    public func forcedSignalWith<R, E>(_ f: @escaping (T, Subscriber<R, E>) -> Disposable) -> Signal<R, E> {
         return Signal { [weak self] subscriber in
             if let strongSelf = self, let valueRef = strongSelf.valueRef {
                 let value = valueRef.takeUnretainedValue()

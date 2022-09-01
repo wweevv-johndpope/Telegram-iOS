@@ -287,7 +287,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
     
     private func getContext(engine: TelegramEngine, postbox: Postbox, network: Network, accountPeerId: PeerId, peerId: PeerId, key: PeerChannelMemberContextKey, requestUpdate: Bool, updated: @escaping (ChannelMemberListState) -> Void) -> (Disposable, PeerChannelMemberCategoryControl?) {
         assert(Queue.mainQueue().isCurrent())
-        let (disposable, control) = self.impl.syncWith({ impl in
+        let (disposable, control) = self.impl.forcedSyncWith({ impl in
             return impl.getContext(engine: engine, postbox: postbox, network: network, accountPeerId: accountPeerId, peerId: peerId, key: key, requestUpdate: requestUpdate, updated: updated)
         })
         return (disposable, control)
@@ -491,7 +491,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
                     subscriber.putNext(value)
                 })
             })
-            return disposable
+            return disposable! //🔥
         }
         |> runOn(Queue.mainQueue())
     }
@@ -554,7 +554,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
             let disposable = strongSelf.impl.syncWith({ impl -> Disposable in
                 return impl.profileData(postbox: postbox, network: network, peerId: peerId, customData: customData)
             })
-            return disposable
+            return disposable! //🔥
         }
         |> runOn(Queue.mainQueue())
     }
@@ -571,7 +571,7 @@ public final class PeerChannelMemberCategoriesContextsManager {
                     subscriber.putNext(value)
                 })
             })
-            return disposable
+            return disposable! //🔥
         }
         |> runOn(Queue.mainQueue())
     }

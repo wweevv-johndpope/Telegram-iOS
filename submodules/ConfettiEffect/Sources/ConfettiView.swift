@@ -47,13 +47,14 @@ public final class ConfettiView: UIView {
         super.init(frame: frame)
         
         self.isUserInteractionEnabled = false
-        
-        let colors: [UIColor] = ([
-            0x56CE6B,
-            0xCD89D0,
-            0x1E9AFF,
-            0xFF8724
-        ] as [UInt64]).map(UIColor.init(rgb:))
+        let colors: [UIColor] = []// [UIColor(.blue),UIColor(.red),UIColor(.yellow),UIColor(.green)]
+//🔥
+//        let colors: [UIColor] = ([
+//            0x56CE6B,
+//            0xCD89D0,
+//            0x1E9AFF,
+//            0xFF8724
+//        ] as [UInt64]).map(UIColor.init(rgb:))
         let imageSize = CGSize(width: 8.0, height: 8.0)
         var images: [(CGImage, CGSize)] = []
         for imageType in 0 ..< 2 {

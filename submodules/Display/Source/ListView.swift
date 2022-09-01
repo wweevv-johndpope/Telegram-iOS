@@ -1628,6 +1628,7 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
             }
             
             if let controlledTransition = controlledTransition {
+                
                 if let node = previousNode.syncWith({ $0 }){
                     node.addPendingControlledTransition(transition: controlledTransition)
                 }
@@ -1642,7 +1643,7 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
                 }
             }, node: {
                 assert(Queue.mainQueue().isCurrent())
-                return previousNode.syncWith({ $0 })! //🔥
+                return previousNode.syncWith({ $0 })! // 🔥
                 
                
             }, params: params, previousItem: previousItem, nextItem: nextItem, animation: updateAnimation, completion: { (layout, apply) in

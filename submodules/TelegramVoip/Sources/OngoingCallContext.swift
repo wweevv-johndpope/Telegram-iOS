@@ -755,6 +755,21 @@ public final class OngoingCallContext {
         }
     }
 
+    
+    private func dataWithHexString(_ hex: String) -> Data {
+        var hex = hex
+        var data = Data()
+        while hex.count > 0 {
+            let subIndex = hex.index(hex.startIndex, offsetBy: 2)
+            let c = String(hex[..<subIndex])
+            hex = String(hex[subIndex...])
+            var ch: UInt64 = 0
+            Scanner(string: c).scanHexInt64(&ch)
+            var char = UInt8(ch)
+            data.append(&char, count: 1)
+        }
+        return data
+    }
     public init(account: Account, callSessionManager: CallSessionManager, callId: CallId, internalId: CallSessionInternalId, proxyServer: ProxyServerSettings?, initialNetworkType: NetworkType, updatedNetworkType: Signal<NetworkType, NoError>, serializedData: String?, dataSaving: VoiceCallDataSaving, key: Data, isOutgoing: Bool, video: OngoingCallVideoCapturer?, connections: CallSessionConnectionSet, maxLayer: Int32, version: String, allowP2P: Bool, enableTCP: Bool, enableStunMarking: Bool, audioSessionActive: Signal<Bool, NoError>, logName: String, preferredVideoCodec: String?) {
         let _ = setupLogs
         OngoingCallThreadLocalContext.applyServerConfig(serializedData)
@@ -853,22 +868,21 @@ public final class OngoingCallContext {
                     }
                     
                     if let signalingReflector = signalingReflector {
-                        if #available(iOS 12.0, *) {
-                            let peerTag = dataWithHexString(signalingReflector.password)
-                            
-                            strongSelf.signalingConnectionManager = QueueLocalObject(queue: queue, generate: {
-                                return CallSignalingConnectionManager(queue: queue, peerTag: peerTag, servers: [signalingReflector], dataReceived: { data in
-                                    guard let strongSelf = self else {
-                                        return
+                        
+                        let peerTag = strongSelf.dataWithHexString(signalingReflector.password)
+                        
+                        strongSelf.signalingConnectionManager = QueueLocalObject(queue: queue, generate: {
+                            return CallSignalingConnectionManager(queue: queue, peerTag: peerTag, servers: [signalingReflector], dataReceived: { data in
+                                guard let strongSelf = self else {
+                                    return
+                                }
+                                strongSelf.withContext { context in
+                                    if let context = context as? OngoingCallThreadLocalContextWebrtc {
+                                        context.addSignaling(data)
                                     }
-                                    strongSelf.withContext { context in
-                                        if let context = context as? OngoingCallThreadLocalContextWebrtc {
-                                            context.addSignaling(data)
-                                        }
-                                    }
-                                })
+                                }
                             })
-                        }
+                        })
                     }
                     
                     let context = OngoingCallThreadLocalContextWebrtc(version: version, queue: OngoingCallThreadLocalContextQueueImpl(queue: queue), proxy: voipProxyServer, networkType: ongoingNetworkTypeForTypeWebrtc(initialNetworkType), dataSaving: ongoingDataSavingForTypeWebrtc(dataSaving), derivedState: Data(), key: key, isOutgoing: isOutgoing, connections: filteredConnections, maxLayer: maxLayer, allowP2P: allowP2P, allowTCP: enableTCP, enableStunMarking: enableStunMarking, logPath: tempLogPath, statsLogPath: tempStatsLogPath, sendSignalingData: { [weak callSessionManager] data in

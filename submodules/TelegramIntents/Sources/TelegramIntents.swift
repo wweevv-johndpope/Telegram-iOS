@@ -197,7 +197,8 @@ public func donateSendMessageIntent(account: Account, sharedContext: SharedAccou
                
                 let intent = INSendMessageIntent(recipients: [recipient], content: nil, speakableGroupName: INSpeakableString(spokenPhrase: displayTitle), conversationIdentifier: "tg\(peer.id.toInt64())", serviceName: nil, sender: nil)
                 if let avatarImage = avatarImage, let avatarImageData = avatarImage.jpegData(compressionQuality: 0.8) {
-                    intent.setImage(INImage(imageData: avatarImageData), forParameterNamed: \.groupName)
+                    let img = INImage(imageData: avatarImageData)
+                    intent.setImage(img, forParameterNamed: \.speakableGroupName)
                 }
                 let interaction = INInteraction(intent: intent, response: nil)
                 interaction.direction = .outgoing

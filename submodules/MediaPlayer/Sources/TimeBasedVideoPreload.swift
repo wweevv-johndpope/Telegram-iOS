@@ -19,11 +19,11 @@ public func preloadVideoResource(postbox: Postbox, resourceReference: MediaResou
             let signal = sourceImpl.seek(timestamp: 0.0)
             |> deliverOn(queue)
             |> mapToSignal { result -> Signal<Never, MediaFrameSourceSeekError> in
-                let result = result.syncWith({ $0 })
+                let result = result.forcedSyncWith({ $0 })
                 if let videoBuffer = result.buffers.videoBuffer {
                     let impl = source.syncWith({ $0 })
                     
-                    return impl.ensureHasFrames(until: min(duration, videoBuffer.duration.seconds))
+                    return impl!.ensureHasFrames(until: min(duration, videoBuffer.duration.seconds)) //🔥
                     |> ignoreValues
                     |> castError(MediaFrameSourceSeekError.self)
                 } else {

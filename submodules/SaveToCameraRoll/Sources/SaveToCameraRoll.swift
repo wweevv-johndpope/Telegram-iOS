@@ -140,7 +140,7 @@ public func copyToPasteboard(context: AccountContext, postbox: Postbox, mediaRef
         if case let .data(data) = state, data.complete {
             return Signal<Void, NoError> { subscriber in
                 let pasteboard = UIPasteboard.general
-                pasteboard.setPersistent(true)
+//                pasteboard.setPersistent(true)
                 
                 if mediaReference.media is TelegramMediaImage {
                     if let fileData = try? Data(contentsOf: URL(fileURLWithPath: data.path), options: .mappedIfSafe) {

@@ -442,7 +442,7 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
             let frameSourceHolder = self.frameSource
             let useMetalCache = self.useMetalCache
             self.queue.async { [weak self] in
-                var maybeFrameSource: AnimatedStickerFrameSource? = frameSourceHolder.with { $0 }?.syncWith { $0 }.value
+                var maybeFrameSource: AnimatedStickerFrameSource? = frameSourceHolder.with { $0 }?.forcedSyncWith { $0 }.value
                 if maybeFrameSource == nil {
                     let notifyUpdated: (() -> Void)? = nil
                     if let directData = directData {
@@ -479,7 +479,7 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
                 let frameRate = frameSource.frameRate
                 
                 let timer = SwiftSignalKit.Timer(timeout: 1.0 / Double(frameRate), repeat: !firstFrame, completion: {
-                    let frame = frameQueue.syncWith { frameQueue in
+                    let frame = frameQueue.forcedSyncWith { frameQueue in
                         return frameQueue.take(draw: true)
                     }
                     if let frame = frame {
@@ -584,7 +584,7 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
                 let frameRate = frameSource.frameRate
                 
                 let timer = SwiftSignalKit.Timer(timeout: 1.0 / Double(frameRate), repeat: !firstFrame, completion: {
-                    let frame = frameQueue.syncWith { frameQueue in
+                    let frame = frameQueue.forcedSyncWith { frameQueue in
                         return frameQueue.take(draw: true)
                     }
                     if let frame = frame {
@@ -668,7 +668,7 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
         let timerHolder = self.timer
         let useMetalCache = self.useMetalCache
         self.queue.async { [weak self] in
-            var maybeFrameSource: AnimatedStickerFrameSource? = frameSourceHolder.with { $0 }?.syncWith { $0 }.value
+            var maybeFrameSource: AnimatedStickerFrameSource? = frameSourceHolder.with { $0 }?.forcedSyncWith { $0 }.value
             if case .timestamp = position {
             } else {
                 if let directData = directData {
@@ -717,7 +717,7 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
                     delta = frameSource.frameCount + delta
                 }
                 for i in 0 ..< delta {
-                    maybeFrame = frameQueue.syncWith { frameQueue in
+                    maybeFrame = frameQueue.forcedSyncWith { frameQueue in
                         return frameQueue.take(draw: i == delta - 1)
                     }
                 }
@@ -732,12 +732,12 @@ public final class DefaultAnimatedStickerNodeImpl: ASDisplayNode, AnimatedSticke
                     delta = frameSource.frameCount + delta
                 }
                 for i in 0 ..< delta {
-                    maybeFrame = frameQueue.syncWith { frameQueue in
+                    maybeFrame = frameQueue.forcedSyncWith { frameQueue in
                         return frameQueue.take(draw: i == delta - 1)
                     }
                 }
             } else {
-                maybeFrame = frameQueue.syncWith { frameQueue in
+                maybeFrame = frameQueue.forcedSyncWith { frameQueue in
                     return frameQueue.take(draw: true)
                 }
             }

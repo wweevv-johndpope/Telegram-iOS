@@ -629,7 +629,7 @@ public class DrawingContext {
             let srcLine = self.bytes.advanced(by: y * self.bytesPerRow).assumingMemoryBound(to: UInt32.self)
             let pixel = srcLine + x
             let colorValue = pixel.pointee
-            return UIColor(rgb: UInt64(colorValue))
+            return UIColor(rgb: UInt32(colorValue))
         } else {
             return UIColor.clear
         }

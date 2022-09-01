@@ -45,13 +45,7 @@ public final class InAppPurchaseManager: NSObject {
         }
         
         public var isSubscription: Bool {
-            if #available(iOS 12.0, *) {
-                return self.skProduct.subscriptionGroupIdentifier != nil
-            } else if #available(iOS 11.2, *) {
-                return self.skProduct.subscriptionPeriod != nil
-            } else {
-                return self.id.contains(".monthly")
-            }
+            return self.skProduct.subscriptionGroupIdentifier != nil
         }
         
         public var price: String {
