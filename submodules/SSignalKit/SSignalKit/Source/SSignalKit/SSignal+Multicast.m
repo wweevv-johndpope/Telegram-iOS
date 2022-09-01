@@ -28,6 +28,7 @@ typedef enum {
     if (self != nil)
     {
         _subscribers = [[SBag alloc] init];
+        _lock = OS_UNFAIR_LOCK_INIT;
     }
     return self;
 }

@@ -31,8 +31,9 @@ extension UIKeyModifierFlags: Hashable {
 
 extension KeyShortcut {
     var uiKeyCommand: UIKeyCommand {
-        let command = UIKeyCommand(input: self.input, modifierFlags: self.modifiers, action: #selector(KeyShortcutsController.handleKeyCommand(_:)), discoverabilityTitle: self.title)
-        if #available(iOS 13.0, *), ["\t", UIKeyCommand.inputUpArrow, UIKeyCommand.inputDownArrow, UIKeyCommand.inputLeftArrow, UIKeyCommand.inputRightArrow].contains(command.input) && self.modifiers.isEmpty {
+        let command = UIKeyCommand(title: self.title, image: nil, action: #selector(KeyShortcutsController.handleKeyCommand(_:)), input: self.input, modifierFlags: self.modifiers, propertyList: nil, alternates: [], discoverabilityTitle: self.title, attributes: [], state: .on)
+       // let command = UIKeyCommand(input: self.input, modifierFlags: self.modifiers, action: #selector(KeyShortcutsController.handleKeyCommand(_:)), discoverabilityTitle: self.title)
+        if #available(iOS 15.0, *), ["\t", UIKeyCommand.inputUpArrow, UIKeyCommand.inputDownArrow, UIKeyCommand.inputLeftArrow, UIKeyCommand.inputRightArrow].contains(command.input) && self.modifiers.isEmpty {
             command.wantsPriorityOverSystemBehavior = true
         }
         return command

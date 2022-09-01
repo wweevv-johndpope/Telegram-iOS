@@ -2544,7 +2544,9 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
         for operation in operations {
             switch operation {
                 case let .InsertNode(index, offsetDirection, nodeAnimated, nodeObject, layout, apply):
-                    let node = nodeObject.syncWith({ $0 })
+                guard let node = nodeObject.syncWith({ $0 })else{
+                    return
+                }
                     var previousFrame: CGRect?
                     for (previousNode, frame) in previousApparentFrames {
                         if previousNode === node {
@@ -2608,7 +2610,10 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
                     var height: CGFloat?
                     var previousLayout: ListViewItemNodeLayout?
                     
-                    let referenceNode = referenceNodeObject.syncWith({ $0 })
+                guard let referenceNode = referenceNodeObject.syncWith({ $0 })else {
+                    return
+                }
+                
                     hadChangesToItemNodes = true
                     
                     for (node, previousFrame) in previousApparentFrames {

@@ -79,13 +79,14 @@ public extension UIColor {
         self.init(red: CGFloat((argb >> 16) & 0xff) / 255.0, green: CGFloat((argb >> 8) & 0xff) / 255.0, blue: CGFloat(argb & 0xff) / 255.0, alpha: CGFloat((argb >> 24) & 0xff) / 255.0)
     }
     
+   
     convenience init?(hexString: String) {
         let scanner = Scanner(string: hexString)
         if hexString.hasPrefix("#") {
-            scanner.scanLocation = 1
+            scanner.currentIndex = scanner.string.index(after: scanner.currentIndex)
         }
-        var value: UInt32 = 0
-        if scanner.scanHexInt32(&value) {
+        var value: UInt64 = 0
+        if scanner.scanHexInt64(&value) {
             if hexString.count > 7 {
                 self.init(argb: value)
             } else {

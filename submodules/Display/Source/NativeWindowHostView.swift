@@ -204,10 +204,11 @@ private final class WindowRootViewController: UIViewController, UIViewController
             }
             if let (result, resultPoint) = tracePreviewingHostView(view: result, point: self.view.convert(location, to: result)), let delegate = result.previewingDelegate {
                 self.previousPreviewingHostView = result
-                if let (controller, rect) = delegate.controllerForLocation(previewingContext.sourceView, resultPoint) {
-                    previewingContext.sourceRect = rect
-                    return controller
-                }
+                // 🔥 BROKEN - FIX
+//                if let (controller, rect) = delegate.controllerForLocation(previewingContext.sourceView, resultPoint) {
+//                    previewingContext.sourceRect = rect
+//                    return controller
+//                }
             }
         }
         return nil
