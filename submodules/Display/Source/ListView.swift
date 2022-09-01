@@ -1628,7 +1628,10 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
             }
             
             if let controlledTransition = controlledTransition {
-                previousNode.syncWith({ $0 }).addPendingControlledTransition(transition: controlledTransition)
+                if let node = previousNode.syncWith({ $0 }){
+                    node.addPendingControlledTransition(transition: controlledTransition)
+                }
+                   
             }
             
             item.updateNode(async: { f in
@@ -1639,7 +1642,9 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
                 }
             }, node: {
                 assert(Queue.mainQueue().isCurrent())
-                return previousNode.syncWith({ $0 })
+                return previousNode.syncWith({ $0 })! //🔥
+                
+               
             }, params: params, previousItem: previousItem, nextItem: nextItem, animation: updateAnimation, completion: { (layout, apply) in
                 if Thread.isMainThread {
                     if synchronous {
@@ -2091,7 +2096,8 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
                         }
                         
                         if let controlledTransition = controlledTransition {
-                            referenceNode.syncWith({ $0 }).addPendingControlledTransition(transition: controlledTransition)
+                           
+                            referenceNode.syncWith({ $0 })!.addPendingControlledTransition(transition: controlledTransition) //🔥
                         }
                         
                         self.items[index].updateNode(async: { f in
@@ -2102,7 +2108,7 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
                             }
                         }, node: {
                             assert(Queue.mainQueue().isCurrent())
-                            return referenceNode.syncWith({ $0 })
+                            return referenceNode.syncWith({ $0 })! //🔥
                         }, params: ListViewItemLayoutParams(width: state.visibleSize.width, leftInset: state.insets.left, rightInset: state.insets.right, availableHeight: state.visibleSize.height - state.insets.top - state.insets.bottom), previousItem: index == 0 ? nil : self.items[index - 1], nextItem: index == self.items.count - 1 ? nil : self.items[index + 1], animation: updateAnimation, completion: { layout, apply in
                             var updatedState = state
                             var updatedOperations = operations
@@ -2531,7 +2537,7 @@ open class ListView: ASDisplayNode, UIScrollViewAccessibilityDelegate, UIGesture
         var takenPreviousNodes = Set<ListViewItemNode>()
         for operation in operations {
             if case let .InsertNode(_, _, _, node, _, _) = operation {
-                takenPreviousNodes.insert(node.syncWith({ $0 }))
+                takenPreviousNodes.insert(node.syncWith({ $0 })!)
             }
         }
         

@@ -117,10 +117,10 @@ public final class ActivityIndicator: ASDisplayNode {
         let indicatorView: UIActivityIndicatorView
         switch self.type {
         case let .navigationAccent(color):
-            indicatorView = UIActivityIndicatorView(style: .whiteLarge)
+            indicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
             indicatorView.color = color
-        case let .custom(color, diameter, _, forceCustom):
-            indicatorView = UIActivityIndicatorView(style: diameter < 15.0 ? .white : .whiteLarge)
+        case let .custom(color, _, _, forceCustom):
+            indicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large) //🔥
             indicatorView.color = convertIndicatorColor(color)
             if !forceCustom {
                 self.view.addSubview(indicatorView)

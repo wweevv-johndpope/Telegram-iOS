@@ -363,8 +363,9 @@ NSString *const PGCameraAdjustingFocusKey = @"adjustingFocus";
     
     [[PGCamera cameraQueue] dispatch:^
     {
-        if (!self.captureSession.isRunning || self.captureSession.imageOutput.isCapturingStillImage || _invalidated)
+        if (!self.captureSession.isRunning  || _invalidated)
             return;
+        //|| self.captureSession.imageOutput.isCapturingStillImage 🔥
         
         void (^takePhoto)(void) = ^
         {
@@ -376,34 +377,34 @@ NSString *const PGCameraAdjustingFocusKey = @"adjustingFocus";
                 orientation = self.requestedCurrentInterfaceOrientation(NULL);
             
             [imageConnection setVideoOrientation:[PGCamera _videoOrientationForInterfaceOrientation:orientation mirrored:false]];
-            
-            [self.captureSession.imageOutput captureStillImageAsynchronouslyFromConnection:self.captureSession.imageOutput.connections.firstObject completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
-            {
-                if (imageDataSampleBuffer != NULL && error == nil)
-                {
-                    NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                    UIImage *image = [[UIImage alloc] initWithData:imageData];
-                    
-                    if (self.cameraMode == PGCameraModeSquarePhoto || self.cameraMode == PGCameraModeSquareVideo || self.cameraMode == PGCameraModeSquareSwing)
-                    {
-                        CGFloat shorterSide = MIN(image.size.width, image.size.height);
-                        CGFloat longerSide = MAX(image.size.width, image.size.height);
-                        
-                        CGRect cropRect = CGRectMake(CGFloor((longerSide - shorterSide) / 2.0f), 0, shorterSide, shorterSide);
-                        CGImageRef croppedCGImage = CGImageCreateWithImageInRect(image.CGImage, cropRect);
-                        image = [UIImage imageWithCGImage:croppedCGImage scale:image.scale orientation:image.imageOrientation];
-                        CGImageRelease(croppedCGImage);
-                    }
-                    
-                    PGCameraShotMetadata *metadata = [[PGCameraShotMetadata alloc] init];
-                    metadata.deviceAngle = [PGCameraShotMetadata relativeDeviceAngleFromAngle:_deviceAngleSampler.currentDeviceAngle orientation:orientation];
-                    
-                    image = [self normalizeImageOrientation:image];
-                    
-                    if (completion != nil)
-                        completion(image, metadata);
-                }
-            }];
+//            🔥
+//            [self.captureSession.imageOutput captureStillImageAsynchronouslyFromConnection:self.captureSession.imageOutput.connections.firstObject completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error)
+//            {
+//                if (imageDataSampleBuffer != NULL && error == nil)
+//                {
+//                    NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+//                    UIImage *image = [[UIImage alloc] initWithData:imageData];
+//
+//                    if (self.cameraMode == PGCameraModeSquarePhoto || self.cameraMode == PGCameraModeSquareVideo || self.cameraMode == PGCameraModeSquareSwing)
+//                    {
+//                        CGFloat shorterSide = MIN(image.size.width, image.size.height);
+//                        CGFloat longerSide = MAX(image.size.width, image.size.height);
+//
+//                        CGRect cropRect = CGRectMake(CGFloor((longerSide - shorterSide) / 2.0f), 0, shorterSide, shorterSide);
+//                        CGImageRef croppedCGImage = CGImageCreateWithImageInRect(image.CGImage, cropRect);
+//                        image = [UIImage imageWithCGImage:croppedCGImage scale:image.scale orientation:image.imageOrientation];
+//                        CGImageRelease(croppedCGImage);
+//                    }
+//
+//                    PGCameraShotMetadata *metadata = [[PGCameraShotMetadata alloc] init];
+//                    metadata.deviceAngle = [PGCameraShotMetadata relativeDeviceAngleFromAngle:_deviceAngleSampler.currentDeviceAngle orientation:orientation];
+//
+//                    image = [self normalizeImageOrientation:image];
+//
+//                    if (completion != nil)
+//                        completion(image, metadata);
+//                }
+//            }];
         };
         
         NSTimeInterval delta = CFAbsoluteTimeGetCurrent() - _captureStartTime;

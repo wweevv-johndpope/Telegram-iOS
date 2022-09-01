@@ -8,7 +8,7 @@
 @interface PGCameraCaptureSession : AVCaptureSession
 
 @property (nonatomic, readonly) AVCaptureDevice *videoDevice;
-@property (nonatomic, readonly) AVCaptureStillImageOutput *imageOutput;
+@property (nonatomic, readonly) AVCapturePhotoOutput *imageOutput;
 @property (nonatomic, readonly) AVCaptureVideoDataOutput *videoOutput;
 @property (nonatomic, readonly) AVCaptureAudioDataOutput *audioOutput;
 @property (nonatomic, readonly) AVCaptureMetadataOutput *metadataOutput;

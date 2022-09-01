@@ -67,17 +67,32 @@ public func ceilToScreenPixels(_ value: CGFloat) -> CGFloat {
 public let UIScreenPixel = 1.0 / UIScreenScale
 
 public extension UIColor {
-    convenience init(rgb: UInt32) {
-        self.init(red: CGFloat((rgb >> 16) & 0xff) / 255.0, green: CGFloat((rgb >> 8) & 0xff) / 255.0, blue: CGFloat(rgb & 0xff) / 255.0, alpha: 1.0)
-    }
-    
-    convenience init(rgb: UInt32, alpha: CGFloat) {
-        self.init(red: CGFloat((rgb >> 16) & 0xff) / 255.0, green: CGFloat((rgb >> 8) & 0xff) / 255.0, blue: CGFloat(rgb & 0xff) / 255.0, alpha: alpha)
-    }
-    
-    convenience init(argb: UInt32) {
-        self.init(red: CGFloat((argb >> 16) & 0xff) / 255.0, green: CGFloat((argb >> 8) & 0xff) / 255.0, blue: CGFloat(argb & 0xff) / 255.0, alpha: CGFloat((argb >> 24) & 0xff) / 255.0)
-    }
+    convenience init(rgb: UInt64) {
+            self.init(
+                red: CGFloat((rgb >> 16) & 0xff) / 255.0,
+                green: CGFloat((rgb >> 8) & 0xff) / 255.0,
+                blue: CGFloat(rgb & 0xff) / 255.0,
+                alpha: 1.0
+            )
+        }
+
+        convenience init(rgb: UInt64, alpha: CGFloat) {
+            self.init(
+                red: CGFloat((rgb >> 16) & 0xff) / 255.0,
+                green: CGFloat((rgb >> 8) & 0xff) / 255.0,
+                blue: CGFloat(rgb & 0xff) / 255.0,
+                alpha: alpha
+            )
+        }
+
+        convenience init(argb: UInt64) {
+            self.init(
+                red: CGFloat((argb >> 16) & 0xff) / 255.0,
+                green: CGFloat((argb >> 8) & 0xff) / 255.0,
+                blue: CGFloat(argb & 0xff) / 255.0,
+                alpha: CGFloat((argb >> 24) & 0xff) / 255.0
+            )
+        }
     
    
     convenience init?(hexString: String) {

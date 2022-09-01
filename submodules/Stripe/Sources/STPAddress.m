@@ -91,16 +91,16 @@
                                                    countryCode:self.country]);
 }
 
-+ (PKAddressField)applePayAddressFieldsFromBillingAddressFields:(STPBillingAddressFields)billingAddressFields {
-    FAUXPAS_IGNORED_IN_METHOD(APIAvailability);
-    switch (billingAddressFields) {
-        case STPBillingAddressFieldsNone:
-            return PKAddressFieldNone;
-        case STPBillingAddressFieldsZip:
-        case STPBillingAddressFieldsFull:
-            return PKAddressFieldPostalAddress;
-    }
-}
+//+ (PKAddressField)applePayAddressFieldsFromBillingAddressFields:(STPBillingAddressFields)billingAddressFields {
+//    FAUXPAS_IGNORED_IN_METHOD(APIAvailability);
+//    switch (billingAddressFields) {
+//        case STPBillingAddressFieldsNone:
+//            return PKAddressFieldNone;
+//        case STPBillingAddressFieldsZip:
+//        case STPBillingAddressFieldsFull:
+//            return PKAddressFieldPostalAddress;
+//    }
+//}
 
 @end
 

@@ -198,19 +198,19 @@ private final class WindowRootViewController: UIViewController, UIViewController
         if UIAccessibility.isVoiceOverRunning {
             return nil
         }
-        if #available(iOSApplicationExtension 9.0, iOS 9.0, *) {
-            guard let result = self.view.hitTest(location, with: nil) else {
-                return nil
-            }
-            if let (result, resultPoint) = tracePreviewingHostView(view: result, point: self.view.convert(location, to: result)), let delegate = result.previewingDelegate {
-                self.previousPreviewingHostView = result
+//        if #available(iOSApplicationExtension 9.0, iOS 9.0, *) {
+//            guard let result = self.view.hitTest(location, with: nil) else {
+//                return nil
+//            }
+//            if let (result, resultPoint) = tracePreviewingHostView(view: result, point: self.view.convert(location, to: result)), let delegate = result.previewingDelegate {
+//                self.previousPreviewingHostView = result
                 // 🔥 BROKEN - FIX
 //                if let (controller, rect) = delegate.controllerForLocation(previewingContext.sourceView, resultPoint) {
 //                    previewingContext.sourceRect = rect
 //                    return controller
 //                }
-            }
-        }
+//            }
+//        }
         return nil
     }
     
