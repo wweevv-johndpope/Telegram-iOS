@@ -92,7 +92,7 @@ private class ApplicationStatusBarHost: StatusBarHost {
     
     var statusBarFrame: CGRect {
         let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-        if let statusBarFrame=   window?.windowScene?.statusBarManager?.statusBarFrame{
+        if let statusBarFrame =  window?.windowScene?.statusBarManager?.statusBarFrame{
             return statusBarFrame
         }else{
             return .zero
@@ -106,7 +106,7 @@ private class ApplicationStatusBarHost: StatusBarHost {
                 return statusBarStyle
                 
             }else{
-                return UIStatusBarStyleLightContent
+                return UIStatusBarStyle.lightContent
             }
         } set(value) {
             self.setStatusBarStyle(value, animated: false)
