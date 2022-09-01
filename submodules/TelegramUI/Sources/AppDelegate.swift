@@ -91,14 +91,13 @@ private class ApplicationStatusBarHost: StatusBarHost {
     }
     
     var statusBarFrame: CGRect {
-        if let rect = self.window?.windowScene?.statusBarManager?.statusBarFrame{
-            return rect
-        }
-        return .zero
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        window.statusBarManager.statusBarFrame
     }
     var statusBarStyle: UIStatusBarStyle {
         get {
-            return self.application.statusBarStyle
+            let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+            window.statusBarManager.statusBarStyle
         } set(value) {
             self.setStatusBarStyle(value, animated: false)
         }
@@ -1451,11 +1450,11 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         })
     }
     
-    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
-        if (application.applicationState == .inactive) {
-            Logger.shared.log("App \(self.episodeId)", "tap local notification \(String(describing: notification.userInfo)), applicationState \(application.applicationState)")
-        }
-    }
+//    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+//        if (application.applicationState == .inactive) {
+//            Logger.shared.log("App \(self.episodeId)", "tap local notification \(String(describing: notification.userInfo)), applicationState \(application.applicationState)")
+//        }
+//    }
 
     public func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials: PKPushCredentials, for type: PKPushType) {
         if #available(iOS 9.0, *) {

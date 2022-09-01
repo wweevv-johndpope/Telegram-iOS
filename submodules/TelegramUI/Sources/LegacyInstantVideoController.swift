@@ -188,7 +188,9 @@ func legacyInstantVideoController(theme: PresentationTheme, panelFrame: CGRect, 
                         finalDuration = adjustments.trimEndValue - adjustments.trimStartValue
                     }
                     
-                    let adjustmentsData = MemoryBuffer(data: NSKeyedArchiver.archivedData(withRootObject: adjustments.dictionary()!))
+                    let data  =  try! NSKeyedArchiver.archivedData(withRootObject: adjustments.dictionary()!, requiringSecureCoding: false) //🔥
+
+                    let adjustmentsData = MemoryBuffer(data: data)
                     let digest = MemoryBuffer(data: adjustmentsData.md5Digest())
                     resourceAdjustments = VideoMediaResourceAdjustments(data: adjustmentsData, digest: digest)
                 }

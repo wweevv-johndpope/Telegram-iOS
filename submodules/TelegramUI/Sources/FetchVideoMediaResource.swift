@@ -252,7 +252,8 @@ public func fetchVideoLibraryMediaResource(account: Account, resource: VideoLibr
                             }
                         case let .compress(adjustmentsValue):
                             if let adjustmentsValue = adjustmentsValue {
-                                if let dict = NSKeyedUnarchiver.unarchiveObject(with: adjustmentsValue.data.makeData()) as? [AnyHashable : Any] {
+                                let test = adjustmentsValue.data.makeData()
+                                if let dict = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData( test) as?  [AnyHashable : Any]   {
                                     adjustments = TGVideoEditAdjustments(dictionary: dict)
                                 }
                             }
@@ -338,7 +339,8 @@ func fetchLocalFileVideoMediaResource(account: Account, resource: LocalFileVideo
             let avAsset = AVURLAsset(url: URL(fileURLWithPath: filteredPath))
             var adjustments: TGVideoEditAdjustments?
             if let videoAdjustments = resource.adjustments {
-                if let dict = NSKeyedUnarchiver.unarchiveObject(with: videoAdjustments.data.makeData()) as? [AnyHashable : Any] {
+                if let dict = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData( videoAdjustments.data.makeData()) as?  [AnyHashable : Any]   {
+                
                     adjustments = TGVideoEditAdjustments(dictionary: dict)
                 }
             }
@@ -480,9 +482,14 @@ public func fetchVideoLibraryMediaResourceHash(resource: VideoLibraryMediaResour
                         adjustments = nil
                     case let .compress(adjustmentsValue):
                         if let adjustmentsValue = adjustmentsValue {
-                            if let dict = NSKeyedUnarchiver.unarchiveObject(with: adjustmentsValue.data.makeData()) as? [AnyHashable : Any] {
-                                adjustments = TGVideoEditAdjustments(dictionary: dict)
-                            }
+                         
+                            
+                              if let dict = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData( adjustmentsValue.data.makeData()) as?  [AnyHashable : Any]   {
+                             
+                                  adjustments = TGVideoEditAdjustments(dictionary: dict)
+                              }
+                            
+                         
                         }
                 }
                 let signal = TGMediaVideoConverter.hash(for: avAsset, adjustments: adjustments)!
