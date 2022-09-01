@@ -1068,8 +1068,10 @@ class Keychain: NSObject, MTKeychain {
             return
         }
         MTContext.perform(objCTry: {
-            let data = NSKeyedArchiver.archivedData(withRootObject: object)
-            self.set(group + ":" + aKey, data)
+            if let data =  try? NSKeyedArchiver.archivedData(withRootObject:object, requiringSecureCoding: false)
+            {
+                self.set(group + ":" + aKey, data)
+            }
         })
     }
     
@@ -1080,7 +1082,7 @@ class Keychain: NSObject, MTKeychain {
         if let data = self.get(group + ":" + aKey) {
             var result: Any?
             MTContext.perform(objCTry: {
-                result = NSKeyedUnarchiver.unarchiveObject(with: data as Data)
+               result =  try? NSKeyedArchiver.archivedData(withRootObject:data, requiringSecureCoding: false)
             })
             return result
         }

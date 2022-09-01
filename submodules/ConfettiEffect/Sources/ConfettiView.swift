@@ -53,7 +53,7 @@ public final class ConfettiView: UIView {
             0xCD89D0,
             0x1E9AFF,
             0xFF8724
-        ] as [UInt32]).map(UIColor.init(rgb:))
+        ] as [UInt64]).map(UIColor.init(rgb:))
         let imageSize = CGSize(width: 8.0, height: 8.0)
         var images: [(CGImage, CGSize)] = []
         for imageType in 0 ..< 2 {

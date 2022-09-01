@@ -210,9 +210,11 @@ public func accountWithId(accountManager: AccountManager<TelegramAccountManagerT
                                 )!, forKey: id as NSNumber)
                             }
                             
-                            let data = NSKeyedArchiver.archivedData(withRootObject: dict)
-                            transaction.setState(backupState)
-                            transaction.setKeychainEntry(data, forKey: "persistent:datacenterAuthInfoById")
+                            if let data = try? NSKeyedArchiver.archivedData(withRootObject: dict, requiringSecureCoding: false) //🔥 false or true?
+                            {
+                                transaction.setState(backupState)
+                                transaction.setKeychainEntry(data, forKey: "persistent:datacenterAuthInfoById")
+                            }
                         }
                         
                         return (state, localizationSettings, proxySettings, transaction.getPreferencesEntry(key: PreferencesKeys.networkSettings)?.get(NetworkSettings.self))

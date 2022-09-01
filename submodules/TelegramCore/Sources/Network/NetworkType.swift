@@ -83,14 +83,14 @@ private final class NetworkTypeManagerImpl {
         
         #if os(iOS)
         let telephonyInfo = CTTelephonyNetworkInfo()
-        let accessTechnology = telephonyInfo.currentRadioAccessTechnology ?? ""
+        let accessTechnology = telephonyInfo.serviceCurrentRadioAccessTechnology
         self.currentCellularType = CellularNetworkType(accessTechnology: accessTechnology)
         self.cellularTypeObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.CTRadioAccessTechnologyDidChange, object: nil, queue: nil, using: { [weak self] notification in
             queue.async {
                 guard let strongSelf = self else {
                     return
                 }
-                let accessTechnology = telephonyInfo.currentRadioAccessTechnology ?? ""
+                let accessTechnology = telephonyInfo.serviceCurrentRadioAccessTechnology  
                 let cellularType = CellularNetworkType(accessTechnology: accessTechnology)
                 if strongSelf.currentCellularType != cellularType {
                     strongSelf.currentCellularType = cellularType
