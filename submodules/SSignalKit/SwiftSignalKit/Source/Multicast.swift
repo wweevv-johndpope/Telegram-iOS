@@ -47,7 +47,6 @@ public final class Multicast<T> {
                     for subscriber in subscribers {
                         subscriber(next)
                     }
-                }, error: { _ in
                 }, completed: {
                     self.lock.locked {
                         self.instances.removeValue(forKey: key)

@@ -1,4 +1,3 @@
-
 objc_library(
     name = "MtProtoKit",
     enable_modules = True,
@@ -7,9 +6,7 @@ objc_library(
         "Sources/**/*.m",
         "Sources/**/*.h",
     ]),
-    copts = [
-        "-Werror",
-    ],
+    
     hdrs = glob([
         "PublicHeaders/**/*.h",
     ]),
@@ -31,4 +28,5 @@ objc_library(
     visibility = [
         "//visibility:public",
     ],
+
 )

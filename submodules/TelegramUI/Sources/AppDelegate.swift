@@ -36,7 +36,7 @@ import UIKitRuntimeUtils
 import StoreKit
 //import FirebaseAuth
 //import FirebaseAnalytics
-import FirebaseCore
+//import FirebaseCore
 
 
 #if canImport(AppCenter)
@@ -1276,17 +1276,17 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         }
         #endif
         
-        
-        let  plistName  = "GoogleService-Info"
-               guard let plistPath = Bundle.main.path(forResource: plistName, ofType: "plist") else {
-                   fatalError("Location to GoogleService failed")
-               }
-
-               guard let options = FirebaseOptions(contentsOfFile: plistPath) else {
-                   fatalError("FirebaseOptions failed")
-               }
-        
-        FirebaseApp.configure(options: options)
+//
+//        let  plistName  = "GoogleService-Info"
+//               guard let plistPath = Bundle.main.path(forResource: plistName, ofType: "plist") else {
+//                   fatalError("Location to GoogleService failed")
+//               }
+//
+//               guard let options = FirebaseOptions(contentsOfFile: plistPath) else {
+//                   fatalError("FirebaseOptions failed")
+//               }
+//
+//        FirebaseApp.configure(options: options)
         
         return true
     }

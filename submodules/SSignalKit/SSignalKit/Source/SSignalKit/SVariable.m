@@ -6,10 +6,11 @@
 #import "SBag.h"
 #import "SBlockDisposable.h"
 #import "SMetaDisposable.h"
+#import <os/lock.h>
 
 @interface SVariable ()
 {
-    OSSpinLock _lock;
+    os_unfair_lock _lock;
     id _value;
     bool _hasValue;
     SBag *_subscribers;
@@ -40,14 +41,14 @@
 {
     return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
     {
-        OSSpinLockLock(&self->_lock);
+        os_unfair_lock_lock(&self->_lock);
         id currentValue = _value;
         bool hasValue = _hasValue;
         NSInteger index = [self->_subscribers addItem:[^(id value)
         {
             [subscriber putNext:value];
         } copy]];
-        OSSpinLockUnlock(&self->_lock);
+        os_unfair_lock_unlock(&self->_lock);
         
         if (hasValue)
         {
@@ -56,18 +57,18 @@
         
         return [[SBlockDisposable alloc] initWithBlock:^
         {
-            OSSpinLockLock(&self->_lock);
+            os_unfair_lock_lock(&self->_lock);
             [self->_subscribers removeItem:index];
-            OSSpinLockUnlock(&self->_lock);
+            os_unfair_lock_unlock(&self->_lock);
         }];
     }];
 }
 
 - (void)set:(SSignal *)signal
 {
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     _hasValue = false;
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
     
     __weak SVariable *weakSelf = self;
     [_disposable setDisposable:[signal startWithNext:^(id next)
@@ -76,11 +77,11 @@
         if (strongSelf != nil)
         {
             NSArray *subscribers = nil;
-            OSSpinLockLock(&strongSelf->_lock);
+            os_unfair_lock_lock(&strongSelf->_lock);
             strongSelf->_value = next;
             strongSelf->_hasValue = true;
             subscribers = [strongSelf->_subscribers copyItems];
-            OSSpinLockUnlock(&strongSelf->_lock);
+            os_unfair_lock_unlock(&strongSelf->_lock);
             
             for (void (^subscriber)(id) in subscribers)
             {

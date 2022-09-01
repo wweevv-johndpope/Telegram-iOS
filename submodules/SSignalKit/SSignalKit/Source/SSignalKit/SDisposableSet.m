@@ -3,10 +3,11 @@
 #import "SSignal.h"
 
 #import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
 @interface SDisposableSet ()
 {
-    OSSpinLock _lock;
+    os_unfair_lock _lock;
     bool _disposed;
     id<SDisposable> _singleDisposable;
     NSArray *_multipleDisposables;
@@ -23,7 +24,7 @@
     
     bool dispose = false;
     
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     dispose = _disposed;
     if (!dispose)
     {
@@ -44,14 +45,14 @@
             _singleDisposable = disposable;
         }
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
     
     if (dispose)
         [disposable dispose];
 }
 
 - (void)remove:(id<SDisposable>)disposable {
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (_multipleDisposables != nil)
     {
         NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
@@ -62,7 +63,7 @@
     {
         _singleDisposable = nil;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 }
 
 - (void)dispose
@@ -70,7 +71,7 @@
     id<SDisposable> singleDisposable = nil;
     NSArray *multipleDisposables = nil;
     
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_disposed)
     {
         _disposed = true;
@@ -79,7 +80,7 @@
         _singleDisposable = nil;
         _multipleDisposables = nil;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
     
     if (singleDisposable != nil)
         [singleDisposable dispose];

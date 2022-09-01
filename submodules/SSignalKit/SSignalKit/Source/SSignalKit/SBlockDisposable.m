@@ -2,6 +2,7 @@
 
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
+#import <stdatomic.h>
 
 @interface SBlockDisposable ()
 {
@@ -27,7 +28,7 @@
     void *block = _block;
     if (block != NULL)
     {
-        if (OSAtomicCompareAndSwapPtr(block, 0, &_block))
+//        if (atomic_compare_exchange_weak(block, 0, &_block)
         {
             if (block != nil)
             {
@@ -43,7 +44,7 @@
     void *block = _block;
     if (block != NULL)
     {
-        if (OSAtomicCompareAndSwapPtr(block, 0, &_block))
+//        if (atomic_compare_exchange_weak(block, 0, &_block))
         {
             if (block != nil)
             {

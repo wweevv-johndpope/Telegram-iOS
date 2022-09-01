@@ -12,7 +12,7 @@ public final class ThreadPoolTask {
         self.action = action
     }
     
-    public func execute() {
+    func execute() {
         if !state.cancelled.with({ $0 })  {
             self.action(self.state)
         }

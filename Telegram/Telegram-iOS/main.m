@@ -1,6 +1,9 @@
 #import <UIKit/UIKit.h>
 #import <dlfcn.h>
 
+
+// NSData+Compress.h
+
 int main(int argc, char *argv[]) {
     /*NSString *basePath = [[NSString stringWithUTF8String:argv[0]] stringByDeletingLastPathComponent];
     void *Share = dlopen([[basePath stringByAppendingPathComponent:@"PlugIns/Share.appex/Share"] UTF8String], RTLD_LAZY);
@@ -11,6 +14,8 @@ int main(int argc, char *argv[]) {
     void *Widget = dlopen([[basePath stringByAppendingPathComponent:@"PlugIns/Widget.appex/Widget"] UTF8String], RTLD_LAZY);
      1*/
     
+  
+
     @autoreleasepool {
         return UIApplicationMain(argc, argv, @"Application", @"AppDelegate");
     }

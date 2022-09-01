@@ -17,7 +17,7 @@ public func geocodeLocation(address: String) -> Signal<[CLPlacemark]?, NoError> 
 
 public func geocodeLocation(dictionary: [String: String]) -> Signal<(Double, Double)?, NoError> {
     return Signal { subscriber in
-        let geocoder = CLGeocoder()
+       /* let geocoder = CLGeocoder()
         geocoder.geocodeAddressDictionary(dictionary, completionHandler: { placemarks, _ in
             if let location = placemarks?.first?.location {
                 subscriber.putNext((location.coordinate.latitude, location.coordinate.longitude))
@@ -28,8 +28,12 @@ public func geocodeLocation(dictionary: [String: String]) -> Signal<(Double, Dou
         })
         return ActionDisposable {
             geocoder.cancelGeocode()
+        }*/
+        return ActionDisposable {
+         
         }
     }
+  
 }
 
 public struct ReverseGeocodedPlacemark {

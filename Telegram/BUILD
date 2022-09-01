@@ -324,6 +324,11 @@ objc_library(
     srcs = [
         "Telegram-iOS/main.m"
     ],
+    deps = [
+        "//third-party/boringssl:crypto",
+  
+       
+    ],
 )
 
 swift_library(
@@ -754,7 +759,7 @@ ios_framework(
         ":BuildNumberInfoPlist",
         ":VersionInfoPlist",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -794,7 +799,7 @@ ios_framework(
         ":BuildNumberInfoPlist",
         ":VersionInfoPlist",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -837,7 +842,7 @@ ios_framework(
     frameworks = [
         ":SwiftSignalKitFramework",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -877,7 +882,7 @@ ios_framework(
         ":BuildNumberInfoPlist",
         ":VersionInfoPlist",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -922,7 +927,7 @@ ios_framework(
         ":SwiftSignalKitFramework",
         ":PostboxFramework",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -962,7 +967,7 @@ ios_framework(
         ":BuildNumberInfoPlist",
         ":VersionInfoPlist",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -1049,7 +1054,7 @@ ios_framework(
         ":SwiftSignalKitFramework",
         ":AsyncDisplayKitFramework",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -1097,7 +1102,7 @@ ios_framework(
         ":AsyncDisplayKitFramework",
         ":DisplayFramework",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     extension_safe = True,
     ipa_post_processor = strip_framework,
     deps = [
@@ -1184,7 +1189,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
         "//conditions:default": "@build_configuration//provisioning:Share.mobileprovision",
@@ -1289,7 +1294,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0", # maintain the same minimum OS version across extensions
+    minimum_os_version = "13.0", # maintain the same minimum OS version across extensions
     ipa_post_processor = ":SetMinOsVersionNotificationContentExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -1393,7 +1398,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0", # maintain the same minimum OS version across extensions
+    minimum_os_version = "13.0", # maintain the same minimum OS version across extensions
     ipa_post_processor = ":SetMinOsVersionWidgetExtension",
     #provides_main = True,
     provisioning_profile = select({
@@ -1526,7 +1531,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0", # maintain the same minimum OS version across extensions
+    minimum_os_version = "13.0", # maintain the same minimum OS version across extensions
     ipa_post_processor = ":SetMinOsVersionIntentsExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -1620,7 +1625,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0", # maintain the same minimum OS version across extensions
+    minimum_os_version = "13.0", # maintain the same minimum OS version across extensions
     ipa_post_processor = ":SetMinOsVersionBroadcastUploadExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -1699,7 +1704,7 @@ ios_extension(
         ":BuildNumberInfoPlist",
         ":AppNameInfoPlist",
     ],
-    minimum_os_version = "9.0", # maintain the same minimum OS version across extensions
+    minimum_os_version = "13.0", # maintain the same minimum OS version across extensions
     ipa_post_processor = ":SetMinOsVersionNotificationServiceExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -1898,7 +1903,7 @@ ios_application(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = ["iphone", "ipad"],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
         "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
@@ -1960,7 +1965,7 @@ ios_application(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = ["iphone", "ipad"],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
         "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
@@ -1983,7 +1988,7 @@ ios_application(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = ["iphone", "ipad"],
-    minimum_os_version = "9.0",
+    minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
         "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",

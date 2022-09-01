@@ -43,7 +43,11 @@ public enum Passthrough<T> {
 }
 
 private final class ReduceQueueState<T, E> : Disposable {
-    var lock: OSSpinLock = 0
+    var lock: UnsafeMutablePointer<os_unfair_lock> = {
+        let pointer = UnsafeMutablePointer<os_unfair_lock>.allocate(capacity: 1)
+        pointer.initialize(to: os_unfair_lock())
+        return pointer
+    }()
     var executingSignal = false
     var terminated = false
     
@@ -68,7 +72,7 @@ private final class ReduceQueueState<T, E> : Disposable {
     func enqueueNext(_ next: T) {
         var startSignal = false
         var currentValue: T
-        OSSpinLockLock(&self.lock)
+        os_unfair_lock_lock(lock)
         currentValue = self.value
         if self.executingSignal {
             self.queuedValues.append(next)
@@ -76,7 +80,7 @@ private final class ReduceQueueState<T, E> : Disposable {
             self.executingSignal = true
             startSignal = true
         }
-        OSSpinLockUnlock(&self.lock)
+        os_unfair_lock_unlock(lock)
         
         if startSignal {
             let disposable = generator(currentValue, next).start(next: { next in
@@ -97,9 +101,9 @@ private final class ReduceQueueState<T, E> : Disposable {
     }
     
     func updateValue(_ value: T) {
-        OSSpinLockLock(&self.lock)
+        os_unfair_lock_lock(lock)
         self.value = value
-        OSSpinLockUnlock(&self.lock)
+        os_unfair_lock_unlock(lock)
     }
     
     func headCompleted() {
@@ -110,7 +114,7 @@ private final class ReduceQueueState<T, E> : Disposable {
             
             var terminated = false
             var currentValue: T!
-            OSSpinLockLock(&self.lock)
+            os_unfair_lock_lock(lock)
             self.executingSignal = false
             if self.queuedValues.count != 0 {
                 nextSignal = self.generator(self.value, self.queuedValues[0])
@@ -120,7 +124,7 @@ private final class ReduceQueueState<T, E> : Disposable {
                 currentValue = self.value
                 terminated = self.terminated
             }
-            OSSpinLockUnlock(&self.lock)
+            os_unfair_lock_unlock(lock)
             
             if terminated {
                 self.subscriber.putNext(currentValue)
@@ -154,11 +158,11 @@ private final class ReduceQueueState<T, E> : Disposable {
     func beginCompletion() {
         var executingSignal = false
         let currentValue: T
-        OSSpinLockLock(&self.lock)
+        os_unfair_lock_lock(lock)
         executingSignal = self.executingSignal
         self.terminated = true
         currentValue = self.value
-        OSSpinLockUnlock(&self.lock)
+        os_unfair_lock_unlock(lock)
         
         if !executingSignal {
             self.subscriber.putNext(currentValue)

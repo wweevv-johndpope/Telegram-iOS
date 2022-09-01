@@ -1,6 +1,7 @@
 #import <MtProtoKit/MTMessageTransaction.h>
 
 #import <MtProtoKit/MTInternalId.h>
+#import <os/lock.h>
 
 MTInternalIdClass(MTMessageTransaction)
 

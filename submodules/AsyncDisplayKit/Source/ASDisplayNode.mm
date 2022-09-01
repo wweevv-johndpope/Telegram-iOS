@@ -549,9 +549,9 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
     }
       
     // CAEAGLLayer
-    if([[view.layer class] isSubclassOfClass:[CAEAGLLayer class]]){
-      _flags.canClearContentsOfLayer = NO;
-    }
+//    if([[view.layer class] isSubclassOfClass:[CAEAGLLayer class]]){
+//      _flags.canClearContentsOfLayer = NO;
+//    }
   }
 
   return view;
