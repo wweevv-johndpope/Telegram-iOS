@@ -1082,7 +1082,11 @@ class Keychain: NSObject, MTKeychain {
         if let data = self.get(group + ":" + aKey) {
             var result: Any?
             MTContext.perform(objCTry: {
-               result =  try? NSKeyedArchiver.archivedData(withRootObject:data, requiringSecureCoding: false)
+                guard let dict = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData( data) as? NSDictionary else {
+                  return
+                }
+                result = dict
+                
             })
             return result
         }
