@@ -367,7 +367,7 @@ public func hexString(_ data: Data) -> String {
     
     return hexString as String
 }
-func dataWithHexString(hex: String) -> Data {
+public func dataWithHexString(_ hex: String) -> Data {
     var hex = hex
     var data = Data()
     while hex.count > 0 {

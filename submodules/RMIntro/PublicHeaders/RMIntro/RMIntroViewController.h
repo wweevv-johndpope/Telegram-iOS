@@ -35,10 +35,10 @@
 
 @interface RMIntroViewController : UIViewController<UIScrollViewDelegate, GLKViewDelegate>
 {
-    EAGLContext *_context;
-    
-    GLKView *_glkView;
-    
+//    EAGLContext *_context;
+//
+//    GLKView *_glkView;
+//
     NSArray *_headlines;
     NSArray *_descriptions;
     

@@ -884,9 +884,10 @@ public final class AuthorizationSequenceController: NavigationController, MFMail
 private func defaultCountryCode() -> Int32 {
     var countryId: String? = nil
     let networkInfo = CTTelephonyNetworkInfo()
-    if let carrier = networkInfo.subscriberCellularProvider {
+    if let carrier = networkInfo.serviceSubscriberCellularProviders?.filter({ $0.value.carrierName != nil }).first?.value {
         countryId = carrier.isoCountryCode
     }
+  
     
     if countryId == nil {
         countryId = (Locale.current as NSLocale).object(forKey: .countryCode) as? String

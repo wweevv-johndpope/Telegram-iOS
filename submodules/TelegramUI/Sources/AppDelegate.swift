@@ -91,7 +91,10 @@ private class ApplicationStatusBarHost: StatusBarHost {
     }
     
     var statusBarFrame: CGRect {
-        return self.application.statusBarFrame
+        if let rect = self.window?.windowScene?.statusBarManager?.statusBarFrame{
+            return rect
+        }
+        return .zero
     }
     var statusBarStyle: UIStatusBarStyle {
         get {
@@ -149,16 +152,16 @@ protocol SupportedStartCallIntent {
     var contacts: [INPerson]? { get }
 }
 
-@available(iOS 10.0, *)
-extension INStartAudioCallIntent: SupportedStartCallIntent {}
+
+extension INStartCallIntent: SupportedStartCallIntent {}
 
 protocol SupportedStartVideoCallIntent {
     @available(iOS 10.0, *)
     var contacts: [INPerson]? { get }
 }
 
-@available(iOS 10.0, *)
-extension INStartVideoCallIntent: SupportedStartVideoCallIntent {}
+
+extension INStartCallIntent: SupportedStartVideoCallIntent {}
 
 private enum QueuedWakeup: Int32 {
     case call
@@ -528,7 +531,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         }, canOpenUrl: { url in
             return UIApplication.shared.canOpenURL(url)
         }, openUrl: { url in
-            UIApplication.shared.openURL(url)
+            UIApplication.shared.open(url,options: [:], completionHandler: nil)
         })
         
         if #available(iOS 10.0, *) {
@@ -554,9 +557,12 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             }
             
             if let parsedUrl = parsedUrl {
-                UIApplication.shared.openURL(parsedUrl)
+                
+                UIApplication.shared.open(parsedUrl,options: [:], completionHandler: nil)
+
             } else if let escapedUrl = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), let parsedUrl = URL(string: escapedUrl) {
-                UIApplication.shared.openURL(parsedUrl)
+                UIApplication.shared.open(parsedUrl,options: [:], completionHandler: nil)
+
             }
         }, openUniversalUrl: { url, completion in
             if #available(iOS 10.0, *) {
@@ -632,12 +638,14 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             return disposable
         }, openSettings: {
             if let url = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.openURL(url)
+                
+                UIApplication.shared.open(url,options: [:], completionHandler: nil)
+
             }
         }, openAppStorePage: {
             let appStoreId = buildConfig.appStoreId
             if let url = URL(string: "itms-apps://itunes.apple.com/app/id\(appStoreId)") {
-                UIApplication.shared.openURL(url)
+                UIApplication.shared.open(url,options: [:], completionHandler: nil)
             }
         }, openSubscriptions: {
             if #available(iOS 15, *), let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -645,7 +653,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                     try await AppStore.showManageSubscriptions(in: scene)
                 }
             } else if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
-                UIApplication.shared.openURL(url)
+                UIApplication.shared.open(url,options: [:], completionHandler: nil)
             }
         }, registerForNotifications: { completion in
             let _ = (self.context.get()
@@ -1703,7 +1711,10 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                     let presentationData = authContext.sharedContext.currentPresentationData.with { $0 }
                     authContext.rootController.currentWindow?.present(standardTextAlertController(theme: AlertControllerTheme(presentationData: presentationData), title: nil, text: presentationData.strings.Passport_NotLoggedInMessage, actions: [TextAlertAction(type: .genericAction, title: presentationData.strings.Calls_NotNow, action: {
                         if let callbackUrl = URL(string: secureIdCallbackUrl(with: secureIdData.callbackUrl, peerId: secureIdData.peerId, result: .cancel, parameters: [:])) {
-                            UIApplication.shared.openURL(callbackUrl)
+                    
+                            UIApplication.shared.open(callbackUrl,options: [:], completionHandler: nil)
+
+                            
                         }
                     }), TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {})]), on: .root, blockInteraction: false, completion: {})
                 } else if let confirmationCode = parseConfirmationCodeUrl(url) {
@@ -2146,14 +2157,9 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             reply.identifier = "reply"
             reply.title = replyString
             reply.isDestructive = false
-            if #available(iOS 9.0, *) {
-                reply.isAuthenticationRequired = false
-                reply.behavior = .textInput
-                reply.activationMode = .background
-            } else {
-                reply.isAuthenticationRequired = true
-                reply.activationMode = .foreground
-            }
+            reply.isAuthenticationRequired = false
+            reply.behavior = .textInput
+            reply.activationMode = .background
             
             let unknownMessageCategory = UIMutableUserNotificationCategory()
             unknownMessageCategory.identifier = "unknown"
