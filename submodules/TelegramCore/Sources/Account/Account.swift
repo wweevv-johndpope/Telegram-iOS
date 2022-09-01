@@ -367,21 +367,15 @@ public func hexString(_ data: Data) -> String {
     
     return hexString as String
 }
-
-public func dataWithHexString(_ string: String) -> Data {
-    var hex = string
-    if hex.count % 2 != 0 {
-        return Data()
-    }
+func dataWithHexString(hex: String) -> Data {
+    var hex = hex
     var data = Data()
     while hex.count > 0 {
         let subIndex = hex.index(hex.startIndex, offsetBy: 2)
         let c = String(hex[..<subIndex])
         hex = String(hex[subIndex...])
-        var ch: UInt32 = 0
-        if !Scanner(string: c).scanHexInt32(&ch) {
-            return Data()
-        }
+        var ch: UInt64 = 0
+        Scanner(string: c).scanHexInt64(&ch)
         var char = UInt8(ch)
         data.append(&char, count: 1)
     }
@@ -813,7 +807,7 @@ public func accountBackupData(postbox: Postbox) -> Signal<AccountBackupData?, No
         guard let authInfoData = transaction.keychainEntryForKey("persistent:datacenterAuthInfoById") else {
             return nil
         }
-        guard let authInfo = NSKeyedUnarchiver.unarchiveObject(with: authInfoData) as? NSDictionary else {
+        guard let authInfo = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData( authInfoData) as? NSDictionary else {
             return nil
         }
         guard let datacenterAuthInfo = authInfo.object(forKey: state.masterDatacenterId as NSNumber) as? MTDatacenterAuthInfo else {
