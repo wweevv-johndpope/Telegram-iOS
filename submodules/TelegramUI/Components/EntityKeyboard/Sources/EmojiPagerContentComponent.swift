@@ -4030,9 +4030,9 @@ public final class EmojiPagerContentComponent: Component {
             if self.scrollView.contentSize != itemLayout.contentSize {
                 self.scrollView.contentSize = itemLayout.contentSize
             }
-            if self.scrollView.scrollIndicatorInsets != pagerEnvironment.containerInsets {
-                self.scrollView.scrollIndicatorInsets = pagerEnvironment.containerInsets
-            }
+            if self.scrollView.verticalScrollIndicatorInsets != pagerEnvironment.containerInsets {
+                self.scrollView.verticalScrollIndicatorInsets = pagerEnvironment.containerInsets
+            } //🔥
             self.previousScrollingOffset = ScrollingOffsetState(value: scrollView.contentOffset.y, isDraggingOrDecelerating: scrollView.isDragging || scrollView.isDecelerating)
             
             var animatedScrollOffset: CGFloat = 0.0

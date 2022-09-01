@@ -215,10 +215,8 @@ private final class InnerActionsContainerNode: ASDisplayNode {
                     } else {
                         effectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialLight))
                     }
-                } else if #available(iOS 10.0, *) {
-                    effectView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
                 } else {
-                    effectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+                    effectView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
                 }
                 self.effectView = effectView
                 self.containerNode.view.insertSubview(effectView, at: 0)
@@ -485,10 +483,8 @@ final class InnerTextSelectionTipContainerNode: ASDisplayNode {
                     } else {
                         effectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialLight))
                     }
-                } else if #available(iOS 10.0, *) {
+                } else  {
                     effectView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
-                } else {
-                    effectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
                 }
                 self.effectView = effectView
                 self.view.insertSubview(effectView, at: 0)

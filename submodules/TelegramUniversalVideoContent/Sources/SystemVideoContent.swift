@@ -259,7 +259,8 @@ private final class SystemVideoContentNode: ASDisplayNode, UniversalVideoContent
     func seek(_ timestamp: Double) {
         assert(Queue.mainQueue().isCurrent())
         self.seekId += 1
-        self.playerItem.seek(to: CMTimeMake(value: Int64(timestamp) * 1000, timescale: 1000))
+        let t = CMTimeMake(value: Int64(timestamp) * 1000, timescale: 1000)
+        self.playerItem.seek(to: t, completionHandler: nil)
     }
     
     func playOnceWithSound(playAndRecord: Bool, seek: MediaPlayerSeek, actionAtEnd: MediaPlayerPlayOnceWithSoundActionAtEnd) {

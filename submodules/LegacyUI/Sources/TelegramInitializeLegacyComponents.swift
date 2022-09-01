@@ -113,11 +113,21 @@ private final class LegacyComponentsGlobalsProviderImpl: NSObject, LegacyCompone
     }
     
     public func applicationStatusBarOrientation() -> UIInterfaceOrientation {
-        return legacyComponentsApplication?.statusBarOrientation ?? UIInterfaceOrientation.portrait
+       return  UIApplication.shared.windows.first!.windowScene!.interfaceOrientation
+
+        
+       // return legacyComponentsApplication?.statusBarOrientation ?? UIInterfaceOrientation.portrait
     }
     
     public func statusBarFrame() -> CGRect {
-        return legacyComponentsApplication?.statusBarFrame ?? CGRect(origin: CGPoint(), size: CGSize(width: 320.0, height: 20.0))
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        if let rect = window?.windowScene?.statusBarManager?.statusBarFrame{
+          return rect
+        }
+        
+        return .zero //🔥
+        
+ 
     }
     
     public func isStatusBarHidden() -> Bool {

@@ -806,9 +806,9 @@ public final class GifPagerContentComponent: Component {
             if self.scrollView.contentSize != itemLayout.contentSize {
                 self.scrollView.contentSize = itemLayout.contentSize
             }
-            if self.scrollView.scrollIndicatorInsets != pagerEnvironment.containerInsets {
-                self.scrollView.scrollIndicatorInsets = pagerEnvironment.containerInsets
-            }
+            if self.scrollView.verticalScrollIndicatorInsets != pagerEnvironment.containerInsets {
+                self.scrollView.verticalScrollIndicatorInsets = pagerEnvironment.containerInsets
+            } //🔥
             
             if contentReset {
                 self.scrollView.setContentOffset(CGPoint(), animated: false)

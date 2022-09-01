@@ -118,7 +118,12 @@ public final class LegacyControllerContext: NSObject, LegacyComponentsContext {
     }
     
     public func statusBarFrame() -> CGRect {
-        return legacyComponentsApplication!.statusBarFrame
+     
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        if let rect = window?.windowScene?.statusBarManager?.statusBarFrame{
+            return rect
+        }
+        return .zero
     }
     
     public func isStatusBarHidden() -> Bool {

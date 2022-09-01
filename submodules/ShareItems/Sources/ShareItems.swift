@@ -138,7 +138,10 @@ private func preparedShareItem(account: Account, to peerId: PeerId, value: [Stri
                         finalDuration = adjustments.trimEndValue - adjustments.trimStartValue
                     }
                     
-                    let adjustmentsData = MemoryBuffer(data: NSKeyedArchiver.archivedData(withRootObject: adjustments.dictionary()!))
+                    let dict = adjustments.dictionary()!
+                   
+                    let archiveData  =  try! NSKeyedArchiver.archivedData(withRootObject: dict, requiringSecureCoding: false)
+                    let adjustmentsData = MemoryBuffer(data: archiveData)
                     let digest = MemoryBuffer(data: adjustmentsData.md5Digest())
                     resourceAdjustments = VideoMediaResourceAdjustments(data: adjustmentsData, digest: digest)
                 }
