@@ -8,8 +8,7 @@
 
 @interface MTBlockDisposable : NSObject <MTDisposable>
 
-- (instancetype)initWithBlock:(void (^)())block;
-
+- (instancetype)initWithBlock:(void (^)(void))block;
 @end
 
 @interface MTMetaDisposable : NSObject <MTDisposable>

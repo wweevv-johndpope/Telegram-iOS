@@ -4,56 +4,87 @@
 #import <objc/runtime.h>
 #import <stdatomic.h>
 
-@interface SBlockDisposable ()
-{
-    void *_block;
+
+
+
+@interface SBlockDisposable () {
+    // A copied block of type void (^)(void) containing the logic for disposal,
+    // a pointer to `self` if no logic should be performed upon disposal, or
+    // NULL if the receiver is already disposed.
+    //
+    // This should only be used atomically.
+    void * volatile _disposeBlock;
 }
 
 @end
 
 @implementation SBlockDisposable
 
-- (instancetype)initWithBlock:(void (^)())block
-{
+#pragma mark Properties
+
+- (BOOL)isDisposed {
+    return _disposeBlock == NULL;
+}
+
+#pragma mark Lifecycle
+
+- (id)init {
     self = [super init];
-    if (self != nil)
-    {
-        _block = (__bridge_retained void *)[block copy];
-    }
+    if (self == nil) return nil;
+
+    _disposeBlock = (__bridge void *)self;
+    atomic_thread_fence(memory_order_seq_cst);
+
     return self;
 }
 
-- (void)dealloc
-{
-    void *block = _block;
-    if (block != NULL)
-    {
-//      🔥  if (atomic_compare_exchange_weak(block, 0, &_block)
-        {
-            if (block != nil)
-            {
-                __unused __strong id strongBlock = (__bridge_transfer id)block;
-                strongBlock = nil;
-            }
-        }
-    }
+- (id)initWithBlock:(void (^)(void))block {
+    NSCParameterAssert(block != nil);
+
+    self = [super init];
+    if (self == nil) return nil;
+
+    _disposeBlock = (void *)CFBridgingRetain([block copy]);
+    atomic_thread_fence(memory_order_seq_cst);
+
+    return self;
 }
 
-- (void)dispose
-{
-    void *block = _block;
-    if (block != NULL)
-    {
-//    🔥    if (atomic_compare_exchange_weak(block, 0, &_block))
-        {
-            if (block != nil)
-            {
-                __strong id strongBlock = (__bridge_transfer id)block;
-                ((dispatch_block_t)strongBlock)();
-                strongBlock = nil;
++ (instancetype)disposableWithBlock:(void (^)(void))block {
+    return [[self alloc] initWithBlock:block];
+}
+
+- (void)dealloc {
+    if (_disposeBlock == NULL || _disposeBlock == (__bridge void *)self) return;
+
+    CFRelease(_disposeBlock);
+    _disposeBlock = NULL;
+}
+
+#pragma mark Disposal
+
+- (void)dispose {
+    void (^disposeBlock)(void) = NULL;
+
+    while (YES) {
+        void *blockPtr = _disposeBlock;
+        if (atomic_compare_exchange_strong((volatile _Atomic(void*)*)&_disposeBlock, &blockPtr, NULL)) {
+            if (blockPtr != (__bridge void *)self) {
+                disposeBlock = CFBridgingRelease(blockPtr);
             }
+
+            break;
         }
     }
+
+    if (disposeBlock != nil) disposeBlock();
 }
+
+// #pragma mark Scoped Disposables
+
+// - (KAGRACScopedDisposable *)asScopedDisposable {
+//     return [KAGRACScopedDisposable scopedDisposableWithDisposable:self];
+// }
 
 @end
+
