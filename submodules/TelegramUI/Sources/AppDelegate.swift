@@ -92,13 +92,22 @@ private class ApplicationStatusBarHost: StatusBarHost {
     
     var statusBarFrame: CGRect {
         let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-       return  window!.windowScene!.statusBarManager!.statusBarFrame //🔥
+        if let statusBarFrame=   window?.windowScene?.statusBarManager?.statusBarFrame{
+            return statusBarFrame
+        }else{
+            return .zero
+        }
 
     }
     var statusBarStyle: UIStatusBarStyle {
         get {
             let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-            return window!.windowScene!.statusBarManager!.statusBarStyle //🔥
+            if let  statusBarStyle = window?.windowScene?.statusBarManager?.statusBarStyle{
+                return statusBarStyle
+                
+            }else{
+                return UIStatusBarStyleLightContent
+            }
         } set(value) {
             self.setStatusBarStyle(value, animated: false)
         }
