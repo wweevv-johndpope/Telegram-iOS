@@ -79,7 +79,7 @@ private func isKeyboardViewContainer(view: NSObject) -> Bool {
 }
 
 private class ApplicationStatusBarHost: StatusBarHost {
-    private let application = UIApplication.shared
+    let application = UIApplication.shared
     
     var isApplicationInForeground: Bool {
         switch self.application.applicationState {
@@ -92,12 +92,13 @@ private class ApplicationStatusBarHost: StatusBarHost {
     
     var statusBarFrame: CGRect {
         let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-        window.statusBarManager.statusBarFrame
+       return  window!.windowScene!.statusBarManager!.statusBarFrame //🔥
+
     }
     var statusBarStyle: UIStatusBarStyle {
         get {
             let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-            window.statusBarManager.statusBarStyle
+            return window!.windowScene!.statusBarManager!.statusBarStyle //🔥
         } set(value) {
             self.setStatusBarStyle(value, animated: false)
         }
@@ -219,6 +220,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     private var buildConfig: BuildConfig?
     let episodeId = arc4random()
     
+//    DataManager.shared.app = self;
     private let isInForegroundPromise = ValuePromise<Bool>(false, ignoreRepeated: true)
     private var isInForegroundValue = false
     private let isActivePromise = ValuePromise<Bool>(false, ignoreRepeated: true)
@@ -1248,9 +1250,14 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             self.isActivePromise.set(true)
         }
         
-        if UIApplication.shared.isStatusBarHidden {
-            UIApplication.shared.internalSetStatusBarHidden(false, animation: .none)
+        let myWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+        if let isStatusBarHidden =  myWindow?.windowScene?.statusBarManager?.isStatusBarHidden{
+            if isStatusBarHidden == true{
+             UIApplication.shared.internalSetStatusBarHidden(false, animation: .none)
+            }
         }
+        
+       
         
         /*if #available(iOS 13.0, *) {
             BGTaskScheduler.shared.register(forTaskWithIdentifier: baseAppBundleId + ".refresh", using: nil, launchHandler: { task in
