@@ -295,6 +295,9 @@ swift_library(
         "//submodules/Media/LocalAudioTranscription:LocalAudioTranscription",
         "//submodules/Components/PagerComponent:PagerComponent",
         "//submodules/Components/LottieAnimationComponent:LottieAnimationComponent",
+        "//third-party/Supabase:Supabase",
+      
+        
      
     ] + select({
         "@build_bazel_rules_apple//apple:ios_armv7": [],

@@ -34,6 +34,8 @@ import DebugSettingsUI
 import BackgroundTasks
 import UIKitRuntimeUtils
 import StoreKit
+import Supabase
+import PostgREST
 //import FirebaseAuth
 //import FirebaseAnalytics
 //import FirebaseCore
@@ -287,11 +289,45 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     private var alertActions: (primary: (() -> Void)?, other: (() -> Void)?)?
     
     private let deviceToken = Promise<Data?>(nil)
+
+    private var client:SupabaseClient?
+    private var database:PostgrestClient?
+
     
+    
+    
+    private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
+    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+
+
+    struct SubscriptionLive: Codable {
+        var id: Int?
+        var user_id:String?
+        var channel_id:String?
+        var live_id:String?
+        var subscription:String?
+    }
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         precondition(!testIsLaunched)
         testIsLaunched = true
         
+        self.client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
+        self.database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "wweevv")
+
+        self.database?.from("subscription_live").select().execute() { result in
+            switch result {
+            case let .success(response):
+                do {
+                    let feedback = try response.decoded(to: [SubscriptionLive].self)
+                    print(feedback)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            case let .failure(error):
+                print(error.localizedDescription)
+            }
+        }
         let _ = voipTokenPromise.get().start(next: { token in
             self.deviceToken.set(.single(token))
         })

@@ -25,9 +25,7 @@ load("@build_bazel_rules_swift//swift:swift.bzl",
     "swift_library",
 )
 
-load("//build-system/bazel-utils:plist_fragment.bzl",
-    "plist_fragment",
-)
+load("//build-system/bazel-utils:plist_fragment.bzl","plist_fragment")
 
 load(
     "@build_configuration//:variables.bzl",
