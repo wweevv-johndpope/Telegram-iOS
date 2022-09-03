@@ -9,9 +9,9 @@ objc_library(
     "PostgREST",
     "AnyCodableXCFramework",
     "ComposableKeychainXCFramework",
+    "KeychainAccessXCFramework",
     "GetXCFramework",
     "GoTrue",
-    "KeychainAccess",
     "RealtimeXCFramework",
     "StarscreamXCFramework",
     "SupabaseStorageXCFramework",
@@ -26,7 +26,7 @@ objc_library(
 
 apple_static_xcframework_import(
     name = "SupabaseXCFramework",
-    xcframework_imports = glob(["Supabase.xcframework/**/*"] ),
+    xcframework_imports = glob(["Supabase.xcframework/**"] ),
     library_identifiers = {
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
@@ -39,7 +39,7 @@ apple_static_xcframework_import(
 
 apple_static_xcframework_import(
     name = "PostgREST",
-    xcframework_imports = glob(["PostgREST.xcframework/**/*"] ),
+    xcframework_imports = glob(["PostgREST.xcframework/**"] ),
     library_identifiers = {
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
@@ -51,7 +51,17 @@ apple_static_xcframework_import(
 
 
 
-        
+apple_dynamic_xcframework_import(
+    name = "KeychainAccessXCFramework",
+    library_identifiers = {
+        "ios_device": "ios-arm64_armv7",
+        "ios_simulator": "ios-arm64_i386_x86_64-simulator",
+    },
+    xcframework_imports = glob(["KeychainAccess.xcframework/**"] ),
+     visibility = ["//visibility:public"],
+)
+
+
         
 apple_dynamic_xcframework_import(
     name = "AnyCodableXCFramework",
@@ -59,7 +69,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["AnyCodable.xcframework/**/*"] ),
+    xcframework_imports = glob(["AnyCodable.xcframework/**"] ),
      visibility = ["//visibility:public"],
 #    infoplists = ["//submodules/TelegramUI/Supabase/AnyCodableXCFramework.xcframework:Info.plist"]
 )
@@ -71,7 +81,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["ComposableKeychain.xcframework/**/*"] ),
+    xcframework_imports = glob(["ComposableKeychain.xcframework/**"] ),
      visibility = ["//visibility:public"],
    # infoplists = ["//submodules/TelegramUI/Supabase/ComposableKeychain.xcframework:Info.plist"]
 )
@@ -82,7 +92,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["Get.xcframework/**/*"] ),
+    xcframework_imports = glob(["Get.xcframework/**"] ),
      visibility = ["//visibility:public"],
    # infoplists = ["//submodules/TelegramUI/Supabase/Get.xcframework:Info.plist"]
 )
@@ -93,20 +103,9 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["GoTrue.xcframework/**/*"] ),
+    xcframework_imports = glob(["GoTrue.xcframework/**"] ),
      visibility = ["//visibility:public"],
     #infoplists = ["//submodules/TelegramUI/Supabase/GoTrue.xcframework:Info.plist"]
-)
-
-apple_dynamic_xcframework_import(
-    name = "KeychainAccess",
-    library_identifiers = {
-        "ios_device": "ios-arm64",
-        "ios_simulator": "ios-arm64_x86_64-simulator",
-    },
-    xcframework_imports = glob(["KeychainAccess.xcframework/**/*"] ),
-     visibility = ["//visibility:public"],
-  #  infoplists = ["//submodules/TelegramUI/Supabase/KeychainAccess.xcframework:Info.plist"]
 )
 
 
@@ -117,7 +116,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["Realtime.xcframework/**/*"] ),
+    xcframework_imports = glob(["Realtime.xcframework/**"] ),
      visibility = ["//visibility:public"],
     #infoplists = ["//submodules/TelegramUI/Supabase/Realtime.xcframework:Info.plist"]
 )
@@ -128,7 +127,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["Starscream.xcframework/**/*"] ),
+    xcframework_imports = glob(["Starscream.xcframework/**"] ),
      visibility = ["//visibility:public"],
    # infoplists = ["//submodules/TelegramUI/Supabase/Starscream.xcframework:Info.plist"]
 )
@@ -139,7 +138,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["SupabaseStorage.xcframework/**/*"] ),
+    xcframework_imports = glob(["SupabaseStorage.xcframework/**"] ),
      visibility = ["//visibility:public"],
   #  infoplists = ["//submodules/TelegramUI/Supabase/SupabaseStorage.xcframework:Info.plist"]
 )
@@ -149,7 +148,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["URLQueryEncoder.xcframework/**/*"] ),
+    xcframework_imports = glob(["URLQueryEncoder.xcframework/**"] ),
      visibility = ["//visibility:public"],
         #  infoplists = ["//submodules/TelegramUI/Supabase/URLQueryEncoder.xcframework:Info.plist"]
 
@@ -162,7 +161,7 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["XCTestDynamicOverlay.xcframework/**/*"] ),
+    xcframework_imports = glob(["XCTestDynamicOverlay.xcframework/**"] ),
      visibility = ["//visibility:public"],
    # infoplists = ["//submodules/TelegramUI/Supabase/XCTestDynamicOverlay.xcframework:Info.plist"]
 
