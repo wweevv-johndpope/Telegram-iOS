@@ -307,19 +307,25 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         var live_id:String?
         var subscription:String?
     }
+    struct TestClass: Codable {
+        var id: Int?
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         precondition(!testIsLaunched)
         testIsLaunched = true
-        
-        self.client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
-        self.database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "wweevv")
-
-        self.database?.from("subscription_live").select().execute() { result in
+//
+//        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
+        let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
+//
+//        self.client = client
+        self.database = database
+//
+        self.database?.from("test").select().execute() { result in
             switch result {
             case let .success(response):
                 do {
-                    let feedback = try response.decoded(to: [SubscriptionLive].self)
+                    let feedback = try response.decoded(to: [TestClass].self)
                     print(feedback)
                 } catch {
                     print(error.localizedDescription)
@@ -328,6 +334,8 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 print(error.localizedDescription)
             }
         }
+//
+        
         let _ = voipTokenPromise.get().start(next: { token in
             self.deviceToken.set(.single(token))
         })
