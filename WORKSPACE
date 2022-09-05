@@ -65,28 +65,6 @@ http_archive(
 )
 
 
-
-http_archive(
-    name = "cgrindel_rules_spm",
-    sha256 = "03718eb865a100ba4449ebcbca6d97bf6ea78fa17346ce6d55532312e8bf9aa8",
-    strip_prefix = "rules_spm-0.11.0",
-    urls = [
-        "http://github.com/cgrindel/rules_spm/archive/v0.11.0.tar.gz",
-    ],
-)
-
-load(
-    "@cgrindel_rules_spm//spm:deps.bzl",
-    "spm_rules_dependencies",
-)
-
-spm_rules_dependencies()
-
-load(
-    "@build_bazel_rules_swift//swift:repositories.bzl",
-    "swift_rules_dependencies",
-)
-
 swift_rules_dependencies()
 
 load(
@@ -98,3 +76,9 @@ swift_rules_extra_dependencies()
 
 
 
+
+http_archive(
+    name = "Firebase",
+    build_file = "@//Thirdparty/Firebase:BUILD",
+    url = "https://github.com/firebase/firebase-ios-sdk/releases/download/9.5.0/Firebase.zip",
+)

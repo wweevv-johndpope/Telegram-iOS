@@ -36,6 +36,7 @@ import UIKitRuntimeUtils
 import StoreKit
 import Supabase
 import PostgREST
+import FirebaseCore
 //import FirebaseAuth
 //import FirebaseAnalytics
 //import FirebaseCore
@@ -314,6 +315,8 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         precondition(!testIsLaunched)
         testIsLaunched = true
+
+        FirebaseApp.configure()
 //
 //        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
         let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
