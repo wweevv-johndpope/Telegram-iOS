@@ -38,8 +38,8 @@ import Supabase
 import PostgREST
 import FirebaseCore
 //import FirebaseAuth
-//import FirebaseAnalytics
-//import FirebaseCore
+import FirebaseAnalytics
+//import Firebase
 
 
 #if canImport(AppCenter)

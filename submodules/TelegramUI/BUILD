@@ -297,6 +297,8 @@ swift_library(
         "//submodules/Components/LottieAnimationComponent:LottieAnimationComponent",
         "//third-party/Supabase:Supabase",
           "//third-party/SnapKit:SnapKit",
+        "//third-party/Firebase:Firebase",
+          
       
         
      
@@ -304,7 +306,8 @@ swift_library(
         "@build_bazel_rules_apple//apple:ios_armv7": [],
         "@build_bazel_rules_apple//apple:ios_arm64": appcenter_targets,
         "//build-system:ios_sim_arm64": [],
-        "@build_bazel_rules_apple//apple:ios_x86_64": [],
+        "@build_bazel_rules_apple//apple:ios_x86_64": []
+        
     }),
     visibility = [
         "//visibility:public",

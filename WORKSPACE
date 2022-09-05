@@ -76,9 +76,3 @@ swift_rules_extra_dependencies()
 
 
 
-
-http_archive(
-    name = "Firebase",
-    build_file = "@//Thirdparty/Firebase:BUILD",
-    url = "https://github.com/firebase/firebase-ios-sdk/releases/download/9.5.0/Firebase.zip",
-)
