@@ -1,4 +1,4 @@
-load("@build_bazel_rules_apple//apple:apple.bzl","apple_dynamic_xcframework_import","apple_static_xcframework_import")
+load("@build_bazel_rules_apple//apple:apple.bzl","apple_dynamic_xcframework_import")
 
 
 objc_library(
@@ -24,7 +24,7 @@ objc_library(
 
 
 
-apple_static_xcframework_import(
+apple_dynamic_xcframework_import(
     name = "SupabaseXCFramework",
     xcframework_imports = glob(["Supabase.xcframework/**"] ),
     library_identifiers = {
@@ -37,7 +37,7 @@ apple_static_xcframework_import(
 )
 
 
-apple_static_xcframework_import(
+apple_dynamic_xcframework_import(
     name = "PostgREST",
     xcframework_imports = glob(["PostgREST.xcframework/**"] ),
     library_identifiers = {
@@ -66,8 +66,8 @@ apple_dynamic_xcframework_import(
 apple_dynamic_xcframework_import(
     name = "AnyCodableXCFramework",
     library_identifiers = {
-        "ios_device": "ios-arm64",
-        "ios_simulator": "ios-arm64_x86_64-simulator",
+        "ios_device": "ios-arm64_armv7",
+        "ios_simulator": "ios-arm64_i386_x86_64-simulator",
     },
     xcframework_imports = glob(["AnyCodable.xcframework/**"] ),
      visibility = ["//visibility:public"],
@@ -113,8 +113,8 @@ apple_dynamic_xcframework_import(
 apple_dynamic_xcframework_import(
     name = "RealtimeXCFramework",
     library_identifiers = {
-        "ios_device": "ios-arm64",
-        "ios_simulator": "ios-arm64_x86_64-simulator",
+        "ios_device": "ios-arm64_armv7",
+        "ios_simulator": "ios-arm64_i386_x86_64-simulator",
     },
     xcframework_imports = glob(["Realtime.xcframework/**"] ),
      visibility = ["//visibility:public"],
@@ -124,8 +124,8 @@ apple_dynamic_xcframework_import(
 apple_dynamic_xcframework_import(
     name = "StarscreamXCFramework",
     library_identifiers = {
-        "ios_device": "ios-arm64",
-        "ios_simulator": "ios-arm64_x86_64-simulator",
+        "ios_device": "ios-arm64_armv7",
+        "ios_simulator": "ios-arm64_i386_x86_64-simulator",
     },
     xcframework_imports = glob(["Starscream.xcframework/**"] ),
      visibility = ["//visibility:public"],
@@ -135,8 +135,8 @@ apple_dynamic_xcframework_import(
 apple_dynamic_xcframework_import(
     name = "SupabaseStorageXCFramework",
     library_identifiers = {
-        "ios_device": "ios-arm64",
-        "ios_simulator": "ios-arm64_x86_64-simulator",
+        "ios_device": "ios-arm64_armv7",
+        "ios_simulator": "ios-arm64_i386_x86_64-simulator",
     },
     xcframework_imports = glob(["SupabaseStorage.xcframework/**"] ),
      visibility = ["//visibility:public"],
@@ -148,9 +148,8 @@ apple_dynamic_xcframework_import(
         "ios_device": "ios-arm64",
         "ios_simulator": "ios-arm64_x86_64-simulator",
     },
-    xcframework_imports = glob(["URLQueryEncoder.xcframework/**"] ),
+    xcframework_imports = glob(["URLQueryEncoderKit.xcframework/**"] ),
      visibility = ["//visibility:public"],
-        #  infoplists = ["//submodules/TelegramUI/Supabase/URLQueryEncoder.xcframework:Info.plist"]
 
 )
 

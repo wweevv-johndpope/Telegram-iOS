@@ -1,11 +1,11 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-compiler-version: Apple Swift version 5.6.1 (swiftlang-5.6.0.323.66 clang-1316.0.20.12)
 // swift-module-flags: -target arm64-apple-ios9.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name KeychainAccess
 import Foundation
-@_exported import KeychainAccess
 import LocalAuthentication
 import Security
 import Swift
+import _Concurrency
 public let KeychainAccessErrorDomain: Swift.String
 public enum ItemClass {
   case genericPassword
@@ -59,7 +59,7 @@ public enum Accessibility {
   case afterFirstUnlock
   @available(macCatalyst, unavailable)
   case always
-  @available(iOS 8.0, OSX 10.10, *)
+  @available(iOS 8.0, macOS 10.10, *)
   case whenPasscodeSetThisDeviceOnly
   case whenUnlockedThisDeviceOnly
   case afterFirstUnlockThisDeviceOnly
@@ -71,13 +71,13 @@ public enum AuthenticationUI {
   case fail
   case skip
   public static func == (a: KeychainAccess.AuthenticationUI, b: KeychainAccess.AuthenticationUI) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
   }
-  public func hash(into hasher: inout Swift.Hasher)
 }
-@available(iOS 9.0, OSX 10.11, *)
-extension AuthenticationUI {
+@available(iOS 9.0, macOS 10.11, *)
+extension KeychainAccess.AuthenticationUI {
   public var rawValue: Swift.String {
     get
   }
@@ -86,41 +86,41 @@ extension AuthenticationUI {
   }
 }
 public struct AuthenticationPolicy : Swift.OptionSet {
-  @available(iOS 8.0, OSX 10.10, watchOS 2.0, tvOS 8.0, *)
+  @available(iOS 8.0, macOS 10.10, watchOS 2.0, tvOS 8.0, *)
   public static let userPresence: KeychainAccess.AuthenticationPolicy
-  @available(iOS 11.3, OSX 10.13.4, watchOS 4.3, tvOS 11.3, *)
+  @available(iOS 11.3, macOS 10.13.4, watchOS 4.3, tvOS 11.3, *)
   public static let biometryAny: KeychainAccess.AuthenticationPolicy
   @available(iOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryAny")
-  @available(OSX, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryAny")
+  @available(macOS, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryAny")
   @available(watchOS, introduced: 2.0, deprecated: 4.3, renamed: "biometryAny")
   @available(tvOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryAny")
   public static let touchIDAny: KeychainAccess.AuthenticationPolicy
-  @available(iOS 11.3, OSX 10.13, watchOS 4.3, tvOS 11.3, *)
+  @available(iOS 11.3, macOS 10.13, watchOS 4.3, tvOS 11.3, *)
   public static let biometryCurrentSet: KeychainAccess.AuthenticationPolicy
   @available(iOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryCurrentSet")
-  @available(OSX, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryCurrentSet")
+  @available(macOS, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryCurrentSet")
   @available(watchOS, introduced: 2.0, deprecated: 4.3, renamed: "biometryCurrentSet")
   @available(tvOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryCurrentSet")
   public static let touchIDCurrentSet: KeychainAccess.AuthenticationPolicy
-  @available(iOS 9.0, OSX 10.11, watchOS 2.0, tvOS 9.0, *)
+  @available(iOS 9.0, macOS 10.11, watchOS 2.0, tvOS 9.0, *)
   public static let devicePasscode: KeychainAccess.AuthenticationPolicy
-  @available(OSX 10.15, *)
+  @available(macOS 10.15, *)
   @available(iOS, unavailable)
   @available(watchOS, unavailable)
   @available(tvOS, unavailable)
   public static let watch: KeychainAccess.AuthenticationPolicy
-  @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
+  @available(iOS 9.0, macOS 10.12.1, watchOS 2.0, tvOS 9.0, *)
   public static let or: KeychainAccess.AuthenticationPolicy
-  @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
+  @available(iOS 9.0, macOS 10.12.1, watchOS 2.0, tvOS 9.0, *)
   public static let and: KeychainAccess.AuthenticationPolicy
-  @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
+  @available(iOS 9.0, macOS 10.12.1, watchOS 2.0, tvOS 9.0, *)
   public static let privateKeyUsage: KeychainAccess.AuthenticationPolicy
-  @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
+  @available(iOS 9.0, macOS 10.12.1, watchOS 2.0, tvOS 9.0, *)
   public static let applicationPassword: KeychainAccess.AuthenticationPolicy
   public let rawValue: Swift.UInt
   public init(rawValue: Swift.UInt)
-  public typealias Element = KeychainAccess.AuthenticationPolicy
   public typealias ArrayLiteralElement = KeychainAccess.AuthenticationPolicy
+  public typealias Element = KeychainAccess.AuthenticationPolicy
   public typealias RawValue = Swift.UInt
 }
 public struct Attributes {
@@ -228,7 +228,7 @@ public struct Attributes {
   final public var accessibility: KeychainAccess.Accessibility {
     get
   }
-  @available(iOS 8.0, OSX 10.10, *)
+  @available(iOS 8.0, macOS 10.10, *)
   @available(watchOS, unavailable)
   final public var authenticationPolicy: KeychainAccess.AuthenticationPolicy? {
     get
@@ -242,16 +242,16 @@ public struct Attributes {
   final public var comment: Swift.String? {
     get
   }
-  @available(iOS 8.0, OSX 10.10, *)
+  @available(iOS 8.0, macOS 10.10, *)
   @available(watchOS, unavailable)
   final public var authenticationPrompt: Swift.String? {
     get
   }
-  @available(iOS 9.0, OSX 10.11, *)
+  @available(iOS 9.0, macOS 10.11, *)
   final public var authenticationUI: KeychainAccess.AuthenticationUI {
     get
   }
-  @available(iOS 9.0, OSX 10.11, *)
+  @available(iOS 9.0, macOS 10.11, *)
   final public var authenticationContext: LocalAuthentication.LAContext? {
     get
   }
@@ -262,19 +262,19 @@ public struct Attributes {
   convenience public init(server: Swift.String, protocolType: KeychainAccess.ProtocolType, accessGroup: Swift.String? = nil, authenticationType: KeychainAccess.AuthenticationType = .default)
   convenience public init(server: Foundation.URL, protocolType: KeychainAccess.ProtocolType, accessGroup: Swift.String? = nil, authenticationType: KeychainAccess.AuthenticationType = .default)
   final public func accessibility(_ accessibility: KeychainAccess.Accessibility) -> KeychainAccess.Keychain
-  @available(iOS 8.0, OSX 10.10, *)
+  @available(iOS 8.0, macOS 10.10, *)
   @available(watchOS, unavailable)
   final public func accessibility(_ accessibility: KeychainAccess.Accessibility, authenticationPolicy: KeychainAccess.AuthenticationPolicy) -> KeychainAccess.Keychain
   final public func synchronizable(_ synchronizable: Swift.Bool) -> KeychainAccess.Keychain
   final public func label(_ label: Swift.String) -> KeychainAccess.Keychain
   final public func comment(_ comment: Swift.String) -> KeychainAccess.Keychain
   final public func attributes(_ attributes: [Swift.String : Any]) -> KeychainAccess.Keychain
-  @available(iOS 8.0, OSX 10.10, *)
+  @available(iOS 8.0, macOS 10.10, *)
   @available(watchOS, unavailable)
   final public func authenticationPrompt(_ authenticationPrompt: Swift.String) -> KeychainAccess.Keychain
-  @available(iOS 9.0, OSX 10.11, *)
+  @available(iOS 9.0, macOS 10.11, *)
   final public func authenticationUI(_ authenticationUI: KeychainAccess.AuthenticationUI) -> KeychainAccess.Keychain
-  @available(iOS 9.0, OSX 10.11, *)
+  @available(iOS 9.0, macOS 10.11, *)
   final public func authenticationContext(_ authenticationContext: LocalAuthentication.LAContext) -> KeychainAccess.Keychain
   final public func get(_ key: Swift.String, ignoringAttributeSynchronizable: Swift.Bool = true) throws -> Swift.String?
   final public func getString(_ key: Swift.String, ignoringAttributeSynchronizable: Swift.Bool = true) throws -> Swift.String?
@@ -305,24 +305,24 @@ public struct Attributes {
   final public class func allItems(_ itemClass: KeychainAccess.ItemClass) -> [[Swift.String : Any]]
   final public func allItems() -> [[Swift.String : Any]]
   @available(iOS 8.0, *)
-  final public func getSharedPassword(_ completion: @escaping (Swift.String?, Swift.String?, Swift.Error?) -> () = { account, password, error -> () in })
+  final public func getSharedPassword(_ completion: @escaping (_ account: Swift.String?, _ password: Swift.String?, _ error: Swift.Error?) -> () = { account, password, error -> () in })
   @available(iOS 8.0, *)
-  final public func getSharedPassword(_ account: Swift.String, completion: @escaping (Swift.String?, Swift.Error?) -> () = { password, error -> () in })
+  final public func getSharedPassword(_ account: Swift.String, completion: @escaping (_ password: Swift.String?, _ error: Swift.Error?) -> () = { password, error -> () in })
   @available(iOS 8.0, *)
-  final public func setSharedPassword(_ password: Swift.String, account: Swift.String, completion: @escaping (Swift.Error?) -> () = { e -> () in })
+  final public func setSharedPassword(_ password: Swift.String, account: Swift.String, completion: @escaping (_ error: Swift.Error?) -> () = { e -> () in })
   @available(iOS 8.0, *)
-  final public func removeSharedPassword(_ account: Swift.String, completion: @escaping (Swift.Error?) -> () = { e -> () in })
+  final public func removeSharedPassword(_ account: Swift.String, completion: @escaping (_ error: Swift.Error?) -> () = { e -> () in })
   @available(iOS 8.0, *)
-  final public class func requestSharedWebCredential(_ completion: @escaping ([[Swift.String : Swift.String]], Swift.Error?) -> () = { credentials, error -> () in })
+  final public class func requestSharedWebCredential(_ completion: @escaping (_ credentials: [[Swift.String : Swift.String]], _ error: Swift.Error?) -> () = { credentials, error -> () in })
   @available(iOS 8.0, *)
-  final public class func requestSharedWebCredential(domain: Swift.String, completion: @escaping ([[Swift.String : Swift.String]], Swift.Error?) -> () = { credentials, error -> () in })
+  final public class func requestSharedWebCredential(domain: Swift.String, completion: @escaping (_ credentials: [[Swift.String : Swift.String]], _ error: Swift.Error?) -> () = { credentials, error -> () in })
   @available(iOS 8.0, *)
-  final public class func requestSharedWebCredential(domain: Swift.String, account: Swift.String, completion: @escaping ([[Swift.String : Swift.String]], Swift.Error?) -> () = { credentials, error -> () in })
+  final public class func requestSharedWebCredential(domain: Swift.String, account: Swift.String, completion: @escaping (_ credentials: [[Swift.String : Swift.String]], _ error: Swift.Error?) -> () = { credentials, error -> () in })
   @available(iOS 8.0, *)
   final public class func generatePassword() -> Swift.String
   @objc deinit
 }
-extension Keychain : Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
+extension KeychainAccess.Keychain : Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
   final public var description: Swift.String {
     get
   }
@@ -330,7 +330,7 @@ extension Keychain : Swift.CustomStringConvertible, Swift.CustomDebugStringConve
     get
   }
 }
-extension Attributes : Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
+extension KeychainAccess.Attributes : Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
   public var description: Swift.String {
     get
   }
@@ -338,7 +338,7 @@ extension Attributes : Swift.CustomStringConvertible, Swift.CustomDebugStringCon
     get
   }
 }
-extension ItemClass : Swift.RawRepresentable, Swift.CustomStringConvertible {
+extension KeychainAccess.ItemClass : Swift.RawRepresentable, Swift.CustomStringConvertible {
   public init?(rawValue: Swift.String)
   public var rawValue: Swift.String {
     get
@@ -348,7 +348,7 @@ extension ItemClass : Swift.RawRepresentable, Swift.CustomStringConvertible {
   }
   public typealias RawValue = Swift.String
 }
-extension ProtocolType : Swift.RawRepresentable, Swift.CustomStringConvertible {
+extension KeychainAccess.ProtocolType : Swift.RawRepresentable, Swift.CustomStringConvertible {
   public init?(rawValue: Swift.String)
   public var rawValue: Swift.String {
     get
@@ -358,7 +358,7 @@ extension ProtocolType : Swift.RawRepresentable, Swift.CustomStringConvertible {
   }
   public typealias RawValue = Swift.String
 }
-extension AuthenticationType : Swift.RawRepresentable, Swift.CustomStringConvertible {
+extension KeychainAccess.AuthenticationType : Swift.RawRepresentable, Swift.CustomStringConvertible {
   public init?(rawValue: Swift.String)
   public var rawValue: Swift.String {
     get
@@ -368,7 +368,7 @@ extension AuthenticationType : Swift.RawRepresentable, Swift.CustomStringConvert
   }
   public typealias RawValue = Swift.String
 }
-extension Accessibility : Swift.RawRepresentable, Swift.CustomStringConvertible {
+extension KeychainAccess.Accessibility : Swift.RawRepresentable, Swift.CustomStringConvertible {
   public init?(rawValue: Swift.String)
   public var rawValue: Swift.String {
     get
@@ -783,18 +783,18 @@ public enum Status : Darwin.OSStatus, Swift.Error {
   case timestampRevocationNotification
   case unexpectedError
 }
-extension Status : Swift.RawRepresentable, Swift.CustomStringConvertible {
+extension KeychainAccess.Status : Swift.RawRepresentable, Swift.CustomStringConvertible {
   public init(status: Darwin.OSStatus)
   public var description: Swift.String {
     get
   }
-  public typealias RawValue = Darwin.OSStatus
   public init?(rawValue: Darwin.OSStatus)
+  public typealias RawValue = Darwin.OSStatus
   public var rawValue: Darwin.OSStatus {
     get
   }
 }
-extension Status : Foundation.CustomNSError {
+extension KeychainAccess.Status : Foundation.CustomNSError {
   public static let errorDomain: Swift.String
   public var errorCode: Swift.Int {
     get
