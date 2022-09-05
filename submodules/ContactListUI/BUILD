@@ -36,6 +36,7 @@ swift_library(
         "//submodules/AnimatedStickerNode:AnimatedStickerNode",
         "//submodules/TelegramAnimatedStickerNode:TelegramAnimatedStickerNode",
         "//submodules/QrCodeUI:QrCodeUI",
+        "//third-party/SnapKit:SnapKit",
     ],
     visibility = [
         "//visibility:public",

@@ -19,6 +19,7 @@ import AppBundle
 import StickerResources
 import ContextUI
 import QrCodeUI
+import SnapKit
 
 
 private final class HeaderContextReferenceContentSource: ContextReferenceContentSource {

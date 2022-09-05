@@ -296,6 +296,7 @@ swift_library(
         "//submodules/Components/PagerComponent:PagerComponent",
         "//submodules/Components/LottieAnimationComponent:LottieAnimationComponent",
         "//third-party/Supabase:Supabase",
+          "//third-party/SnapKit:SnapKit",
       
         
      
