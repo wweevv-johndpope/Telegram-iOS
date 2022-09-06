@@ -18,6 +18,8 @@ There are several things we require from **all developers** for the moment.
 
 ```
 git clone --recursive -j8 https://github.com/TelegramMessenger/Telegram-iOS.git
+OR
+git clone --recursive -j8 --branch supabase-submodule https://github.com/wweevv-johndpope/Telegram-iOS.git
 ```
 
 3. Adjust configuration parameters
