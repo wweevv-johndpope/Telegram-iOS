@@ -64,37 +64,10 @@ http_archive(
     build_file = "@//third-party/AppCenter:AppCenter.BUILD",
 )
 
-
-
 http_archive(
-    name = "cgrindel_rules_spm",
-    sha256 = "03718eb865a100ba4449ebcbca6d97bf6ea78fa17346ce6d55532312e8bf9aa8",
-    strip_prefix = "rules_spm-0.11.0",
-    urls = [
-        "http://github.com/cgrindel/rules_spm/archive/v0.11.0.tar.gz",
-    ],
+    name = "rules_pods",
+    urls = ["https://github.com/pinterest/PodToBUILD/releases/download/4.1.0-412495/PodToBUILD.zip"],
 )
 
-load(
-    "@cgrindel_rules_spm//spm:deps.bzl",
-    "spm_rules_dependencies",
-)
-
-spm_rules_dependencies()
-
-load(
-    "@build_bazel_rules_swift//swift:repositories.bzl",
-    "swift_rules_dependencies",
-)
-
-swift_rules_dependencies()
-
-load(
-    "@build_bazel_rules_swift//swift:extras.bzl",
-    "swift_rules_extra_dependencies",
-)
-
-swift_rules_extra_dependencies()
-
-
-
+# Load the new_pod_repository macro - needed for `WORKSPACE` usage
+load("@rules_pods//BazelExtensions:workspace.bzl", "new_pod_repository")
