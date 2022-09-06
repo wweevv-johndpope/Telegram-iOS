@@ -552,12 +552,19 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
         
         
 
-        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/96de04334264d7cb73848b023389021f254920ef/response.json"
+        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/9b1767cad8dcaf74220296c48f2c97b52fb767bc/response.json"
         
         let request = AF.request(url)
         request.responseDecodable(of: WEVResponse.self) { (response) in
-          guard let videos = response.value else { return }
+          guard let videos = response.value else {
+              print("🔥 FAILED WTF???")
+              print("🔥 error:",response)
+              return }
             print(videos.data?.liveVideoPojoList as Any)
+            if let arr = videos.data?.liveVideoPojoList{
+                self.showDataArray = arr
+            }
+            self.collectionView.reloadData()
         }
         
 
@@ -1059,15 +1066,35 @@ struct WEVResponse :Decodable{
 
 struct WEVResponseData:Decodable{
     var keyWord = "";
+    var nextPageToken = ""
     var liveVideoPojoList:[WEVVideoModel]
+    var offset:Int?
+}
+
+struct LivePojo:Decodable{
+    var id :String?
+    var channelId:String?
+    var liveId:String?
+    var liveHeadUrl:String?
+    var liveName:String?
+    var liveDescription:String?
+    var regionCode:String?
+    var viewCount:Int?
+    var substrFlag:Bool?
+    
 }
 
 // TODO - move this
+
+//Swift.DecodingError.keyNotFound(CodingKeys(stringValue: "isSponsored", intValue: nil), Swift.DecodingError.Context(codingPath: [CodingKeys(stringValue: "data", intValue: nil), CodingKeys(stringValue: "liveVideoPojoList", intValue: nil), _JSONKey(stringValue: "Index 0", intValue: 0)], debugDescription: "No value associated with key CodingKeys(stringValue: \"isSponsored\", intValue: nil) (\"isSponsored\").", underlyingError: nil)))))
+
 struct WEVVideoModel :Decodable{
 
-    var channel = ""
-    var liveId = ""
+    
+
     var id = ""
+    var channelId = ""
+    var liveId = ""
     var videoDescription = ""
     var videoId = ""
     var videoPublishedAt = ""
@@ -1076,11 +1103,12 @@ struct WEVVideoModel :Decodable{
     var videoUrl = ""
     var wweevvVideoUrl = ""
     var views = 0
-    var isSponsored = false
-    
+    var isSponsored:String?
+    var livePojo:LivePojo
+
     
     enum CodingKeys: String, CodingKey {
-        case channel
+
         case liveId
         case id
         case videoDescription
@@ -1091,7 +1119,8 @@ struct WEVVideoModel :Decodable{
         case videoUrl
         case wweevvVideoUrl
         case views
-        case isSponsored
+        case isSponsored = "sponsorFlag"
+        case livePojo
     }
 
 }
