@@ -57,9 +57,9 @@ extension LJNetManager {
                 params.updateValue(channelArray.map{$0.rawValue}.joined(separator: ","), forKey: "channelIdArray")
             }
             
-            let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/96de04334264d7cb73848b023389021f254920ef/response.json"
-            
-            LJNetManager.request(url: url, method: .get, bodyParameters: nil, completion: completion) // WARNING - this should be POST on server
+          
+           
+                         
         }
 
         /// 根据输入内容匹配直播名字

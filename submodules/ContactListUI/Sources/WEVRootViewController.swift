@@ -22,7 +22,7 @@ import QrCodeUI
 import ContactsUI
 import SnapKit
 import HandyJSON
-
+import Alamofire
 
 
 private final class HeaderContextReferenceContentSource: ContextReferenceContentSource {
@@ -552,42 +552,14 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
         
         
 
+        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/96de04334264d7cb73848b023389021f254920ef/response.json"
         
-        LJNetManager.Video.discoverList(channelArray: [],
-                                        keyWord: "",
-                                        nextPageToken: "",
-                                        offset: 0,
-                                        latitude: 0.0,
-                                        longitude: 0.0)
-        {[weak self] (result) in
-            guard let self = self else {return}
-          //  MBProgressHUD.hide(for: self.view, animated: true)
-//            self.collectionView.lj.endRefreshing(isHeader: false)
-            if result.isSuccess,
-               let data = result.successDicData,
-               let list = data["liveVideoPojoList"] as? [Any],
-               var array = [WEVVideoModel].deserialize(from: list) as? [WEVVideoModel],
-               let _ = data["nextPageToken"] as? String {
-//                if isHeadRefesh {
-//                    self.showDataArray.removeAll()
-//                }
-                array = array.filter { (item) -> Bool in
-                    !self.showDataArray.contains(where: {$0.videoId == item.videoId})
-                }
-//                self.nextPageToken = nextPageToken
-//                self.searchOffset = data["offset"] as? Int
-                self.showDataArray.append(contentsOf: array)
-                self.collectionView.reloadData()
-//                self.refreshEmptyView()
-            }else {
-////                MBProgressHUD.lj.showHint(result.message)
-            }
+        let request = AF.request(url)
+        request.responseDecodable(of: WEVResponse.self) { (response) in
+          guard let videos = response.value else { return }
+            print(videos.data?.liveVideoPojoList as Any)
         }
         
-        // 下拉刷新且非搜索非筛选情况下才重新加载数据
-//        if isHeadRefesh && isShouldLoadBannerData {
-//            loadBannerData()
-//        }
 
     }
     
@@ -1077,11 +1049,23 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
     
 }
 
+struct WEVResponse :Decodable{
+    var code = 0
+    var data:WEVResponseData?
+    var message = "";
+    var time = 0;
+  
+}
+
+struct WEVResponseData:Decodable{
+    var keyWord = "";
+    var liveVideoPojoList:[WEVVideoModel]
+}
 
 // TODO - move this
-struct WEVVideoModel :HandyJSON{
+struct WEVVideoModel :Decodable{
 
-    var channel: WEVChannel?
+    var channel = ""
     var liveId = ""
     var id = ""
     var videoDescription = ""
@@ -1092,9 +1076,23 @@ struct WEVVideoModel :HandyJSON{
     var videoUrl = ""
     var wweevvVideoUrl = ""
     var views = 0
-//    var anchor: Anchor?
     var isSponsored = false
-
+    
+    
+    enum CodingKeys: String, CodingKey {
+        case channel
+        case liveId
+        case id
+        case videoDescription
+        case videoId
+        case videoPublishedAt
+        case videoThumbnailsUrl
+        case videoTitle
+        case videoUrl
+        case wweevvVideoUrl
+        case views
+        case isSponsored
+    }
 
 }
 
