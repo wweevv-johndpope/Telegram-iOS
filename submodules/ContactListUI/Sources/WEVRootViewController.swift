@@ -527,7 +527,7 @@ private final class ContactsTabBarContextExtractedContentSource: ContextExtracte
 //
 
 
-public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
+public class WEVRootNode: ASDisplayNode{
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
     private var showDataArray: [WEVVideoModel] = []
@@ -545,9 +545,6 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
     var openInvite: (() -> Void)?
 
 
-    var tableView:UITableView?
-
-    
     func test(){
         
         
@@ -629,21 +626,16 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
-        //view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
-//        view.lj.addMJReshreHeader(delegate: self)
-//        view.lj.addMJReshreFooter(delegate: self)
-//
-
-            view.contentInsetAdjustmentBehavior = .never
-
+        view.contentInsetAdjustmentBehavior = .never
         return view
     }()
 
     private func updateThemeAndStrings() {
-        self.tableView?.reloadData()
-        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
-        
+        self.collectionView.reloadData()
+//        self.tableView?.reloadData()
+//        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+//        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
+//
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         
@@ -675,7 +667,7 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
 
         if(mServicesTableView?.supernode == nil) { // load only once
             mServicesTableView = ASDisplayNode { () -> UIView in
-                let services = self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 100), size: CGSize(width: layout.size.width, height: layout.size.height)))
+                let services = self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height)))
                 return services
             }
 
@@ -689,82 +681,16 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         layout.itemSize = CGSize(width: width, height: 97 * width / 186)
         let view = UICollectionView.init(frame: frame, collectionViewLayout: layout)
-        view.backgroundColor = .white
+        view.backgroundColor = .black
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
-        //view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
-//        view.lj.addMJReshreHeader(delegate: self)
-//        view.lj.addMJReshreFooter(delegate: self)
-//
-
             view.contentInsetAdjustmentBehavior = .never
 
         return view
         
     }
-//
-//    private func getCollectionView(frame:CGRect) -> UITableView {
-//        self.tableView = UITableView(frame: frame)
-//        self.tableView?.delegate = self
-//        self.tableView?.dataSource = self
-//        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-//        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
-//
-//        return  self.tableView!
-//    }
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "servicesCell")
-        cell?.selectionStyle = .none
-        if cell == nil {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "servicesCell")
-        }
-        
-        if indexPath.row == 0 {
-//            cell?.imageView?.image = UIImage(named: "terms")
-            cell?.textLabel?.text = "My Offers"
-        } else {
-//            cell?.imageView?.image = UIImage(named: "expiration")
-            cell?.textLabel?.text = "My Schedules"
-        }
-        cell?.textLabel?.textColor = presentationData.theme.contextMenu.primaryColor
-//        cell?.backgroundView?.backgroundColor =presentationData.theme.contextMenu.backgroundColor
-        cell?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-        cell?.selectionStyle = .none
-              
-        return cell!
-    }
-//
-    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("didSelect row \(indexPath.row)")
-//        let v = Bundle.main.loadNibNamed("DetailsHeaderCell", owner: self, options: nil)
-//        print("DetailsHeaderCell xib \(v)")
-        
-        if indexPath.row == 1 {
-
-
-            let schedules = UIViewController()
-            schedules.view.backgroundColor = .red
-            let navigation = UINavigationController(rootViewController: schedules)
-//            navigation.modalPresentationStyle = .fullScreen
-            controller.present(navigation, animated: true)
-            
-        } else if indexPath.row == 0 {
-
-            let offers = UIViewController()
-            offers.title = "offers"
-            offers.view.backgroundColor = .blue
-            let navigation = UINavigationController(rootViewController: offers)
-//            navigation.modalPresentationStyle = .fullScreen
-            controller.present(navigation, animated: true)
-
-        }
-    }
+    
 }
 
 
@@ -784,14 +710,14 @@ extension WEVRootNode: UICollectionViewDelegateFlowLayout {
         1
     }
     
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-//        if true {
-//            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
-//        }else {
-            return CGSize.zero
-//        }
-        
-    }
+//    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+////        if true {
+////            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
+////        }else {
+//            return CGSize.zero
+////        }
+//
+//    }
     
 }
 
