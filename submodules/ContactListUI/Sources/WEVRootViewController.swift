@@ -145,7 +145,7 @@ private func fixListNodeScrolling(_ listNode: ListView, searchNode: NavigationBa
 public class WEVRootViewController: ViewController {
     private let context: AccountContext
     
-    private var showDataArray: [WEVVideoModel]
+
     private var contactsNode: WEVRootNode {
         return self.displayNode as! WEVRootNode
     }
@@ -176,17 +176,21 @@ public class WEVRootViewController: ViewController {
     
     private let sortButton: SortHeaderButton
     
+  
     public init(context: AccountContext) {
+       
         self.context = context
         
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         
         self.sortButton = SortHeaderButton(presentationData: self.presentationData)
         
+
         super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
         
         self.tabBarItemContextActionType = .always
         
+
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
         self.title =  "Stream"//self.presentationData.strings.Contacts_Title
@@ -290,7 +294,7 @@ public class WEVRootViewController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = self.presentationData.strings.Contacts_Title
+        self.title = "Stream" //self.presentationData.strings.Contacts_Title
         self.tabBarItem.title = self.presentationData.strings.Contacts_Title
         if !self.presentationData.reduceMotion {
             self.tabBarItem.animationName = "TabContacts"
@@ -526,7 +530,7 @@ private final class ContactsTabBarContextExtractedContentSource: ContextExtracte
 public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSource {
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
-    private var showDataArray: [WEVVideoModel]
+    private var showDataArray: [WEVVideoModel] = []
     private let context: AccountContext
     private(set) var searchDisplayController: SearchDisplayController?
     private var offersTableViewNode:ASDisplayNode?
@@ -544,6 +548,49 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
     var tableView:UITableView?
 
     
+    func test(){
+        
+        
+
+        
+        LJNetManager.Video.discoverList(channelArray: [],
+                                        keyWord: "",
+                                        nextPageToken: "",
+                                        offset: 0,
+                                        latitude: 0.0,
+                                        longitude: 0.0)
+        {[weak self] (result) in
+            guard let self = self else {return}
+          //  MBProgressHUD.hide(for: self.view, animated: true)
+//            self.collectionView.lj.endRefreshing(isHeader: false)
+            if result.isSuccess,
+               let data = result.successDicData,
+               let list = data["liveVideoPojoList"] as? [Any],
+               var array = [WEVVideoModel].deserialize(from: list) as? [WEVVideoModel],
+               let _ = data["nextPageToken"] as? String {
+//                if isHeadRefesh {
+//                    self.showDataArray.removeAll()
+//                }
+                array = array.filter { (item) -> Bool in
+                    !self.showDataArray.contains(where: {$0.videoId == item.videoId})
+                }
+//                self.nextPageToken = nextPageToken
+//                self.searchOffset = data["offset"] as? Int
+                self.showDataArray.append(contentsOf: array)
+                self.collectionView.reloadData()
+//                self.refreshEmptyView()
+            }else {
+////                MBProgressHUD.lj.showHint(result.message)
+            }
+        }
+        
+        // 下拉刷新且非搜索非筛选情况下才重新加载数据
+//        if isHeadRefesh && isShouldLoadBannerData {
+//            loadBannerData()
+//        }
+
+    }
+    
     
     private var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
@@ -557,7 +604,7 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
         //BlockchainTest().decode()
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
 
-       
+
         let options = [ContactListAdditionalOption(title: presentationData.strings.Contacts_AddPeopleNearby, icon: .generic(UIImage(bundleImageName: "Contact List/PeopleNearbyIcon")!), action: {
          //   addNearbyImpl?()
         }), ContactListAdditionalOption(title: presentationData.strings.Contacts_InviteFriends, icon: .generic(UIImage(bundleImageName: "Contact List/AddMemberIcon")!), action: {
@@ -579,6 +626,7 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
 
         super.init()
 
+        self.test()
         self.setViewBlock({
             return UITracingLayerView()
         })
@@ -657,16 +705,35 @@ public class WEVRootNode: ASDisplayNode,UITableViewDelegate,UITableViewDataSourc
 
 
     }
+    private func getCollectionView(frame:CGRect) -> UICollectionView{
+        let layout = UICollectionViewFlowLayout()
+        let width = (LJScreen.width - 1 * 2 - 1) / 2
+        layout.itemSize = CGSize(width: width, height: 97 * width / 186)
+        let view = UICollectionView.init(frame: frame, collectionViewLayout: layout)
+        view.backgroundColor = .white
+        view.delegate = self
+        view.dataSource = self
+        view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
+        //view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
+//        view.lj.addMJReshreHeader(delegate: self)
+//        view.lj.addMJReshreFooter(delegate: self)
+//
 
-    private func getCollectionView(frame:CGRect) -> UITableView {
-        self.tableView = UITableView(frame: frame)
-        self.tableView?.delegate = self
-        self.tableView?.dataSource = self
-        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
+            view.contentInsetAdjustmentBehavior = .never
+
+        return view
         
-        return  self.tableView!
     }
+//
+//    private func getCollectionView(frame:CGRect) -> UITableView {
+//        self.tableView = UITableView(frame: frame)
+//        self.tableView?.delegate = self
+//        self.tableView?.dataSource = self
+//        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+//        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
+//
+//        return  self.tableView!
+//    }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
@@ -920,8 +987,8 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     
     private func updateView() {
         guard let model = model else { return }
-        channelImageView.image = model.channel?.smallImage
-        channelNameLabel.text = model.channel?.title
+//        channelImageView.image = model.channel?.smallImage
+        channelNameLabel.text = "test"// model.channel?.title
         liveLabel.isHidden = false
         var numberStr = "\(model.views)"
         var unit = "viewers"
@@ -933,30 +1000,11 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         }
         amountLabel.text = "  \(numberStr) \(unit)  "
         
-        imageView.kf.setImage(with: URL.init(string: model.videoThumbnailsUrl), placeholder: nil)
+       // imageView.kf.setImage(with: URL.init(string: model.videoThumbnailsUrl), placeholder: nil)
     }
     
 }
 
-// TODO - move this
-struct WEVVideoModel {
-
-    var channel: Any?
-    var liveId = ""
-    var id = ""
-    var videoDescription = ""
-    var videoId = ""
-    var videoPublishedAt = ""
-    var videoThumbnailsUrl = ""
-    var videoTitle = ""
-    var videoUrl = ""
-    var wweevvVideoUrl = ""
-    var views = 0
-//    var anchor: Anchor?
-    var isSponsored = false
-
-
-}
 
 enum WEVChannel: String, HandyJSONEnum, CaseIterable {
     
@@ -1030,6 +1078,28 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
 }
 
 
+// TODO - move this
+struct WEVVideoModel :HandyJSON{
+
+    var channel: WEVChannel?
+    var liveId = ""
+    var id = ""
+    var videoDescription = ""
+    var videoId = ""
+    var videoPublishedAt = ""
+    var videoThumbnailsUrl = ""
+    var videoTitle = ""
+    var videoUrl = ""
+    var wweevvVideoUrl = ""
+    var views = 0
+//    var anchor: Anchor?
+    var isSponsored = false
+
+
+}
+
+
+
 
 struct LJColor {
     
@@ -1072,10 +1142,10 @@ struct LJScreen {
 
     // iphoneX
     static func isiPhoneXMore() -> Bool {
-        var isMore:Bool = false
-        if #available(iOS 11.0, *) {
-            isMore = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0 > CGFloat(0)
-        }
+        let isMore:Bool = true
+//        if #available(iOS 11.0, *) {
+//            isMore = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0 > CGFloat(0)
+//        }
         return isMore
     }
 

@@ -36,6 +36,7 @@ import UIKitRuntimeUtils
 import StoreKit
 import Supabase
 import PostgREST
+import Alamofire
 //import FirebaseAuth
 //import FirebaseAnalytics
 //import FirebaseCore
