@@ -8,7 +8,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <AsyncDisplayKit/ASBaseDefines.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,7 +32,7 @@ typedef NS_ENUM(NSUInteger, ASAsyncTransactionState) {
   ASAsyncTransactionStateComplete
 };
 
-AS_EXTERN NSInteger const ASDefaultTransactionPriority;
+ASDK_EXTERN NSInteger const ASDefaultTransactionPriority;
 
 /**
  @summary ASAsyncTransaction provides lightweight transaction semantics for asynchronous operations.
@@ -118,3 +117,4 @@ AS_EXTERN NSInteger const ASDefaultTransactionPriority;
 @end
 
 NS_ASSUME_NONNULL_END
+

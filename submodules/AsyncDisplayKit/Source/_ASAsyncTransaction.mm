@@ -16,7 +16,7 @@
 #import <map>
 #import <mutex>
 
-AS_EXTERN NSRunLoopMode const UITrackingRunLoopMode;
+ASDK_EXTERN NSRunLoopMode const UITrackingRunLoopMode;
 
 NSInteger const ASDefaultTransactionPriority = 0;
 
