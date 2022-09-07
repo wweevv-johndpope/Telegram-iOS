@@ -38,7 +38,9 @@ swift_library(
         "//submodules/QrCodeUI:QrCodeUI",
         "//submodules/ContactListUI/HandyJSON:HandyJSON",
         "//submodules/ContactListUI/SnapKit:SnapKit",
+        "//submodules/ContactListUI/Kingfisher",
         "//third-party/Alamofire",
+
         
 
     ],
