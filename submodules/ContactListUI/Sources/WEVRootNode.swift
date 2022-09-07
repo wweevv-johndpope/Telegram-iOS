@@ -25,7 +25,7 @@ import HandyJSON
 import Alamofire
 import GalleryUI
 import Postbox
-
+import TelegramCore
 
 public class WEVRootNode: ASDisplayNode{
     let contactListNode: ContactListNode
@@ -266,12 +266,22 @@ extension WEVRootNode: UICollectionViewDataSource {
         
         
         let source = GalleryControllerItemSource.standaloneMessage(message)
+        let size = CGSize(width:1280,height:720)
+
+        
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: "https://www.youtube.com/watch?v=idvMUlErPlA&ab_channel=PeppaPig-OfficialChannel", displayUrl: "youtube.com/watch?v=idvMUlErPlA", hash: 0, type: "video", websiteName: "YouTube", title: "🔴 LIVE Peppa Pig\'s Clubhouse 🐷🏠 BRAND NEW SEASON 9 PEPPA", text: "❤️ Watch the latest uploads here! https://www.youtube.com/playlist?list=PLFEgnf4tmQe_L3xlmtFwX8Qm5czqwCcVi\n❤️  Watch Peppa Pig\'s most Popular videos here! \nAbout Peppa Pig official channel:\n\nWelcome to the Official Peppa Pig channel and the home of Peppa on YouTube!  We have created a world of Peppa with episodes and compilations to keep even the most dedicated Peppa fans happy.  Here at Peppa Pig Official channel, kids can be happy and smart! Watch Peppa Pig clips and episodes where Peppa Pig play games with her friends, Mummy Pig and Daddy Pig tell the bedtime stories, Peppa Pig sings nursery rhymes and songs, Peppa and her family and friends celebrate Christmas and Halloween together! Peppa Pig episodic animation, Peppa   Pig songs for kids, Peppa Pig toy play and Peppa", embedUrl: "https://www.youtube.com/embed/idvMUlErPlA", embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+        let _ = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
         
         
-        let gallery = GalleryController(context: self.controller.accountContext(), source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: true, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: true, replaceRootController: { [weak navigationController] controller, ready in
+        let galleryVC = GalleryController(context: self.controller.accountContext(), source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: true, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: true, replaceRootController: { [weak navigationController] controller, ready in
             navigationController?.replaceTopController(controller, animated: false, ready: ready)
         }, baseNavigationController: navigationController, actionInteraction: nil)
-        gallery.temporaryDoNotWaitForReady = true
+        galleryVC.temporaryDoNotWaitForReady = true
+        
+        let nc = UINavigationController(rootViewController: galleryVC)
+        self.controller.present(nc, animated: true)
+
+        
         
     }
 }
