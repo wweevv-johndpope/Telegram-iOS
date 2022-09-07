@@ -40,7 +40,8 @@ swift_library(
         "//submodules/ContactListUI/SnapKit:SnapKit",
         "//submodules/ContactListUI/Kingfisher",
         "//third-party/Alamofire",
-
+        "//submodules/GalleryUI:GalleryUI",
+        "//submodules/Postbox:Postbox",
         
 
     ],

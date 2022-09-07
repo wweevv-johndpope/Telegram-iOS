@@ -795,7 +795,7 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                     openChatLocation = .peer(id: message.id.peerId)
                 }
             }
-            
+            let params =
             return context.sharedContext.openChatMessage(OpenChatMessageParams(context: context, updatedPresentationData: strongSelf.updatedPresentationData, chatLocation: openChatLocation, chatLocationContextHolder: strongSelf.chatLocationContextHolder, message: message, standalone: false, reverseMessageGalleryOrder: false, mode: mode, navigationController: strongSelf.effectiveNavigationController, dismissInput: {
                 self?.chatDisplayNode.dismissInput()
             }, present: { c, a in

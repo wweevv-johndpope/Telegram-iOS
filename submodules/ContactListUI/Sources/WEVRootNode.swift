@@ -23,7 +23,8 @@ import ContactsUI
 import SnapKit
 import HandyJSON
 import Alamofire
-
+import GalleryUI
+import Postbox
 
 
 public class WEVRootNode: ASDisplayNode{
@@ -234,13 +235,44 @@ extension WEVRootNode: UICollectionViewDataSource {
 //
 //        return bannerView
 //    }
+    private var navigationController: NavigationController? {
+        if let navigationController = self.controller.navigationController as? NavigationController {
+            return navigationController
+        }
+//        else if case let .inline(navigationController) = self.presentationInterfaceState.mode {
+//            return navigationController
+//        } else if case let .overlay(navigationController) = self.presentationInterfaceState.mode {
+//            return navigationController
+//        } else {
+//            return nil
+//        }
+        return nil
+    }
+    
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let video = showDataArray[indexPath.row]
         print("video:",video)
         
-//        let vc = WEVVideoDetailViewController.init(video: model)
-//        WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
+
+
+       
+        
+        // ORIGINAL
+//        let message = Message(stableId: 0, stableVersion: 0, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [file.file.media], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+//
+        //JP HACK
+        let message = Message(stableId: 0, stableVersion: 0, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+        
+        
+        let source = GalleryControllerItemSource.standaloneMessage(message)
+        
+        
+        let gallery = GalleryController(context: self.controller.accountContext(), source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: true, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: true, replaceRootController: { [weak navigationController] controller, ready in
+            navigationController?.replaceTopController(controller, animated: false, ready: ready)
+        }, baseNavigationController: navigationController, actionInteraction: nil)
+        gallery.temporaryDoNotWaitForReady = true
+        
     }
 }
 

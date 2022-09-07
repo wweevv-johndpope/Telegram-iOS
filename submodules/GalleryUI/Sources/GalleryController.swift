@@ -16,6 +16,7 @@ import OpenInExternalAppUI
 import ScreenCaptureDetection
 import UndoUI
 
+
 private func tagsForMessage(_ message: Message) -> MessageTags? {
     for media in message.media {
         switch media {
@@ -398,7 +399,10 @@ public class GalleryController: ViewController, StandalonePresentableController,
     
     private var initialOrientation: UIInterfaceOrientation?
     
+
     public init(context: AccountContext, source: GalleryControllerItemSource, invertItemOrder: Bool = false, streamSingleVideo: Bool = false, fromPlayingVideo: Bool = false, landscape: Bool = false, timecode: Double? = nil, playbackRate: Double? = nil, synchronousLoad: Bool = false, replaceRootController: @escaping (ViewController, Promise<Bool>?) -> Void, baseNavigationController: NavigationController?, actionInteraction: GalleryControllerActionInteraction? = nil) {
+        
+        
         self.context = context
         self.source = source
         self.invertItemOrder = invertItemOrder

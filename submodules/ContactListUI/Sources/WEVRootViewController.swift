@@ -145,7 +145,9 @@ private func fixListNodeScrolling(_ listNode: ListView, searchNode: NavigationBa
 
 public class WEVRootViewController: ViewController {
     private let context: AccountContext
-    
+    public func accountContext()->AccountContext{
+        return context
+    }
 
     private var contactsNode: WEVRootNode {
         return self.displayNode as! WEVRootNode
