@@ -39,6 +39,7 @@ swift_library(
         "//submodules/ContactListUI/HandyJSON:HandyJSON",
         "//submodules/ContactListUI/SnapKit:SnapKit",
         "//submodules/ContactListUI/Kingfisher",
+        "//submodules/InstantPageUI:InstantPageUI",
         "//third-party/Alamofire",
         "//submodules/GalleryUI:GalleryUI",
         "//submodules/Postbox:Postbox",
