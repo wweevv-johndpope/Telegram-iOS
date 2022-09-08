@@ -196,21 +196,21 @@ public class WEVRootViewController: ViewController {
 
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title =  "Stream"//self.presentationData.strings.Contacts_Title
-        self.tabBarItem.title = self.presentationData.strings.Contacts_Title
+        self.title =  "Feed"//self.presentationData.strings.Contacts_Title
+        self.tabBarItem.title = "Feed"
         
         let icon: UIImage?
         if useSpecialTabBarIcons() {
-            icon = UIImage(bundleImageName: "Chat List/Tabs/Holiday/IconContacts")
+            icon = UIImage(systemName:"heart.fill")?.withBaselineOffset(fromBottom: 6.0)
         } else {
-            icon = UIImage(bundleImageName: "Chat List/Tabs/IconContacts")
+            icon = UIImage(systemName:"heart.fill")?.withBaselineOffset(fromBottom: 6.0)
         }
         
         self.tabBarItem.image = icon
         self.tabBarItem.selectedImage = icon
-        if !self.presentationData.reduceMotion {
-            self.tabBarItem.animationName = "TabContacts"
-        }
+//        if !self.presentationData.reduceMotion {
+//            self.tabBarItem.animationName = "TabLove2"
+//        }
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         

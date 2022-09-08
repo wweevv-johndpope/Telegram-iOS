@@ -260,7 +260,7 @@ extension WEVRootNode: UICollectionViewDataSource {
         
 //
         let size = CGSize(width:1280,height:720)
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: "https://www.youtube.com/watch?v=idvMUlErPlA&ab_channel=PeppaPig-OfficialChannel", displayUrl: "youtube.com/watch?v=idvMUlErPlA", hash: 0, type: "video", websiteName: "YouTube", title: "title", text: "testa", embedUrl: "https://www.youtube.com/embed/idvMUlErPlA", embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: video.videoUrl, displayUrl: video.videoUrl, hash: 0, type: "video", websiteName: "YouTube", title:video.videoTitle, text: video.videoDescription, embedUrl: video.videoUrl, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
         let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
 
 //        let messageAttribute = MessageAttribute
