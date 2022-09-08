@@ -272,7 +272,7 @@ extension WEVRootNode: UICollectionViewDataSource {
         // Source is message?
                 let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: true, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
             print("👹  we're in replaceRootController....")
                     self.controller?.navigationController?.popToRootViewController(animated: true)
         }, baseNavigationController: navigationController, actionInteraction: nil)
