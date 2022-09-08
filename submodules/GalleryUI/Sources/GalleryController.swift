@@ -338,6 +338,7 @@ public class GalleryController: ViewController, StandalonePresentableController,
         return self.displayNode as! GalleryControllerNode
     }
     
+    public var isChannel:Bool = false
     private let context: AccountContext
     private var presentationData: PresentationData
     private let source: GalleryControllerItemSource
@@ -970,6 +971,10 @@ public class GalleryController: ViewController, StandalonePresentableController,
     }
     
     @objc private func donePressed() {
+        if(isChannel){
+            self.navigationController?.popViewController(animated: true)
+            return
+        }
         self.dismiss(forceAway: false)
     }
     
