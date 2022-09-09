@@ -158,7 +158,7 @@ public class WEVRootNode: ASDisplayNode{
             mServicesTableView = ASDisplayNode { () -> UIView in
                 
                 // 50 = the navigation bar header height
-               return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 50), size: CGSize(width: layout.size.width, height: layout.size.height)))
+               return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height)))
             
             }
 
@@ -173,7 +173,7 @@ public class WEVRootNode: ASDisplayNode{
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         layout.itemSize = CGSize(width: width, height: 97 * width / 186)
         let view = UICollectionView.init(frame: frame, collectionViewLayout: layout)
-        view.backgroundColor = .black
+        view.backgroundColor = .white
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
@@ -255,10 +255,20 @@ extension WEVRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let video = showDataArray[indexPath.row]
         print("video:",video)
-        
-    
-        
+  
+        // TODO - get the image - so we can pass it below
+//        let cell = self.collectionView?.cellForItem(at: indexPath) as! WEVDiscoverCollectionViewCell
+//        let image = cell.imageView.image?.copy()
 //
+//        let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: image.representations, immediateThumbnailData: image.immediateThumbnailData, reference: nil, partialReference: nil, flags: [])
+//
+////
+        ///
+        ///  var image: TelegramMediaImage?
+     
+       // let apiPhoto = Api.Photo
+       // let   image = TelegramMediaImage.telegramMediaImageFromApiPhoto(video.videoThumbnailsUrl)
+        
         let size = CGSize(width:1280,height:720)
         let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: video.videoUrl, displayUrl: video.videoUrl, hash: 0, type: "video", websiteName: "YouTube", title:video.videoTitle, text: video.videoDescription, embedUrl: video.videoUrl, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
         let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)

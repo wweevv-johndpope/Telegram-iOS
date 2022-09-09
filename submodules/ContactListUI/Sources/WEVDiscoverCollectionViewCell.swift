@@ -130,7 +130,8 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     /// 初始视图
     public func initView() {
         addSubview(imageView)
-        imageView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let width = (LJScreen.width - 1 * 2 - 1) / 2
+        imageView.frame = CGRect(x: 0, y: 0, width: width, height: 97 * width / 186)
 //        imageView.snp.makeConstraints { (make) in
 //            make.edges.equalToSuperview()
 //        }
