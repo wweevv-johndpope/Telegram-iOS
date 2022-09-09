@@ -13,8 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-AS_EXTERN void ASPerformBlockOnMainThread(void (^block)(void));
-AS_EXTERN void ASPerformBlockOnBackgroundThread(void (^block)(void)); // DISPATCH_QUEUE_PRIORITY_DEFAULT
+ASDK_EXTERN void ASPerformBlockOnMainThread(void (^block)(void));
+ASDK_EXTERN void ASPerformBlockOnBackgroundThread(void (^block)(void)); // DISPATCH_QUEUE_PRIORITY_DEFAULT
 
 #if ASEVENTLOG_ENABLE
   #define ASDisplayNodeLogEvent(node, ...) [node.eventLog logEventWithBacktrace:(AS_SAVE_EVENT_BACKTRACES ? [NSThread callStackSymbols] : nil) format:__VA_ARGS__]

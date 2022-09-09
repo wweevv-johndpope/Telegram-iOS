@@ -12,19 +12,19 @@
 
 NSArray<NSString *> *ASExperimentalFeaturesGetNames(ASExperimentalFeatures flags)
 {
-  NSArray *allNames = ASCreateOnce((@[@"exp_graphics_contexts",
-                                      @"exp_text_node",
+  NSArray *allNames = ASCreateOnce((@[@"exp_text_node",
                                       @"exp_interface_state_coalesce",
-                                      @"exp_unfair_lock",
                                       @"exp_infer_layer_defaults",
                                       @"exp_collection_teardown",
                                       @"exp_framesetter_cache",
                                       @"exp_skip_clear_data",
                                       @"exp_did_enter_preload_skip_asm_layout",
-                                      @"exp_disable_a11y_cache",
                                       @"exp_dispatch_apply",
-                                      @"exp_image_downloader_priority",
-                                      @"exp_text_drawing"]));
+                                      @"exp_drawing_global",
+                                      @"exp_optimize_data_controller_pipeline",
+                                      @"exp_disable_global_textkit_lock",
+                                      @"exp_main_thread_only_data_controller",
+                                      @"exp_range_update_on_changeset_update"]));
   if (flags == ASExperimentalFeatureAll) {
     return allNames;
   }
@@ -41,7 +41,7 @@ NSArray<NSString *> *ASExperimentalFeaturesGetNames(ASExperimentalFeatures flags
 ASExperimentalFeatures ASExperimentalFeaturesFromArray(NSArray<NSString *> *array)
 {
   NSArray *allNames = ASExperimentalFeaturesGetNames(ASExperimentalFeatureAll);
-  ASExperimentalFeatures result = 0;
+  ASExperimentalFeatures result = kNilOptions;
   for (NSString *str in array) {
     NSUInteger i = [allNames indexOfObject:str];
     if (i != NSNotFound) {
@@ -50,3 +50,4 @@ ASExperimentalFeatures ASExperimentalFeaturesFromArray(NSArray<NSString *> *arra
   }
   return result;
 }
+

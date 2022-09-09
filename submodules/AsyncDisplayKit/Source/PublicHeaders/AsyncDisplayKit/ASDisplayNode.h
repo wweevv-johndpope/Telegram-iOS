@@ -77,7 +77,7 @@ typedef NS_ENUM(NSInteger, ASCornerRoundingType) {
 /**
  * Default drawing priority for display node
  */
-AS_EXTERN NSInteger const ASDefaultDrawingPriority;
+ASDK_EXTERN NSInteger const ASDefaultDrawingPriority;
 
 /**
  * An `ASDisplayNode` is an abstraction over `UIView` and `CALayer` that allows you to perform calculations about a view

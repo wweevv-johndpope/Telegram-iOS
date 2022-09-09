@@ -54,29 +54,29 @@ typedef struct {
 /**
  * Creates ASPrimitiveTraitCollection with default values.
  */
-AS_EXTERN ASPrimitiveTraitCollection ASPrimitiveTraitCollectionMakeDefault(void);
+ASDK_EXTERN ASPrimitiveTraitCollection ASPrimitiveTraitCollectionMakeDefault(void);
 
 /**
  * Creates a ASPrimitiveTraitCollection from a given UITraitCollection.
  */
-AS_EXTERN ASPrimitiveTraitCollection ASPrimitiveTraitCollectionFromUITraitCollection(UITraitCollection *traitCollection);
+ASDK_EXTERN ASPrimitiveTraitCollection ASPrimitiveTraitCollectionFromUITraitCollection(UITraitCollection *traitCollection);
 
 
 /**
  * Compares two ASPrimitiveTraitCollection to determine if they are the same.
  */
-AS_EXTERN BOOL ASPrimitiveTraitCollectionIsEqualToASPrimitiveTraitCollection(ASPrimitiveTraitCollection lhs, ASPrimitiveTraitCollection rhs);
+ASDK_EXTERN BOOL ASPrimitiveTraitCollectionIsEqualToASPrimitiveTraitCollection(ASPrimitiveTraitCollection lhs, ASPrimitiveTraitCollection rhs);
 
 /**
  * Returns a string representation of a ASPrimitiveTraitCollection.
  */
-AS_EXTERN NSString *NSStringFromASPrimitiveTraitCollection(ASPrimitiveTraitCollection traits);
+ASDK_EXTERN NSString *NSStringFromASPrimitiveTraitCollection(ASPrimitiveTraitCollection traits);
 
 /**
  * This function will walk the layout element hierarchy and updates the layout element trait collection for every
  * layout element within the hierarchy.
  */
-AS_EXTERN void ASTraitCollectionPropagateDown(id<ASLayoutElement> element, ASPrimitiveTraitCollection traitCollection);
+ASDK_EXTERN void ASTraitCollectionPropagateDown(id<ASLayoutElement> element, ASPrimitiveTraitCollection traitCollection);
 
 /**
  * Abstraction on top of UITraitCollection for propagation within AsyncDisplayKit-Layout
