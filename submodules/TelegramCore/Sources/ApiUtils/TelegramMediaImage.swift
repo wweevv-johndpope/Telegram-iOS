@@ -30,7 +30,7 @@ func telegramMediaImageRepresentationsFromApiSizes(datacenterId: Int32, photoId:
     return (immediateThumbnailData, representations)
 }
 
-func telegramMediaImageFromApiPhoto(_ photo: Api.Photo) -> TelegramMediaImage? {
+public func telegramMediaImageFromApiPhoto(_ photo: Api.Photo) -> TelegramMediaImage? {
     switch photo {
         case let .photo(flags, id, accessHash, fileReference, _, sizes, videoSizes, dcId):
             let (immediateThumbnailData, representations) = telegramMediaImageRepresentationsFromApiSizes(datacenterId: dcId, photoId: id, accessHash: accessHash, fileReference: fileReference.makeData(), sizes: sizes)

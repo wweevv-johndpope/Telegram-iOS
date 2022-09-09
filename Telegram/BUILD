@@ -1952,6 +1952,8 @@ ios_application(
     deps = [
         ":Main",
         ":Lib",
+        "//third-party/Alamofire",
+        
     ],
 )
 

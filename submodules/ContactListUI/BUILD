@@ -36,7 +36,15 @@ swift_library(
         "//submodules/AnimatedStickerNode:AnimatedStickerNode",
         "//submodules/TelegramAnimatedStickerNode:TelegramAnimatedStickerNode",
         "//submodules/QrCodeUI:QrCodeUI",
-        "//third-party/SnapKit:SnapKit",
+        "//submodules/ContactListUI/HandyJSON:HandyJSON",
+        "//submodules/ContactListUI/SnapKit:SnapKit",
+        "//submodules/ContactListUI/Kingfisher",
+        "//submodules/InstantPageUI:InstantPageUI",
+        "//third-party/Alamofire",
+        "//submodules/GalleryUI:GalleryUI",
+        "//submodules/Postbox:Postbox",
+
+       
     ],
     visibility = [
         "//visibility:public",
