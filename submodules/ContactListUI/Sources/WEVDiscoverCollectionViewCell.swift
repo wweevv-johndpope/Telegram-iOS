@@ -37,6 +37,12 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             updateView()
         }
     }
+    public var youtubeVideo: YoutubeVideo? = nil {
+        didSet {
+            updateView()
+        }
+    }
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -186,21 +192,31 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     }
     
     private func updateView() {
-        guard let model = model else { return }
+//        guard let model = model else { return }
+        guard let youtubeVideo = youtubeVideo else {return }
 //        channelImageView.image = model.channel?.smallImage
-        channelNameLabel.text = "test"// model.channel?.title
+        channelNameLabel.text = youtubeVideo.title // "test"// model.channel?.title
         liveLabel.isHidden = false
-        var numberStr = "\(model.views)"
-        var unit = "viewers"
-        if model.views == 1 {
-            unit = "viewer"
+        if let n = youtubeVideo.viewCount{
+            var numberStr = "\(n)"
+            var unit = "viewers"
+            if n == 1 {
+                unit = "viewer"
+            }
+            if n >= 1000 {
+                numberStr = String.init(format: "%.1fk", Double(n) / 1000.0)
+            }
+            amountLabel.text = "  \(numberStr) \(unit)  "
+            amountLabel.isHidden = false
+        }else{
+            amountLabel.isHidden = true
         }
-        if model.views >= 1000 {
-            numberStr = String.init(format: "%.1fk", Double(model.views) / 1000.0)
-        }
-        amountLabel.text = "  \(numberStr) \(unit)  "
+      
         
-        imageView.kf.setImage(with: URL.init(string: model.videoThumbnailsUrl), placeholder: nil)
+        if let thumbnailUrl = youtubeVideo.thumbnails[0]?.url{
+            imageView.kf.setImage(with: URL.init(string: thumbnailUrl), placeholder: nil)
+
+        }
     }
     
 }

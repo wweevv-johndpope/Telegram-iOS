@@ -29,17 +29,43 @@ import TelegramCore
 import InstantPageUI
 
 
+
+public struct SlimVideo: Codable {
+    var id: String // youtube id
+    var blob:String  // youtube payload
+    //        var created_at:String
+    
+}
+
+public struct Thumbnail: Codable {
+    var url: String? // youtube id
+    var width:Int  // youtube payload
+    var height:Int
+}
+
+public struct YoutubeVideo: Codable {
+    var id: String? // youtube id
+    var title:String?  // youtube payload
+    var thumbnails:[Thumbnail?]
+    var description:String?
+    var duration:String?
+    var isLive:Bool?
+    var viewCount:Int?
+}
+
+
 public class WEVRootNode: ASDisplayNode{
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
     private var showDataArray: [WEVVideoModel] = []
-    private var slimVideos: [Any] = []
+    private var slimVideos: [SlimVideo] = []
+     var ytVideos: [YoutubeVideo] = []
     
     private let context: AccountContext
     private(set) var searchDisplayController: SearchDisplayController?
     private var offersTableViewNode:ASDisplayNode?
     private var containerLayout: (ContainerViewLayout, CGFloat)?
-//    var interactor:WCInteractor?
+    //    var interactor:WCInteractor?
     var navigationBar: NavigationBar?
     var listNode:ListView!
     var requestDeactivateSearch: (() -> Void)?
@@ -47,116 +73,133 @@ public class WEVRootNode: ASDisplayNode{
     var requestAddContact: ((String) -> Void)?
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
-
     
-    struct SlimVideo: Codable {
-        var id: String? // youtube id
-        var blob:String?  // youtube payload
-        var created_at:String?
-        
-    }
     
-
+    //{"id":"04eI9wRIquE","title":"Spider Man Home Coming vs Spider Man No Way Home, Spider Man Miles Morales Sonic Funeral Sad","thumbnails":[{"url":"https://i.ytimg.com/vi/04eI9wRIquE/hq720.jpg?sqp=-oaymwEjCOgCEMoBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLDg12_hVTDUcuTx-L574gw6XvmJlA","width":360,"height":202},{"url":"https://i.ytimg.com/vi/04eI9wRIquE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCBT-LtviqXVMJU8HvisyeYUxrsgg","width":720,"height":404}],"description":"Spider Man Home Coming vs Spider Man No Way Home, Spider Man Miles Morales Sonic Funeral Sad Subscribe to La La ...","duration":null,"isLive":true,"viewCount":265}
+    
+    
+    
+    
     func test(){
         
- 
-        self.controller.database?.from("slim_video").select().execute() { result in
+        
+        self.controller.database?.from("slim_video").select(columns:"id,blob").execute() { result in
             switch result {
             case let .success(response):
                 do {
-                 
                     print(response)
                     let videos = try response.decoded(to: [SlimVideo].self)
                     self.slimVideos = videos
-                } catch {
-                    print(error.localizedDescription)
+                    let decoder = JSONDecoder()
+                    
+                 
+                    
+     
+                    for  vid in videos{
+                        do {
+                            if let data = vid.blob.data(using: .utf8){
+                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
+                              //  print("video:",video)
+                                self.ytVideos.append(video)
+                            }
+
+                        }catch (let ex){
+                            print(ex)
+
+                        }
+                        
+                    }
+                    
+                } catch (let exception){
+                    print(exception)
+
                 }
             case let .failure(error):
                 print(error.localizedDescription)
             }
         }
         
-//        return
-//
-//        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/9b1767cad8dcaf74220296c48f2c97b52fb767bc/response.json"
-//
-//        let request = AF.request(url)
-//        request.responseDecodable(of: WEVResponse.self) { (response) in
-//          guard let videos = response.value else {
-//              print("🔥 FAILED WTF???")
-//              print("🔥 error:",response)
-//              return }
-//            print(videos.data?.liveVideoPojoList as Any)
-//            if let arr = videos.data?.liveVideoPojoList{
-//                self.showDataArray = arr
-//            }
-//            self.collectionView?.reloadData()
-//        }
-//
-
+        //        return
+        //
+        //        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/9b1767cad8dcaf74220296c48f2c97b52fb767bc/response.json"
+        //
+        //        let request = AF.request(url)
+        //        request.responseDecodable(of: WEVResponse.self) { (response) in
+        //          guard let videos = response.value else {
+        //              print("🔥 FAILED WTF???")
+        //              print("🔥 error:",response)
+        //              return }
+        //            print(videos.data?.liveVideoPojoList as Any)
+        //            if let arr = videos.data?.liveVideoPojoList{
+        //                self.showDataArray = arr
+        //            }
+        //            self.collectionView?.reloadData()
+        //        }
+        //
+        
     }
     
     
     private var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
     private var mServicesTableView:ASDisplayNode?
-
-
+    
+    
     init(context: AccountContext, sortOrder: Signal<ContactsSortOrder, NoError>, present: @escaping (ViewController, Any?) -> Void, controller: WEVRootViewController) {
         self.context = context
-       
+        
         self.controller = controller
         //BlockchainTest().decode()
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
-
-
+        
+        
         let options = [ContactListAdditionalOption(title: presentationData.strings.Contacts_AddPeopleNearby, icon: .generic(UIImage(bundleImageName: "Contact List/PeopleNearbyIcon")!), action: {
-         //   addNearbyImpl?()
+            //   addNearbyImpl?()
         }), ContactListAdditionalOption(title: presentationData.strings.Contacts_InviteFriends, icon: .generic(UIImage(bundleImageName: "Contact List/AddMemberIcon")!), action: {
-//            inviteImpl?()
+            //            inviteImpl?()
         })]
         
         let presentation = sortOrder |> map { sortOrder -> ContactListPresentation in
             switch sortOrder {
-                case .presence:
-                    return .orderedByPresence(options: options)
-                case .natural:
-                    return .natural(options: options, includeChatList: false)
+            case .presence:
+                return .orderedByPresence(options: options)
+            case .natural:
+                return .natural(options: options, includeChatList: false)
             }
         }
-
+        
         
         self.contactListNode = ContactListNode.init(context: context, presentation: presentation)
-
+        
         super.init()
-
+        
         self.test()
         self.setViewBlock({
             return UITracingLayerView()
         })
-
+        
         self.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-
+        
     }
-
-   
+    
+    
     deinit {
         self.presentationDataDisposable?.dispose()
     }
     
-   var collectionView: UICollectionView?
-
+    var collectionView: UICollectionView?
+    
     private func updateThemeAndStrings() {
         self.collectionView?.reloadData()
-//        self.tableView?.reloadData()
-//        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-//        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
-//
+        //        self.tableView?.reloadData()
+        //        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        //        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
+        //
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         
     }
-
+    
     func scrollToTop() {
         if let contentNode = self.searchDisplayController?.contentNode as? ContactsSearchContainerNode {
             contentNode.scrollToTop()
@@ -164,35 +207,35 @@ public class WEVRootNode: ASDisplayNode{
             self.contactListNode.scrollToTop()
         }
     }
-
+    
     func containerLayoutUpdated(_ layout: ContainerViewLayout, navigationBarHeight: CGFloat, actualNavigationBarHeight: CGFloat, transition: ContainedViewLayoutTransition) {
         print("containerLayoutUpdated \(layout)")
         self.containerLayout = (layout, navigationBarHeight)
-
+        
         var insets = layout.insets(options: [.input])
         insets.top += navigationBarHeight
-
+        
         var headerInsets = layout.insets(options: [.input])
         headerInsets.top += actualNavigationBarHeight
-
+        
         if let searchDisplayController = self.searchDisplayController {
             searchDisplayController.containerLayoutUpdated(layout, navigationBarHeight: navigationBarHeight, transition: transition)
         }
-
+        
         self.contactListNode.containerLayoutUpdated(ContainerViewLayout(size: layout.size, metrics: layout.metrics, deviceMetrics: layout.deviceMetrics, intrinsicInsets: insets, safeInsets: layout.safeInsets, additionalInsets: layout.additionalInsets, statusBarHeight: layout.statusBarHeight, inputHeight: layout.inputHeight, inputHeightIsInteractivellyChanging: layout.inputHeightIsInteractivellyChanging, inVoiceOver: layout.inVoiceOver), headerInsets: headerInsets, transition: transition)
-
+        
         if(mServicesTableView?.supernode == nil) { // load only once
             mServicesTableView = ASDisplayNode { () -> UIView in
                 
                 // 50 = the navigation bar header height
-               return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height)))
-            
+                return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height)))
+                
             }
-
+            
             self.addSubnode(mServicesTableView!)
         }
-
-
+        
+        
     }
     
     func getCollectionView(frame:CGRect) -> UICollectionView{
@@ -229,99 +272,100 @@ extension WEVRootNode: UICollectionViewDelegateFlowLayout {
         1
     }
     
-//    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-////        if true {
-////            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
-////        }else {
-//            return CGSize.zero
-////        }
-//
-//    }
+    //    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    ////        if true {
+    ////            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
+    ////        }else {
+    //            return CGSize.zero
+    ////        }
+    //
+    //    }
     
 }
 
 extension WEVRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        showDataArray.count
+        ytVideos.count
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
-        let model = showDataArray[indexPath.row]
-        cell.model = model
-//        cell.fixConstraints()
+        let model = ytVideos[indexPath.row]
+        cell.youtubeVideo = model
+        //        cell.fixConstraints()
         return cell
     }
     
-//    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//        let bannerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WEVDiscoverBannerView", for: indexPath) as! WEVDiscoverBannerView
-//        bannerView.dataArray = bannerDataArray
-//        bannerView.didSelected = {[weak self] (video) in
-//            guard let self = self else {return}
-////            let vc = WEVVideoDetailViewController.init(video: video)
-//            WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
-//        }
-//
-//        return bannerView
-//    }
+    //    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    //        let bannerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WEVDiscoverBannerView", for: indexPath) as! WEVDiscoverBannerView
+    //        bannerView.dataArray = bannerDataArray
+    //        bannerView.didSelected = {[weak self] (video) in
+    //            guard let self = self else {return}
+    ////            let vc = WEVVideoDetailViewController.init(video: video)
+    //            WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
+    //        }
+    //
+    //        return bannerView
+    //    }
     private var navigationController: NavigationController? {
         if let navigationController = self.controller.navigationController as? NavigationController {
             return navigationController
         }
-//        else if case let .inline(navigationController) = self.presentationInterfaceState.mode {
-//            return navigationController
-//        } else if case let .overlay(navigationController) = self.presentationInterfaceState.mode {
-//            return navigationController
-//        } else {
-//            return nil
-//        }
+        //        else if case let .inline(navigationController) = self.presentationInterfaceState.mode {
+        //            return navigationController
+        //        } else if case let .overlay(navigationController) = self.presentationInterfaceState.mode {
+        //            return navigationController
+        //        } else {
+        //            return nil
+        //        }
         return nil
     }
     
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let video = showDataArray[indexPath.row]
+        let video = ytVideos[indexPath.row]
         print("video:",video)
-  
+     
         // TODO - get the image - so we can pass it below
-//        let cell = self.collectionView?.cellForItem(at: indexPath) as! WEVDiscoverCollectionViewCell
-//        let image = cell.imageView.image?.copy()
-//
-//        let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: image.representations, immediateThumbnailData: image.immediateThumbnailData, reference: nil, partialReference: nil, flags: [])
-//
-////
+        //        let cell = self.collectionView?.cellForItem(at: indexPath) as! WEVDiscoverCollectionViewCell
+        //        let image = cell.imageView.image?.copy()
+        //
+        //        let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: image.representations, immediateThumbnailData: image.immediateThumbnailData, reference: nil, partialReference: nil, flags: [])
+        //
+        ////
         ///
         ///  var image: TelegramMediaImage?
-     
-       // let apiPhoto = Api.Photo
-       // let   image = TelegramMediaImage.telegramMediaImageFromApiPhoto(video.videoThumbnailsUrl)
+        
+        // let apiPhoto = Api.Photo
+        // let   image = TelegramMediaImage.telegramMediaImageFromApiPhoto(video.videoThumbnailsUrl)
         
         let size = CGSize(width:1280,height:720)
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: video.videoUrl, displayUrl: video.videoUrl, hash: 0, type: "video", websiteName: "YouTube", title:video.videoTitle, text: video.videoDescription, embedUrl: video.videoUrl, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+       
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: video.videoUrl, displayUrl: video.videoUrl, hash: 0, type: "video", websiteName: "YouTube", title:video.title, text: video.description, embedUrl: video.videoUrl, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
         let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
-
-//        let messageAttribute = MessageAttribute
+        
+        //        let messageAttribute = MessageAttribute
         //JP HACK
         // attributes = ishdidden / type = Url / reactions
         let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
         
         
         // Source is message?
-                let source = GalleryControllerItemSource.standaloneMessage(message)
+        let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
         let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
             print("👹  we're in replaceRootController....")
-                    self.controller?.navigationController?.popToRootViewController(animated: true)
+            self.controller?.navigationController?.popToRootViewController(animated: true)
         }, baseNavigationController: navigationController, actionInteraction: nil)
-//        galleryVC.isChannel = true
+        //        galleryVC.isChannel = true
         galleryVC.temporaryDoNotWaitForReady = false
-
-//        let nv = NavigationController(/
-//        self.controller.push(galleryVC)
+        
+        //        let nv = NavigationController(/
+        //        self.controller.push(galleryVC)
         
         self.controller.present(galleryVC, in: .window(.root))
         
-
+        
         
         
     }
@@ -338,14 +382,14 @@ struct LJFont {
     static func regular(_ size: CGFloat) -> UIFont {
         UIFont.systemFont(ofSize: size)
     }
-
+    
     static func medium(_ size: CGFloat) -> UIFont {
-     UIFont.systemFont(ofSize: size)
+        UIFont.systemFont(ofSize: size)
     }
     
     static func bold(_ size: CGFloat) -> UIFont {
-         UIFont.systemFont(ofSize: size)
+        UIFont.systemFont(ofSize: size)
     }
-
+    
 }
 
