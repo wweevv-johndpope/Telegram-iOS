@@ -43,7 +43,7 @@ swift_library(
         "//third-party/Alamofire",
         "//submodules/GalleryUI:GalleryUI",
         "//submodules/Postbox:Postbox",
-
+        "//third-party/Supabase:Supabase",
        
     ],
     visibility = [

@@ -34,13 +34,7 @@ import DebugSettingsUI
 import BackgroundTasks
 import UIKitRuntimeUtils
 import StoreKit
-import Supabase
-import PostgREST
-import Alamofire
-import Realtime
-//import FirebaseAuth
-//import FirebaseAnalytics
-//import FirebaseCore
+
 
 
 #if canImport(AppCenter)
@@ -292,81 +286,11 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     
     private let deviceToken = Promise<Data?>(nil)
 
-    private var client:SupabaseClient?
-    private var database:PostgrestClient?
-    private var realtimeClient:RealtimeClient?
-    var allUsersUpdateChanges:Realtime.Channel?
-    
-    
-    private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
-    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
-
-
-    struct SubscriptionLive: Codable {
-        var id: Int?
-        var user_id:String?
-        var channel_id:String?
-        var live_id:String?
-        var subscription:String?
-    }
-    struct TestClass: Codable {
-        var id: Int?
-    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         precondition(!testIsLaunched)
         testIsLaunched = true
-//
-//        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
-        let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
-//
-//        self.client = client
-        self.database = database
-//
 
-
-
-        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
-        rt.connect()
-        rt.onOpen {
-           
-            self.allUsersUpdateChanges =  rt.channel(.table("test", schema: "public"))
-            self.allUsersUpdateChanges?.on(.insert) { message in
-                print("☕️ test - insert")
-                print(message.payload)
-                print(message.event)
-//                print(message.status)
-                self.database?.from("test").select().execute() { result in
-                    switch result {
-                    case let .success(response):
-                        do {
-                            let feedback = try response.decoded(to: [TestClass].self)
-                            print(feedback)
-                        } catch {
-                            print(error.localizedDescription)
-                        }
-                    case let .failure(error):
-                        print(error.localizedDescription)
-                    }
-                }
-
-            }
-            self.allUsersUpdateChanges?.subscribe()
-        }
-        self.realtimeClient = rt
-        self.realtimeClient?.onError{error in
-            print("🔥 error")
-            print(error)
-        }
-        self.realtimeClient?.onMessage{message in
-            print("🔖 message")
-            print(message.payload)
-            print(message.event)
-            
-//            print(message.status)
-            
-        }
-        
         let _ = voipTokenPromise.get().start(next: { token in
             self.deviceToken.set(.single(token))
         })

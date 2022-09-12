@@ -23,7 +23,13 @@ import ContactsUI
 import SnapKit
 import HandyJSON
 import Alamofire
-
+import Supabase
+import PostgREST
+import Alamofire
+import Realtime
+//import FirebaseAuth
+//import FirebaseAnalytics
+//import FirebaseCore
 
 
 
@@ -33,7 +39,7 @@ public class WEVRootViewController: ViewController {
     public func accountContext()->AccountContext{
         return context
     }
-
+    
     private var contactsNode: WEVRootNode {
         return self.displayNode as! WEVRootNode
     }
@@ -63,21 +69,83 @@ public class WEVRootViewController: ViewController {
     }
     
     
-  
+    
+    private var client:SupabaseClient?
+    private var database:PostgrestClient?
+    private var realtimeClient:RealtimeClient?
+    var allUsersUpdateChanges:Realtime.Channel?
+    
+    
+    private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
+    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+    
+    
+    struct SubscriptionLive: Codable {
+        var id: Int?
+        var user_id:String?
+        var channel_id:String?
+        var live_id:String?
+        var subscription:String?
+    }
+    struct TestClass: Codable {
+        var id: Int?
+    }
+    
     public init(context: AccountContext) {
-       
         self.context = context
-        
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
-        
-
-        
-
         super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
+
+//        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
+        let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
+        
+        //        self.client = client
+        self.database = database
+        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
+        rt.connect()
+        rt.onOpen {
+            
+            self.allUsersUpdateChanges =  rt.channel(.table("slim_video", schema: "public"))
+            self.allUsersUpdateChanges?.on(.insert) { message in
+                print("☕️ test - insert")
+                print(message.payload)
+                print(message.event)
+//                print(message.status)
+                self.database?.from("slim_video").select().execute() { result in
+                    switch result {
+                    case let .success(response):
+                        do {
+                            let feedback = try response.decoded(to: [TestClass].self)
+                            print(feedback)
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    case let .failure(error):
+                        print(error.localizedDescription)
+                    }
+                }
+                
+            }
+            self.allUsersUpdateChanges?.subscribe()
+        }
+        self.realtimeClient = rt
+        self.realtimeClient?.onError{error in
+            print("🔥 error")
+            print(error)
+        }
+        self.realtimeClient?.onMessage{message in
+            print("🔖 message")
+            print(message.payload)
+            print(message.event)
+            
+            //            print(message.status)
+            
+        }
+        
         
         self.tabBarItemContextActionType = .always
         
-
+        
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
         self.title =  "Feed"//self.presentationData.strings.Contacts_Title
@@ -92,14 +160,14 @@ public class WEVRootViewController: ViewController {
         
         self.tabBarItem.image = icon
         self.tabBarItem.selectedImage = icon
-//        if !self.presentationData.reduceMotion {
-//            self.tabBarItem.animationName = "TabLove2"
-//        }
+        //        if !self.presentationData.reduceMotion {
+        //            self.tabBarItem.animationName = "TabLove2"
+        //        }
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
-//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customDisplayNode: self.sortButton)
-//        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
+        //        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customDisplayNode: self.sortButton)
+        //        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
         self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         
         self.scrollToTop = { [weak self] in
@@ -112,7 +180,7 @@ public class WEVRootViewController: ViewController {
         }
         
         self.presentationDataDisposable = (context.sharedContext.presentationData
-        |> deliverOnMainQueue).start(next: { [weak self] presentationData in
+                                           |> deliverOnMainQueue).start(next: { [weak self] presentationData in
             if let strongSelf = self {
                 let previousTheme = strongSelf.presentationData.theme
                 let previousStrings = strongSelf.presentationData.strings
@@ -127,7 +195,7 @@ public class WEVRootViewController: ViewController {
         
         if #available(iOSApplicationExtension 10.0, iOS 10.0, *) {
             self.authorizationDisposable = (combineLatest(DeviceAccess.authorizationStatus(subject: .contacts), combineLatest(context.sharedContext.accountManager.noticeEntry(key: ApplicationSpecificNotice.permissionWarningKey(permission: .contacts)!), context.account.postbox.preferencesView(keys: [PreferencesKeys.contactsSettings]), context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.contactSynchronizationSettings]))
-            |> map { noticeView, preferences, sharedData -> (Bool, ContactsSortOrder) in
+                                                          |> map { noticeView, preferences, sharedData -> (Bool, ContactsSortOrder) in
                 let settings: ContactsSettings = preferences.values[PreferencesKeys.contactsSettings]?.get(ContactsSettings.self) ?? ContactsSettings.defaultSettings
                 let synchronizeDeviceContacts: Bool = settings.synchronizeContacts
                 
@@ -144,7 +212,7 @@ public class WEVRootViewController: ViewController {
                     return (false, sortOrder)
                 }
             })
-            |> deliverOnMainQueue).start(next: { [weak self] status, suppressedAndSortOrder in
+                                            |> deliverOnMainQueue).start(next: { [weak self] status, suppressedAndSortOrder in
                 if let strongSelf = self {
                     let (suppressed, sortOrder) = suppressedAndSortOrder
                     strongSelf.tabBarItem.badgeValue = status != .allowed && !suppressed ? "!" : nil
@@ -153,7 +221,7 @@ public class WEVRootViewController: ViewController {
             })
         } else {
             self.sortOrderPromise.set(context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.contactSynchronizationSettings])
-            |> map { sharedData -> ContactsSortOrder in
+                                      |> map { sharedData -> ContactsSortOrder in
                 let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.contactSynchronizationSettings]?.get(ContactSynchronizationSettings.self)
                 return settings?.sortOrder ?? .presence
             })
@@ -171,12 +239,12 @@ public class WEVRootViewController: ViewController {
     }
     
     private func updateThemeAndStrings() {
-//        self.sortButton.update(theme: self.presentationData.theme, strings: self.presentationData.strings)
+        //        self.sortButton.update(theme: self.presentationData.theme, strings: self.presentationData.strings)
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
         self.title = "Stream" //self.presentationData.strings.Contacts_Title
-        self.tabBarItem.title = self.presentationData.strings.Contacts_Title
+        self.tabBarItem.title = "Feed"//self.presentationData.strings.Contacts_Title
         if !self.presentationData.reduceMotion {
             self.tabBarItem.animationName = "TabContacts"
         } else {
@@ -184,7 +252,7 @@ public class WEVRootViewController: ViewController {
         }
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         if self.navigationItem.rightBarButtonItem != nil {
-//            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
+            //            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
             self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         }
     }
@@ -195,24 +263,24 @@ public class WEVRootViewController: ViewController {
         }, controller: self)
         
         self._ready.set(self.contactsNode.contactListNode.ready)
-
+        
         self.contactsNode.navigationBar = self.navigationBar
-
+        
         self.contactsNode.contactListNode.contentOffsetChanged = { [weak self] offset in
             if let strongSelf = self, let searchContentNode = strongSelf.searchContentNode {
                 var progress: CGFloat = 0.0
                 switch offset {
-                    case let .known(offset):
-                        progress = max(0.0, (searchContentNode.nominalHeight - max(0.0, offset - 50.0))) / searchContentNode.nominalHeight
-                    case .none:
-                        progress = 1.0
-                    default:
-                        break
+                case let .known(offset):
+                    progress = max(0.0, (searchContentNode.nominalHeight - max(0.0, offset - 50.0))) / searchContentNode.nominalHeight
+                case .none:
+                    progress = 1.0
+                default:
+                    break
                 }
                 searchContentNode.updateExpansionProgress(progress)
             }
         }
-
+        
         self.contactsNode.contactListNode.contentScrollingEnded = { [weak self] listView in
             if let strongSelf = self, let searchContentNode = strongSelf.searchContentNode {
                 return fixListNodeScrolling(listView, searchNode: searchContentNode)
@@ -220,7 +288,7 @@ public class WEVRootViewController: ViewController {
                 return false
             }
         }
-//        self.contactsNode.frame = CGRect(x: 0, y: 0, width: 500, height: 600)
+        //        self.contactsNode.frame = CGRect(x: 0, y: 0, width: 500, height: 600)
         self.displayNodeDidLoad()
     }
     
@@ -249,16 +317,16 @@ public class WEVRootViewController: ViewController {
     
     override public func tabBarItemContextAction(sourceNode: ContextExtractedContentContainingNode, gesture: ContextGesture) {
         var items: [ContextMenuItem] = []
-//        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
-//            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
-//        }, action: { [weak self] c, f in
-//            c.dismiss(completion: { [weak self] in
-//                guard let strongSelf = self else {
-//                    return
-//                }
-//                strongSelf.addPressed()
-//            })
-//        })))
+        //        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
+        //            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
+        //        }, action: { [weak self] c, f in
+        //            c.dismiss(completion: { [weak self] in
+        //                guard let strongSelf = self else {
+        //                    return
+        //                }
+        //                strongSelf.addPressed()
+        //            })
+        //        })))
         
         
         
