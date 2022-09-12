@@ -44,8 +44,8 @@ public struct Thumbnail: Codable {
 }
 
 public struct YoutubeVideo: Codable {
-    var id: String? // youtube id
-    var title:String?  // youtube payload
+    var id: String // youtube id
+    var title:String  // youtube payload
     var thumbnails:[Thumbnail?]
     var description:String?
     var duration:String?
@@ -117,6 +117,11 @@ public class WEVRootNode: ASDisplayNode{
             case let .failure(error):
                 print(error.localizedDescription)
             }
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+            }
+            
+           
         }
         
         //        return
@@ -191,10 +196,6 @@ public class WEVRootNode: ASDisplayNode{
     
     private func updateThemeAndStrings() {
         self.collectionView?.reloadData()
-        //        self.tableView?.reloadData()
-        //        self.tableView?.backgroundColor = presentationData.theme.contextMenu.backgroundColor
-        //        self.tableView?.separatorColor = presentationData.theme.contextMenu.itemSeparatorColor
-        //
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         
@@ -340,8 +341,9 @@ extension WEVRootNode: UICollectionViewDataSource {
         // let   image = TelegramMediaImage.telegramMediaImageFromApiPhoto(video.videoThumbnailsUrl)
         
         let size = CGSize(width:1280,height:720)
-       
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: video.videoUrl, displayUrl: video.videoUrl, hash: 0, type: "video", websiteName: "YouTube", title:video.title, text: video.description, embedUrl: video.videoUrl, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+        let url =  "https://www.youtube.com/watch?v=" + video.id
+
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: "YouTube", title:video.title, text: video.description, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
         let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
         
         //        let messageAttribute = MessageAttribute
