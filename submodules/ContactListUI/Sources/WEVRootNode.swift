@@ -33,6 +33,8 @@ public class WEVRootNode: ASDisplayNode{
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
     private var showDataArray: [WEVVideoModel] = []
+    private var slimVideos: [Any] = []
+    
     private let context: AccountContext
     private(set) var searchDisplayController: SearchDisplayController?
     private var offersTableViewNode:ASDisplayNode?
@@ -46,26 +48,51 @@ public class WEVRootNode: ASDisplayNode{
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
 
+    
+    struct SlimVideo: Codable {
+        var id: String? // youtube id
+        var blob:String?  // youtube payload
+        var created_at:String?
+        
+    }
+    
 
     func test(){
         
-        
-
-        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/9b1767cad8dcaf74220296c48f2c97b52fb767bc/response.json"
-        
-        let request = AF.request(url)
-        request.responseDecodable(of: WEVResponse.self) { (response) in
-          guard let videos = response.value else {
-              print("🔥 FAILED WTF???")
-              print("🔥 error:",response)
-              return }
-            print(videos.data?.liveVideoPojoList as Any)
-            if let arr = videos.data?.liveVideoPojoList{
-                self.showDataArray = arr
+ 
+        self.controller.database?.from("slim_video").select().execute() { result in
+            switch result {
+            case let .success(response):
+                do {
+                 
+                    print(response)
+                    let videos = try response.decoded(to: [SlimVideo].self)
+                    self.slimVideos = videos
+                } catch {
+                    print(error.localizedDescription)
+                }
+            case let .failure(error):
+                print(error.localizedDescription)
             }
-            self.collectionView?.reloadData()
         }
         
+//        return
+//
+//        let url = "https://gist.githubusercontent.com/wweevv-johndpope/62f58c50ef7b2a45516cfcade369c22e/raw/9b1767cad8dcaf74220296c48f2c97b52fb767bc/response.json"
+//
+//        let request = AF.request(url)
+//        request.responseDecodable(of: WEVResponse.self) { (response) in
+//          guard let videos = response.value else {
+//              print("🔥 FAILED WTF???")
+//              print("🔥 error:",response)
+//              return }
+//            print(videos.data?.liveVideoPojoList as Any)
+//            if let arr = videos.data?.liveVideoPojoList{
+//                self.showDataArray = arr
+//            }
+//            self.collectionView?.reloadData()
+//        }
+//
 
     }
     
