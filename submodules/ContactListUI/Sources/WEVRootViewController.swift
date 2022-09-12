@@ -121,7 +121,7 @@ public class WEVRootViewController: ViewController {
         }
         
         
-        self.tabBarItemContextActionType = .always
+//        self.tabBarItemContextActionType = .always
         
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
@@ -129,18 +129,8 @@ public class WEVRootViewController: ViewController {
         self.title =  "Feed"//self.presentationData.strings.Contacts_Title
         self.tabBarItem.title = "Feed"
         
-        let icon: UIImage?
-        if useSpecialTabBarIcons() {
-            icon = UIImage(systemName:"heart.fill")?.withBaselineOffset(fromBottom: -6.0)
-        } else {
-            icon = UIImage(systemName:"heart.fill")?.withBaselineOffset(fromBottom: -6.0)
-        }
-        
-        self.tabBarItem.image = icon
-        self.tabBarItem.selectedImage = icon
-        //        if !self.presentationData.reduceMotion {
-        //            self.tabBarItem.animationName = "TabLove2"
-        //        }
+        self.tabBarItem.image =  UIImage(named:"tabbar_feed_unselect")
+        self.tabBarItem.selectedImage =  UIImage(named:"tabbar_feed_selected")
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
@@ -292,36 +282,36 @@ public class WEVRootViewController: ViewController {
         self.contactsNode.containerLayoutUpdated(layout, navigationBarHeight: self.cleanNavigationHeight, actualNavigationBarHeight: self.navigationLayout(layout: layout).navigationFrame.maxY, transition: transition)
     }
     
-    
-    override public func tabBarItemContextAction(sourceNode: ContextExtractedContentContainingNode, gesture: ContextGesture) {
-        var items: [ContextMenuItem] = []
-        //        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
-        //            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
-        //        }, action: { [weak self] c, f in
-        //            c.dismiss(completion: { [weak self] in
-        //                guard let strongSelf = self else {
-        //                    return
-        //                }
-        //                strongSelf.addPressed()
-        //            })
-        //        })))
-        
-        
-        
-        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddPeopleNearby, icon: { theme in
-            return generateTintedImage(image: UIImage(bundleImageName: "Contact List/Context Menu/PeopleNearby"), color: theme.contextMenu.primaryColor)
-        }, action: { [weak self] c, f in
-            c.dismiss(completion: { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
-                strongSelf.contactsNode.openPeopleNearby?()
-            })
-        })))
-        
-        let controller = ContextController(account: self.context.account, presentationData: self.presentationData, source: .extracted(ContactsTabBarContextExtractedContentSource(controller: self, sourceNode: sourceNode)), items: .single(ContextController.Items(content: .list(items))), recognizer: nil, gesture: gesture)
-        self.context.sharedContext.mainWindow?.presentInGlobalOverlay(controller)
-    }
+//
+//    override public func tabBarItemContextAction(sourceNode: ContextExtractedContentContainingNode, gesture: ContextGesture) {
+//        var items: [ContextMenuItem] = []
+//        //        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddContact, icon: { theme in
+//        //            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/AddUser"), color: theme.contextMenu.primaryColor)
+//        //        }, action: { [weak self] c, f in
+//        //            c.dismiss(completion: { [weak self] in
+//        //                guard let strongSelf = self else {
+//        //                    return
+//        //                }
+//        //                strongSelf.addPressed()
+//        //            })
+//        //        })))
+//
+//
+//
+//        items.append(.action(ContextMenuActionItem(text: self.presentationData.strings.Contacts_AddPeopleNearby, icon: { theme in
+//            return generateTintedImage(image: UIImage(bundleImageName: "Contact List/Context Menu/PeopleNearby"), color: theme.contextMenu.primaryColor)
+//        }, action: { [weak self] c, f in
+//            c.dismiss(completion: { [weak self] in
+//                guard let strongSelf = self else {
+//                    return
+//                }
+//                strongSelf.contactsNode.openPeopleNearby?()
+//            })
+//        })))
+//
+//        let controller = ContextController(account: self.context.account, presentationData: self.presentationData, source: .extracted(ContactsTabBarContextExtractedContentSource(controller: self, sourceNode: sourceNode)), items: .single(ContextController.Items(content: .list(items))), recognizer: nil, gesture: gesture)
+//        self.context.sharedContext.mainWindow?.presentInGlobalOverlay(controller)
+//    }
 }
 
 private final class ContactsTabBarContextExtractedContentSource: ContextExtractedContentSource {
