@@ -227,9 +227,9 @@ public class WEVRootNode: ASDisplayNode{
         
         if(mServicesTableView?.supernode == nil) { // load only once
             mServicesTableView = ASDisplayNode { () -> UIView in
-                
+
                 // 50 = the navigation bar header height
-                return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height)))
+                return self.getCollectionView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: layout.size.width, height: layout.size.height - LJScreen.tabBarHeight)))
                 
             }
             
