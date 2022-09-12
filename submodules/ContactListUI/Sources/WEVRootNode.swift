@@ -20,7 +20,7 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 import ContactsUI
-import SnapKit
+//import SnapKit
 import HandyJSON
 import Alamofire
 import GalleryUI
@@ -293,7 +293,7 @@ extension WEVRootNode: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
         let model = ytVideos[indexPath.row]
         cell.youtubeVideo = model
-        //        cell.fixConstraints()
+        cell.fixConstraints()
         return cell
     }
     

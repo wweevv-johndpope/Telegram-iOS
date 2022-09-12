@@ -20,7 +20,7 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 import ContactsUI
-import SnapKit
+//import SnapKit
 import HandyJSON
 import Alamofire
 import Supabase

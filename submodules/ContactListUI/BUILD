@@ -4,7 +4,7 @@ swift_library(
     name = "ContactListUI",
     module_name = "ContactListUI",
     srcs = glob([
-        "Sources/**/*.swift",
+        "Sources/**/*.swift"
     ]),
     copts = [
         "-warnings-as-errors",
@@ -37,7 +37,6 @@ swift_library(
         "//submodules/TelegramAnimatedStickerNode:TelegramAnimatedStickerNode",
         "//submodules/QrCodeUI:QrCodeUI",
         "//submodules/ContactListUI/HandyJSON:HandyJSON",
-        "//submodules/ContactListUI/SnapKit:SnapKit",
         "//submodules/ContactListUI/Kingfisher",
         "//submodules/InstantPageUI:InstantPageUI",
         "//third-party/Alamofire",
