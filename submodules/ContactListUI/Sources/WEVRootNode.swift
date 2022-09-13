@@ -369,31 +369,39 @@ public class WEVRootNode: ASDisplayNode{
         self.contactListNode.containerLayoutUpdated(ContainerViewLayout(size: layout.size, metrics: layout.metrics, deviceMetrics: layout.deviceMetrics, intrinsicInsets: insets, safeInsets: layout.safeInsets, additionalInsets: layout.additionalInsets, statusBarHeight: layout.statusBarHeight, inputHeight: layout.inputHeight, inputHeightIsInteractivellyChanging: layout.inputHeightIsInteractivellyChanging, inVoiceOver: layout.inVoiceOver), headerInsets: headerInsets, transition: transition)
         
         if(mServicesTableView?.supernode == nil) { // load only once
+           // 1. convert to ASDisplayNode
             mServicesTableView = ASDisplayNode { () -> UIView in
-
-                // 50 = the navigation bar header height
                 return self.getCollectionView(frame: .zero)
-                
+            }
+            // 2. add node to view hierachy > then snapkit
+            self.addSubnode(mServicesTableView!)
+            collectionView?.snp.makeConstraints { (make) in
+                make.left.right.equalToSuperview()
+                make.top.equalToSuperview().offset(LJScreen.navigationBarHeight + 13)
+                make.bottom.equalToSuperview().offset(-LJScreen.tabBarHeight)
             }
             
-            self.addSubnode(mServicesTableView!)
+            
+            let searchBarNode =  ASDisplayNode { () -> UIView in
+                return self.searchBar
+            }
+            self.addSubnode(searchBarNode)
+            searchBar.snp.makeConstraints { (make) in
+                make.left.right.equalToSuperview()
+                make.top.equalToSuperview().offset(LJScreen.statusBarHeight)
+                make.height.equalTo(44)
+            }
+            
+       
+            let searchNode =  ASDisplayNode { () -> UIView in
+                return self.searchView
+            }
+            self.addSubnode(searchNode)
+            searchView.snp.makeConstraints { (make) in
+                make.edges.equalTo(collectionView!)
+            }
+            
         }
-        collectionView?.snp.makeConstraints { (make) in
-            make.left.right.equalToSuperview()
-            make.top.equalToSuperview().offset(LJScreen.navigationBarHeight + 13)
-            make.bottom.equalToSuperview().offset(-LJScreen.tabBarHeight)
-        }
-        
-        
-        let searchNode =  ASDisplayNode { () -> UIView in
-            return self.searchView
-        }
-        
-        self.addSubnode(searchNode)
-        searchView.snp.makeConstraints { (make) in
-            make.edges.equalTo(collectionView!)
-        }
-        
         
         refreshSearchStatusView()
         

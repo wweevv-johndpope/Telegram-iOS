@@ -126,11 +126,11 @@ public class WEVRootViewController: ViewController {
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title =  "Feed"//self.presentationData.strings.Contacts_Title
-        self.tabBarItem.title = "Feed"
+        self.title =  "Discover"//self.presentationData.strings.Contacts_Title
+        self.tabBarItem.title = "Discover"
         
-        self.tabBarItem.image =  UIImage(named:"tabbar_feed_unselect")
-        self.tabBarItem.selectedImage =  UIImage(named:"tabbar_feed_selected")
+        self.tabBarItem.image =  UIImage(named:"tabbar_discover_unselect")
+        self.tabBarItem.selectedImage =  UIImage(named:"tabbar_discover_selected")
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
