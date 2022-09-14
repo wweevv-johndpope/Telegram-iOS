@@ -96,7 +96,7 @@ public class WEVRootViewController: ViewController {
         rt.connect()
         rt.onOpen {
             
-            self.allUsersUpdateChanges =  rt.channel(.table("slim_video", schema: "public"))
+            self.allUsersUpdateChanges =  rt.channel(.table("live_video", schema: "public"))
             self.allUsersUpdateChanges?.on(.insert) { message in
                 print("☕️ test - insert")
                 print(message.payload)
@@ -115,9 +115,7 @@ public class WEVRootViewController: ViewController {
             print("🔖 message")
             print(message.payload)
             print(message.event)
-            
-            //            print(message.status)
-            
+            //print(message.status)
         }
         
         

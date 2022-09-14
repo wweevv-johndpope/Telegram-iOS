@@ -28,39 +28,15 @@ import Postbox
 import TelegramCore
 import InstantPageUI
 
-
-
-public struct SlimVideo: Codable {
-    var id: String // youtube id
-    var blob:String  // youtube payload
-    //        var created_at:String
+public class WEVRootNode: ASDisplayNode {
     
-}
-
-public struct Thumbnail: Codable {
-    var url: String? // youtube id
-    var width:Int  // youtube payload
-    var height:Int
-}
-
-public struct YoutubeVideo: Codable {
-    var id: String // youtube id
-    var title:String  // youtube payload
-    var thumbnails:[Thumbnail?]
-    var description:String?
-    var duration:String?
-    var isLive:Bool?
-    var viewCount:Int?
-}
-
-
-public class WEVRootNode: ASDisplayNode{
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
-    private var showDataArray: [WEVVideoModel] = []
-    private var slimVideos: [SlimVideo] = []
-     var ytVideos: [YoutubeVideo] = []
-
+    
+    private var arrBannerVideos: [WEVVideoModel] = []
+    private var arrLiveVideos: [LiveVideos] = []
+    
+    //var ytVideos: [YoutubeVideo] = []
     
     
     private let context: AccountContext
@@ -76,19 +52,13 @@ public class WEVRootNode: ASDisplayNode{
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
     
-    /// 搜索状态
-    enum SearchStatus {
-        /// 正在搜索
-        case searching
-        /// 搜索完成
-        case searchCompleted
-        /// 非搜索
-        case normal
-    }
     
     /// bannerView数据列表
     private var bannerDataArray: [WEVVideoModel] = []
-    private var selectedChannelArray: [WEVChannel] = WEVChannel.allCases
+    //filter
+    private var arrChannelFilter: [WEVChannel] = WEVChannel.allCases
+    
+    //seatch VC
     private var searchStatus: SearchStatus = .normal
     private var searchWord: String? = nil
     private var searchDataArray: [WEVVideoModel] = []
@@ -102,7 +72,7 @@ public class WEVRootNode: ASDisplayNode{
     private var isShouldLoadBannerData: Bool {
         get {
             // 非搜索非筛选
-            (selectedChannelArray.isEmpty || selectedChannelArray.count == WEVChannel.allCases.count)
+            (arrChannelFilter.isEmpty || arrChannelFilter.count == WEVChannel.allCases.count)
                 && searchStatus == .normal
         }
     }
@@ -114,32 +84,14 @@ public class WEVRootNode: ASDisplayNode{
         }
     }
     
-    func test(){
-        
-        
-        self.controller.database?.from("slim_video").select(columns:"id,blob").execute() { result in
+    func fetchLiveVideos() {
+        //TODO:- Show progress HUD
+        self.controller.database?.from("live_video").select(columns:Columns.liveVideos).execute() { result in
             switch result {
             case let .success(response):
                 do {
-                    print(response)
-                    let videos = try response.decoded(to: [SlimVideo].self)
-                    self.slimVideos = videos
-                    let decoder = JSONDecoder()
-                    for  vid in videos {
-                        if let data = vid.blob.data(using: .utf8) {
-                            print("--- video data ----", String(decoding: data, as: UTF8.self))
-                        }
-                        do {
-                            if let data = vid.blob.data(using: .utf8) {
-                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from: data)
-                              //  print("video:",video)
-                                self.ytVideos.append(video)
-                            }
-
-                        }catch (let ex){
-                            print(ex)
-                        }
-                    }
+                    let videos = try response.decoded(to: [LiveVideos].self)
+                    self.arrLiveVideos = videos
                 } catch (let exception){
                     print(exception)
                 }
@@ -180,11 +132,11 @@ public class WEVRootNode: ASDisplayNode{
         let view = WEVDiscoverSearchBar()
         view.filterAction = {[weak self] in
             guard let self = self else {return}
-            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
-            vc.selectedArray = self.selectedChannelArray
+            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.arrChannelFilter)
+            vc.selectedArray = self.arrChannelFilter
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
-                self.selectedChannelArray = channelArray
+                self.arrChannelFilter = channelArray
 //                self.scrollViewLoadData(isHeadRefesh: true)
                 self.collectionView!.reloadData()
             }
@@ -249,7 +201,7 @@ public class WEVRootNode: ASDisplayNode{
     
     /// 刷新空白提示页面
     func refreshEmptyView() {
-        if showDataArray.isEmpty  {
+        if arrBannerVideos.isEmpty  {
             switch searchStatus {
             case .normal:
                 let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
@@ -322,7 +274,8 @@ public class WEVRootNode: ASDisplayNode{
         
         super.init()
         
-        self.test()
+        self.fetchLiveVideos()
+        
         self.setViewBlock({
             return UITracingLayerView()
         })
@@ -455,7 +408,7 @@ extension WEVRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch searchStatus {
         case .normal:
-            return ytVideos.count
+            return arrLiveVideos.count
         default:
             return 0
         }
@@ -463,8 +416,7 @@ extension WEVRootNode: UICollectionViewDataSource {
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
-        let model = ytVideos[indexPath.row]
-        cell.youtubeVideo = model
+        cell.liveVideo = arrLiveVideos[indexPath.row]
         cell.fixConstraints()
         return cell
     }
@@ -497,44 +449,42 @@ extension WEVRootNode: UICollectionViewDataSource {
     
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let video = ytVideos[indexPath.row]
+        let video = arrLiveVideos[indexPath.row]
         print("video:",video)
      
-     
-        let size = CGSize(width:1280,height:720)
-        let url =  "https://www.youtube.com/watch?v=" + video.id
-
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: "YouTube", title:video.title, text: video.description, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
-        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
-        
-        //        let messageAttribute = MessageAttribute
-        //JP HACK
-        // attributes = ishdidden / type = Url / reactions
-        let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
-        
-        
-        // Source is message?
-        let source = GalleryControllerItemSource.standaloneMessage(message)
-        let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
-            print("👹  we're in replaceRootController....")
-            self.controller?.navigationController?.popToRootViewController(animated: true)
-        }, baseNavigationController: navigationController, actionInteraction: nil)
-        //        galleryVC.isChannel = true
-        galleryVC.temporaryDoNotWaitForReady = false
-        
-        //        let nv = NavigationController(/
-        //        self.controller.push(galleryVC)
-        
-        self.controller.present(galleryVC, in: .window(.root))
+        if let url = video.videlLiveUrl {
+            let size = CGSize(width:1280,height:720)
+            
+            let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: "YouTube", title:video.videoTitle, text: video.videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+            let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
+            
+            //let messageAttribute = MessageAttribute
+            //JP HACK
+            // attributes = ishdidden / type = Url / reactions
+            let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+            
+            
+            // Source is message?
+            let source = GalleryControllerItemSource.standaloneMessage(message)
+            let context = self.controller.accountContext()
+            let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
+                print("👹  we're in replaceRootController....")
+                self.controller?.navigationController?.popToRootViewController(animated: true)
+            }, baseNavigationController: navigationController, actionInteraction: nil)
+            //galleryVC.isChannel = true
+            galleryVC.temporaryDoNotWaitForReady = false
+            
+            //let nv = NavigationController(/
+            //self.controller.push(galleryVC)
+            
+            self.controller.present(galleryVC, in: .window(.root))
+        }
     }
 }
 
 
 
 //TODO - move this
-
-
 /// 字体
 struct LJFont {
     
@@ -1682,3 +1632,14 @@ class WEVEmptyHintView: UIView {
 
 }
 
+extension WEVRootNode {
+    /// 搜索状态
+    enum SearchStatus {
+        /// 正在搜索
+        case searching
+        /// 搜索完成
+        case searchCompleted
+        /// 非搜索
+        case normal
+    }
+}

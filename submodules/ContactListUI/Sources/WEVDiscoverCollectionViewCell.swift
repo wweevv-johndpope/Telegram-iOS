@@ -49,7 +49,8 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             updateView()
         }
     }
-    public var youtubeVideo: YoutubeVideo? = nil {
+    
+    public var liveVideo: LiveVideos? = nil {
         didSet {
             updateView()
         }
@@ -165,14 +166,14 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     }
     
     private func updateView() {
-        guard let youtubeVideo = youtubeVideo else {return }
+        guard let video = liveVideo else {return }
         
         //For Time being only youTube Video //slim_video have only youtube videos
-        channelImageView.image = WEVChannel.youtube.smallImage
-        channelNameLabel.text = WEVChannel.youtube.rawValue
+        channelImageView.image = video.smallImage
+        channelNameLabel.text = video.channelId
+
         
-        
-        if let n = youtubeVideo.viewCount{
+        if let n = video.viewerCount{
             var numberStr = "\(n)"
             var unit = "viewers"
             if n == 1 {
@@ -187,8 +188,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             amountLabel.isHidden = true
         }
       
-        
-        if let thumbnailUrl = youtubeVideo.thumbnails[0]?.url{
+        if let thumbnailUrl = video.videoThumbnailsUrl {
             imageView.kf.setImage(with: URL.init(string: thumbnailUrl), placeholder: nil)
         }
     }
