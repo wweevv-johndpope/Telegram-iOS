@@ -125,10 +125,13 @@ public class WEVRootNode: ASDisplayNode{
                     let videos = try response.decoded(to: [SlimVideo].self)
                     self.slimVideos = videos
                     let decoder = JSONDecoder()
-                    for  vid in videos{
+                    for  vid in videos {
+                        if let data = vid.blob.data(using: .utf8) {
+                            print("--- video data ----", String(decoding: data, as: UTF8.self))
+                        }
                         do {
-                            if let data = vid.blob.data(using: .utf8){
-                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
+                            if let data = vid.blob.data(using: .utf8) {
+                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from: data)
                               //  print("video:",video)
                                 self.ytVideos.append(video)
                             }
@@ -196,7 +199,7 @@ public class WEVRootNode: ASDisplayNode{
             self.searchDataArray.removeAll()
             self.collectionView!.reloadData()
             self.refreshSearchStatusView()
-            self.refreshEmptyView()
+            self.emptyView.removeFromSuperview()
         }
         
         view.didBeginEditing = {[weak self] in
@@ -210,6 +213,7 @@ public class WEVRootNode: ASDisplayNode{
             guard let self = self else {return}
             self.search(word: word)
             self.refreshSearchStatusView()
+            self.refreshEmptyView()
         }
         
         view.textDidChange = {[weak self] word in
@@ -262,14 +266,11 @@ public class WEVRootNode: ASDisplayNode{
                 make.top.left.equalToSuperview()
                 make.size.equalToSuperview()
             }
-        }else {
+        } else {
             emptyView.removeFromSuperview()
         }
     }
 
-    
-    
-    
      /// 刷新搜索状态相关视图
      private func refreshSearchStatusView() {
                  
@@ -377,11 +378,11 @@ public class WEVRootNode: ASDisplayNode{
             self.addSubnode(mServicesTableView!)
             collectionView?.snp.makeConstraints { (make) in
                 make.left.right.equalToSuperview()
-                make.top.equalToSuperview().offset(LJScreen.navigationBarHeight + 13)
+                make.top.equalToSuperview().offset(navigationBarHeight)
                 make.bottom.equalToSuperview().offset(-LJScreen.tabBarHeight)
             }
             
-            
+            //Filter view to select channel
             let searchBarNode =  ASDisplayNode { () -> UIView in
                 return self.searchBar
             }
@@ -392,7 +393,7 @@ public class WEVRootNode: ASDisplayNode{
                 make.height.equalTo(44)
             }
             
-       
+            //seachbar result view
             let searchNode =  ASDisplayNode { () -> UIView in
                 return self.searchView
             }
@@ -421,12 +422,7 @@ public class WEVRootNode: ASDisplayNode{
         return view
         
     }
-    
-    
-    
 }
-
-
 
 //MARK: - UICollectionViewDelegateFlowLayout
 extension WEVRootNode: UICollectionViewDelegateFlowLayout {
@@ -457,7 +453,12 @@ extension WEVRootNode: UICollectionViewDelegateFlowLayout {
 
 extension WEVRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        ytVideos.count
+        switch searchStatus {
+        case .normal:
+            return ytVideos.count
+        default:
+            return 0
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -526,10 +527,6 @@ extension WEVRootNode: UICollectionViewDataSource {
         //        self.controller.push(galleryVC)
         
         self.controller.present(galleryVC, in: .window(.root))
-        
-        
-        
-        
     }
 }
 

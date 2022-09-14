@@ -23,13 +23,25 @@ import ContactsUI
 //import SnapKit
 import HandyJSON
 import Alamofire
-import Kingfisher // this has  a collision with swift influx operator 
+import Kingfisher // this has  a collision with swift influx operator
 
 
 class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     
-    let liveLabel = UIView()
-    let point = UIView()
+    let liveLabel: UIView = {
+        let view = UIView()
+        view.backgroundColor = LJColor.hex(0xE84646)
+        view.layer.cornerRadius = 10
+        return view
+    }()
+    
+    let point: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 3
+        return view
+    }()
+    
     let wordLabel = UILabel.lj.configure(font: LJFont.regular(11), textColor: .white, text: "LIVE")
     
     public var model: WEVVideoModel? = nil {
@@ -99,10 +111,18 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         
         channelImageView.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(8)
-            make.size.equalTo(CGSize(width: 15, height: 15))
+            make.width.height.equalTo(15)
         }
+        
+        channelNameLabel.snp.makeConstraints { (make) in
+            make.left.equalTo(channelImageView.snp.right).offset(5)
+            make.top.equalToSuperview().offset(9)
+            make.centerY.equalTo(channelImageView)
+            make.right.equalTo(liveLabel.snp.left).offset(-5)
+        }
+        
         point.snp.makeConstraints { (make) in
-            make.left.equalToSuperview().offset(9)
+            make.left.equalToSuperview().offset(5)
             make.size.equalTo(CGSize(width: 6, height: 6))
             make.centerY.equalToSuperview()
         }
@@ -112,16 +132,11 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             make.centerY.equalToSuperview()
             make.left.equalTo(point.snp.right).offset(7)
         }
-        channelNameLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(channelImageView.snp.right).offset(5)
-            make.top.equalToSuperview().offset(9)
-            make.centerY.equalTo(channelImageView)
-            make.right.equalTo(liveLabel.snp.left).offset(-5)
-        }
         
         liveLabel.snp.makeConstraints { (make) in
-            make.right.equalToSuperview().offset(-8)
+            make.right.equalToSuperview().offset(-5)
             make.top.equalToSuperview().offset(8)
+            make.left.equalTo(point.snp.right).offset(2)
             make.size.equalTo(CGSize(width: 55, height: 20))
         }
         
@@ -138,65 +153,25 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         addSubview(imageView)
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         imageView.frame = CGRect(x: 0, y: 0, width: width, height: 97 * width / 186)
-//        imageView.snp.makeConstraints { (make) in
-//            make.edges.equalToSuperview()
-//        }
         
         addSubview(channelImageView)
-//        channelImageView.snp.makeConstraints { (make) in
-//            make.left.equalToSuperview().offset(8)
-//            make.size.equalTo(CGSize(width: 15, height: 15))
-//        }
-        
-      
-        addSubview(liveLabel)
-        liveLabel.backgroundColor = LJColor.hex(0xE84646)
-        liveLabel.layer.cornerRadius = 10
-       
-        point.backgroundColor = .white
-        point.layer.cornerRadius = 3
-        liveLabel.addSubview(point)
-//        point.snp.makeConstraints { (make) in
-//            make.left.equalToSuperview().offset(9)
-//            make.size.equalTo(CGSize(width: 6, height: 6))
-//            make.centerY.equalToSuperview()
-//        }
-        liveLabel.addSubview(wordLabel)
-//        label.snp.makeConstraints { (make) in
-//            make.right.equalToSuperview().offset(-10)
-//            make.centerY.equalToSuperview()
-//            make.left.equalTo(point.snp.right).offset(7)
-//        }
-        
-//        liveLabel.snp.makeConstraints { (make) in
-//            make.right.equalToSuperview().offset(-8)
-//            make.top.equalToSuperview().offset(8)
-//            make.size.equalTo(CGSize(width: 55, height: 20))
-//        }
-        
         addSubview(channelNameLabel)
-//        channelNameLabel.snp.makeConstraints { (make) in
-//            make.left.equalTo(channelImageView.snp.right).offset(5)
-//            make.top.equalToSuperview().offset(9)
-//            make.centerY.equalTo(channelImageView)
-//            make.right.equalTo(liveLabel.snp.left).offset(-5)
-//        }
-//
-//
+        
+        addSubview(liveLabel)
+        liveLabel.addSubview(point)
+        liveLabel.addSubview(wordLabel)
+        
         addSubview(amountLabel)
-//        amountLabel.snp.makeConstraints { (make) in
-//            make.left.equalToSuperview().offset(8)
-//            make.bottom.equalToSuperview().offset(-8)
-//            make.height.equalTo(18)
-//        }
     }
     
     private func updateView() {
-//        guard let model = model else { return }
         guard let youtubeVideo = youtubeVideo else {return }
-//        channelImageView.image = model.channel?.smallImage
-        channelNameLabel.text = youtubeVideo.title // "test"// model.channel?.title
-        liveLabel.isHidden = false
+        
+        //For Time being only youTube Video //slim_video have only youtube videos
+        channelImageView.image = WEVChannel.youtube.smallImage
+        channelNameLabel.text = WEVChannel.youtube.rawValue
+        
+        
         if let n = youtubeVideo.viewCount{
             var numberStr = "\(n)"
             var unit = "viewers"
@@ -215,7 +190,6 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         
         if let thumbnailUrl = youtubeVideo.thumbnails[0]?.url{
             imageView.kf.setImage(with: URL.init(string: thumbnailUrl), placeholder: nil)
-
         }
     }
     
