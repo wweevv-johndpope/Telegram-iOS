@@ -45,11 +45,7 @@ struct WEVSearchRecordManager {
             LJUserDefaults.liveSearchRecord = data
         }
     }
-    
-
 }
-
-
 
 struct LJUserDefaults {
 
