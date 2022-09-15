@@ -17,17 +17,17 @@ class WEVDiscoverBannerView: UICollectionReusableView {
     public var dataArray: [WEVVideoModel] = [] {
         didSet {
             collectionView.reloadData()
-            pageView.pageNumber = dataArray.count
-            pageView.refreshCurrentPage()
+            //pageView.pageNumber = dataArray.count
+            //pageView.refreshCurrentPage()
         }
     }
     
     /// 当前页数
-    private var currentIndex = 0 {
+    /*private var currentIndex = 0 {
         didSet {
             pageView.currentPage = currentIndex
         }
-    }
+    }*/
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,16 +50,16 @@ class WEVDiscoverBannerView: UICollectionReusableView {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.isPagingEnabled = true
+        //collectionView.isPagingEnabled = true
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
         return collectionView
     }()
     
     /// 页码
-    private let pageView: PageView = {
+   /* private let pageView: PageView = {
         let view = PageView()
         return view
-    }()
+    }()*/
     
     /// 初始视图
     private func initView() {
@@ -71,12 +71,12 @@ class WEVDiscoverBannerView: UICollectionReusableView {
             make.edges.equalToSuperview()
         }
         
-        addSubview(pageView)
+        /*addSubview(pageView)
         pageView.snp.makeConstraints { (make) in
             make.right.left.equalToSuperview()
             make.bottom.equalToSuperview().offset(-10)
             make.height.equalTo(2)
-        }
+        }*/
     }
                 
 }
@@ -85,19 +85,19 @@ class WEVDiscoverBannerView: UICollectionReusableView {
 extension WEVDiscoverBannerView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataArray.count
+        return 10 //dataArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as! CollectionViewCell
-        let model = dataArray[indexPath.row]
-        cell.model = model
+        //let model = dataArray[indexPath.row]
+        //cell.model = model
         return cell
     }
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
+        return UIEdgeInsets.init(top: 8, left: 5, bottom: 0, right: 5)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -105,53 +105,71 @@ extension WEVDiscoverBannerView: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        return 8
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        collectionView.frame.size
+        CGSize(width: 60, height: 80)
     }
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        currentIndex = Int(targetContentOffset.pointee.x / frame.width)
+        //currentIndex = Int(targetContentOffset.pointee.x / frame.width)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let model = dataArray[indexPath.row]
-        didSelected?(model)
+        /*let model = dataArray[indexPath.row]
+        didSelected?(model)*/
     }
-
-    
 }
 
 //MARK: CollectionViewCell
-class CollectionViewCell: WEVDiscoverCollectionViewCell {
+class CollectionViewCell: UICollectionViewCell {
     
     //MARK: UI
+    /// 图片
+    public let profileImageView: UIImageView = {
+        let view = UIImageView()
+        view.backgroundColor = LJColor.main
+        view.contentMode = .scaleAspectFill
+        view.layer.cornerRadius = 30
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
+    /// 频道名字
+    public let liveUserName: UILabel = {
+        let label = UILabel.lj.configure(font: LJFont.medium(10), textColor: .black)
+        label.text = "WWEEVV"
+        label.textAlignment = .center
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        initView()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
     /// 初始视图
-    override func initView() {
-        super.initView()
+    func initView() {
         
-        imageView.layer.cornerRadius = 0
-        
-        channelImageView.snp.updateConstraints { (make) in
-            make.left.equalToSuperview().offset(16)
+        addSubview(liveUserName)
+             
+        liveUserName.snp.updateConstraints { (make) in
+            make.left.equalToSuperview().offset(5)
+            make.right.bottom.equalToSuperview().offset(-5)
+            make.height.equalTo(15)
         }
         
-        channelNameLabel.snp.updateConstraints { (make) in
-            make.top.equalToSuperview().offset(16)
+        addSubview(profileImageView)
+        profileImageView.snp.updateConstraints { (make) in
+            make.top.left.right.equalToSuperview()
+            make.bottom.equalTo(liveUserName.snp.top)
         }
         
-        liveLabel.snp.updateConstraints { (make) in
-            make.right.equalToSuperview().offset(-15)
-            make.top.equalToSuperview().offset(15)
-        }
-        
-        amountLabel.snp.updateConstraints { (make) in
-            make.left.equalToSuperview().offset(15)
-            make.bottom.equalToSuperview().offset(-27)
-        }
     }
     
 }

@@ -60,12 +60,10 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
-        updateView()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        initView()
     }
     
     //MARK: UI
@@ -103,7 +101,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    public func fixConstraints(){
+    public func fixConstraints() {
         
         imageView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview()
@@ -121,6 +119,13 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             make.right.equalTo(liveLabel.snp.left).offset(-5)
         }
         
+        
+        liveLabel.snp.makeConstraints { (make) in
+            make.right.equalToSuperview().offset(-5)
+            make.centerY.equalTo(channelNameLabel)
+            make.size.equalTo(CGSize(width: 55, height: 20))
+        }
+        
         point.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(5)
             make.size.equalTo(CGSize(width: 6, height: 6))
@@ -133,12 +138,6 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
             make.left.equalTo(point.snp.right).offset(7)
         }
         
-        liveLabel.snp.makeConstraints { (make) in
-            make.right.equalToSuperview().offset(-5)
-            make.top.equalToSuperview().offset(8)
-            make.left.equalTo(point.snp.right).offset(2)
-            make.size.equalTo(CGSize(width: 55, height: 20))
-        }
         
         amountLabel.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(8)
@@ -162,6 +161,9 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         liveLabel.addSubview(wordLabel)
         
         addSubview(amountLabel)
+        
+        //Apply autolayout constraint
+        self.fixConstraints()
     }
     
     private func updateView() {

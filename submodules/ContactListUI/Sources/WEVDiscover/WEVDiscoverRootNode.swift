@@ -62,7 +62,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private var searchStatus: SearchStatus = .normal
     private var searchWord: String? = nil
     private var searchDataArray: [WEVVideoModel] = []
-
+    
     private lazy var emptyView: WEVEmptyHintView = {
         let view = WEVEmptyHintView()
         return view
@@ -73,7 +73,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         get {
             // 非搜索非筛选
             (arrChannelFilter.isEmpty || arrChannelFilter.count == WEVChannel.allCases.count)
-                && searchStatus == .normal
+            && searchStatus == .normal
         }
     }
     
@@ -127,7 +127,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     }()
     
     
-        
+    
     private lazy var searchBar: WEVDiscoverSearchBar = {
         let view = WEVDiscoverSearchBar()
         view.filterAction = {[weak self] in
@@ -137,10 +137,10 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
                 self.arrChannelFilter = channelArray
-//                self.scrollViewLoadData(isHeadRefesh: true)
+                //                self.scrollViewLoadData(isHeadRefesh: true)
                 self.collectionView!.reloadData()
             }
-//            self.present(vc, animated: true, completion: nil)
+            //            self.present(vc, animated: true, completion: nil)
         }
         
         view.cancelAction = {[weak self] in
@@ -176,24 +176,24 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         return view
     }()
-        
+    
     private func searchLiveName(word: String) {
-//        LJNetManager.Video.searchName(liveName: word) {[weak self] (result) in
-//            guard let self = self else {return}
-//            if result.isSuccess,
-//               let data = result.successArrayData,
-//               let array = [WEVVideoModel.Anchor].deserialize(from: data) as? [WEVVideoModel.Anchor] {
-//                self.searchView.searchNameArray = array.compactMap{$0.liveName}
-//            }else {
-//                MBProgressHUD.lj.showHint(result.message)
-//            }
-//        }
+        //        LJNetManager.Video.searchName(liveName: word) {[weak self] (result) in
+        //            guard let self = self else {return}
+        //            if result.isSuccess,
+        //               let data = result.successArrayData,
+        //               let array = [WEVVideoModel.Anchor].deserialize(from: data) as? [WEVVideoModel.Anchor] {
+        //                self.searchView.searchNameArray = array.compactMap{$0.liveName}
+        //            }else {
+        //                MBProgressHUD.lj.showHint(result.message)
+        //            }
+        //        }
     }
     
     private func search(word: String) {
         searchWord = word
         searchStatus = .searchCompleted
-//        scrollViewLoadData(isHeadRefesh: true)
+        //        scrollViewLoadData(isHeadRefesh: true)
         WEVSearchRecordManager.add(record: word)
         searchView.recordArray = WEVSearchRecordManager.recordArray
     }
@@ -222,29 +222,29 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             emptyView.removeFromSuperview()
         }
     }
-
-     /// 刷新搜索状态相关视图
-     private func refreshSearchStatusView() {
-                 
-         /// 是否显示搜索界面
-         func updateListView(_ isShowSearchView: Bool) {
-             collectionView!.isHidden = isShowSearchView
-             searchView.isHidden = !isShowSearchView
-         }
-
-         switch searchStatus {
-         case .searching:
-             updateListView(true)
-             searchBar.style = .searching
-         case .normal:
-             updateListView(false)
-             searchBar.style = .normal
-         case .searchCompleted:
-             updateListView(false)
-             searchBar.style = .searchCompleted
-         }
-         collectionView!.reloadData()
-     }
+    
+    /// 刷新搜索状态相关视图
+    private func refreshSearchStatusView() {
+        
+        /// 是否显示搜索界面
+        func updateListView(_ isShowSearchView: Bool) {
+            collectionView!.isHidden = isShowSearchView
+            searchView.isHidden = !isShowSearchView
+        }
+        
+        switch searchStatus {
+        case .searching:
+            updateListView(true)
+            searchBar.style = .searching
+        case .normal:
+            updateListView(false)
+            searchBar.style = .normal
+        case .searchCompleted:
+            updateListView(false)
+            searchBar.style = .searchCompleted
+        }
+        collectionView!.reloadData()
+    }
     
     init(context: AccountContext, sortOrder: Signal<ContactsSortOrder, NoError>, present: @escaping (ViewController, Any?) -> Void, controller: WEVRootViewController) {
         self.context = context
@@ -354,14 +354,13 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchView.snp.makeConstraints { (make) in
                 make.edges.equalTo(collectionView!)
             }
-            
         }
         
         refreshSearchStatusView()
         
     }
     
-    func getCollectionView(frame:CGRect) -> UICollectionView{
+    func getCollectionView(frame:CGRect) -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         layout.itemSize = CGSize(width: width, height: 97 * width / 186)
@@ -370,16 +369,16 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
+        view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
         view.contentInsetAdjustmentBehavior = .never
         self.collectionView = view
         return view
-        
     }
 }
 
 //MARK: - UICollectionViewDelegateFlowLayout
 extension WEVDiscoverRootNode: UICollectionViewDelegateFlowLayout {
-        
+    
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         .init(top: 1, left: 1, bottom: 1, right: 1)
     }
@@ -391,12 +390,12 @@ extension WEVDiscoverRootNode: UICollectionViewDelegateFlowLayout {
         1
     }
     
-   public  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if isShowBannerView {
-            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
-        }else {
+    public  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        //if isShowBannerView {
+            return CGSize.init(width: LJScreen.width, height: 80)
+        /*}else {
             return CGSize.zero
-        }
+        }*/
         
     }
     
@@ -415,22 +414,24 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
         cell.liveVideo = arrLiveVideos[indexPath.row]
-        cell.fixConstraints()
+        //cell.fixConstraints()
         return cell
     }
     
-        public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-            let bannerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WEVDiscoverBannerView", for: indexPath) as! WEVDiscoverBannerView
-            bannerView.dataArray = bannerDataArray
-            bannerView.didSelected = {[weak self] (video) in
-                guard let self = self else {return}
-    //            let vc = WEVVideoDetailViewController.init(video: video)
-//                WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
-                print("self:",self)
-            }
-    
-            return bannerView
+    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let bannerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WEVDiscoverBannerView", for: indexPath) as? WEVDiscoverBannerView else {
+            return UICollectionReusableView()
         }
+        bannerView.dataArray = bannerDataArray
+        bannerView.didSelected = {[weak self] (video) in
+            guard let self = self else {return}
+            //let vc = WEVVideoDetailViewController.init(video: video)
+            //WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
+            print("self:",self)
+        }
+        
+        return bannerView
+    }
     private var navigationController: NavigationController? {
         if let navigationController = self.controller.navigationController as? NavigationController {
             return navigationController
@@ -449,7 +450,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let video = arrLiveVideos[indexPath.row]
         print("video:",video)
-     
+        
         if let url = video.videlLiveUrl {
             let size = CGSize(width:1280,height:720)
             
