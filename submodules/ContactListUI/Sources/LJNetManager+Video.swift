@@ -56,10 +56,7 @@ extension LJNetManager {
             if !channelArray.isEmpty {
                 params.updateValue(channelArray.map{$0.rawValue}.joined(separator: ","), forKey: "channelIdArray")
             }
-            
-          
-           
-                         
+            LJNetManager.request(url: "v1/api/Discovery/video/list", method: .post, bodyParameters: params, completion: completion)
         }
 
         /// 根据输入内容匹配直播名字

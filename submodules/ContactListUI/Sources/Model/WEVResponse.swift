@@ -7,44 +7,13 @@
 
 import Foundation
 import UIKit
+import HandyJSON
 
-struct WEVResponse: Decodable{
-    var code = 0
-    var data:WEVResponseData?
-    var message = "";
-    var time = 0;
-  
-}
-
-struct WEVResponseData:Decodable{
-    var keyWord = "";
-    var nextPageToken = ""
-    var liveVideoPojoList:[WEVVideoModel]
-    var offset:Int?
-}
-
-struct LivePojo:Decodable{
-    var id :String?
-    var channelId:String?
-    var liveId:String?
-    var liveHeadUrl:String?
-    var liveName:String?
-    var liveDescription:String?
-    var regionCode:String?
-    var viewCount:Int?
-    var substrFlag:Bool?
+struct WEVVideoModel: HandyJSON {
     
-}
-
-// TODO - move this
-
-//Swift.DecodingError.keyNotFound(CodingKeys(stringValue: "isSponsored", intValue: nil), Swift.DecodingError.Context(codingPath: [CodingKeys(stringValue: "data", intValue: nil), CodingKeys(stringValue: "liveVideoPojoList", intValue: nil), _JSONKey(stringValue: "Index 0", intValue: 0)], debugDescription: "No value associated with key CodingKeys(stringValue: \"isSponsored\", intValue: nil) (\"isSponsored\").", underlyingError: nil)))))
-
-struct WEVVideoModel :Decodable{
-
-    var id = ""
-    var channelId = ""
+    var channel: WEVChannel?
     var liveId = ""
+    var id = ""
     var videoDescription = ""
     var videoId = ""
     var videoPublishedAt = ""
@@ -53,24 +22,37 @@ struct WEVVideoModel :Decodable{
     var videoUrl = ""
     var wweevvVideoUrl = ""
     var views = 0
-    var isSponsored:String?
-    var livePojo:LivePojo
-
+    var anchor: Anchor?
+    var isSponsored = false
     
-    enum CodingKeys: String, CodingKey {
-
-        case liveId
-        case id
-        case videoDescription
-        case videoId
-        case videoPublishedAt
-        case videoThumbnailsUrl
-        case videoTitle
-        case videoUrl
-        case wweevvVideoUrl
-        case views
-        case isSponsored = "sponsorFlag"
-        case livePojo
+    mutating func mapping(mapper: HelpingMapper) {
+        mapper <<< self.channel <-- "channelId"
+        mapper <<< self.anchor <-- "livePojo"
+        mapper <<< self.isSponsored <-- "sponsorFlag"
     }
 
+
+    /// 主播
+    struct Anchor: HandyJSON {
+        var channel: WEVChannel?
+        var liveDescription = ""
+        var id = ""
+        var liveHeadUrl = ""
+        var liveId = ""
+        var liveName = ""
+        var regionCode = ""
+        /// 是否已订阅
+        var isSubscribed = false
+        
+        mutating func mapping(mapper: HelpingMapper) {
+            mapper <<<
+                self.channel <-- "channelId"
+            
+            mapper <<<
+                self.isSubscribed <-- "substrFlag"
+        }
+        
+    }
+    
+    
 }

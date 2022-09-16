@@ -14,16 +14,17 @@ struct LJNetManager {
     typealias RequestCompletion = (_ result: LJNetManager.Result) -> ()
     
     /// Alamofire.SessionManager
-    private static let sharedSessionManager: Alamofire.Session = {
+    private static let sharedSessionManager: Alamofire.SessionManager = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 60
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-        let manager = Alamofire.Session(configuration: configuration)
-//        manager.delegate.sessionDidReceiveChallenge = { session,challenge in
-//            return    (URLSession.AuthChallengeDisposition.useCredential,URLCredential(trust:challenge.protectionSpace.serverTrust!))
-//        }
+        let manager = Alamofire.SessionManager(configuration: configuration)
+        manager.delegate.sessionDidReceiveChallenge = { session,challenge in
+            return    (URLSession.AuthChallengeDisposition.useCredential,URLCredential(trust:challenge.protectionSpace.serverTrust!))
+        }
         return manager
     }()
+    
     
     
     /// 发起请求
@@ -68,68 +69,56 @@ struct LJNetManager {
             }
         }
         
-//        let utcStr = "\(Int(Date().timeIntervalSince1970 * 1000))"
-//        let signStr = sign(params: allParams, utcStr: utcStr)
-//        var header = ["content-type" : "application/json",
-//                      "user-agent" : "iphone",
-//                      "VersionInfo": baseInfoString(),
-//                      "deviceId": KeyChainStore.uuid,
-//                      "nonceStr": oneceStr,
-//                      "utcStr": utcStr,
-//                      "sign": signStr]
-//        if let token = LJUser.user.token, LJUser.user.isLogin {
-//            header["token"] = token
-//        }
-        
+        let utcStr = "\(Int(Date().timeIntervalSince1970 * 1000))"
+        //let signStr = sign(params: allParams, utcStr: utcStr)
+        var header: HTTPHeaders = ["content-type" : "application/json",
+                      "user-agent" : "iphone",
+                      "VersionInfo": baseInfoString(),
+                      "deviceId": KeyChainStore.uuid,
+                      "nonceStr": oneceStr,
+                      "utcStr": utcStr]/*,
+                      "sign": signStr]*/
+        //if let token = LJUser.user.token, LJUser.user.isLogin {
+        header["token"] = API.token
+        //}
         // 发起请求
-        
-        // 发起请求
-        let request = sharedSessionManager.request( url, method: method, parameters: bodyParameters, encoding: JSONEncoding.default, headers: nil)
-        
-        request.responseData { response in
-            switch response.result {
-                case .success(let data):
-                    do {
-                        let asJSON = try JSONSerialization.jsonObject(with: data) as! DataResponse<Any, Error>
-                        // Handle as previously success
-                        self.handleNetResponseJSON(response: asJSON, completion)
-                    } catch {
-                        // Here, I like to keep a track of error if it occurs, and also print the response data if possible into String with UTF8 encoding
-                        // I can't imagine the number of questions on SO where the error is because the API response simply not being a JSON and we end up asking for that "print", so be sure of it
-//                        print("Error while decoding response: "\(error)" from: \(String(data: data, encoding: .utf8))")
-                    }
-                case .failure( _):
-                    // Handle as previously error
-                    return
-                }
-        }
-        
+        sharedSessionManager.request(appendUrl(api: url), method: method, parameters: bodyParameters, encoding: JSONEncoding.default, headers: header).responseJSON(completionHandler: { (response) in
+            // 打印请求信息
+            if let data = try? JSONSerialization.data(withJSONObject: ((bodyParameters != nil) ? bodyParameters : urlParameters) ?? [:], options: .prettyPrinted) {
+                let jsonstr = String(data: data, encoding: .utf8)
+                //printLog("\(method): \(url)\nparams: \(jsonstr!)\n\(response)")
+                print("\(method): \(url)\nparams: \(jsonstr!)\n\(response)")
+            }
+                        
+            // 处理请求结果
+            self.handleNetResponseJSON(response: response, completion)
+        })
     }
     
     
     /// 请求头上的基本信息
-//    private static func baseInfoString() -> String {
-//        let uuid = KeyChainStore.uuid
-//        let appType = "0"
-//        let platformType = "0"
-//        let versionCode = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-//        let baseInfoDic = ["appType": appType,
-//                           "uuid": uuid,
-//                           "platformType": platformType,
-//                           "versionCode": versionCode]
-//
-//        guard let baseInfoData = try? JSONSerialization.data(withJSONObject: baseInfoDic, options: []) else { return "" }
-//        let baseInfoStr = String(data: baseInfoData, encoding: String.Encoding.utf8)
-//        let base64String = baseInfoStr?.data(using: String.Encoding.utf8)?.base64EncodedString()
-//        return base64String ?? ""
-//    }
+    private static func baseInfoString() -> String {
+        let uuid = KeyChainStore.uuid
+        let appType = "0"
+        let platformType = "0"
+        let versionCode = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let baseInfoDic = ["appType": appType,
+                           "uuid": uuid,
+                           "platformType": platformType,
+                           "versionCode": versionCode]
+        
+        guard let baseInfoData = try? JSONSerialization.data(withJSONObject: baseInfoDic, options: []) else { return "" }
+        let baseInfoStr = String(data: baseInfoData, encoding: String.Encoding.utf8)
+        let base64String = baseInfoStr?.data(using: String.Encoding.utf8)?.base64EncodedString()
+        return base64String ?? ""
+    }
     
     
     /// 处理请求结果
-    static private func handleNetResponseJSON(response: DataResponse<Any, Error>, _ completion: RequestCompletion) -> () {
+    static private func handleNetResponseJSON(response: DataResponse<Any>, _ completion: RequestCompletion) -> () {
         
-        switch response.result {
-           case .success(let value):
+        guard response.result.isSuccess else {
+            //网络层的错误
             if let reponseError = response.error {
                 let error = Result.RequestError.netError(reponseError)
                 completion(Result.failure(error))
@@ -137,99 +126,83 @@ struct LJNetManager {
                 let error = Result.RequestError.netError(NSError.init(domain: "Internal Server Error.", code: 500, userInfo: nil) as Error)
                 completion(Result.failure(error))
             }
-            
-            // 如果请求头有返回token，提出来
-//            if let token = response.response?.allHeaderFields["token"] as? String {
-//                if var data = value["data"] as? [String: Any] {
-//                    data["token"] = token
-//                    value["data"] = data
-//                }
-//            }
-            
-            if let JSON = value as? [String: Any] {
-                                    let status = JSON["status"] as! String
-                                    print(status)
-                
-                if let code = JSON["code"] as? Int {
-                    let data = Result.ApiData.init(JSON)
-                    if code == 0 {
-                        // 接口调用成功
-                        completion(Result.success(data))
-                    }else {
-                        // 接口调用失败
-                        var error = Result.RequestError.apiError(data)
-                        let isHandled = self.checkError(error.apiError!)
-                        if isHandled {
-    //                        // 如果是经过处理会弹出提示弹窗的情况，则不显示后台返回的提示
-    //                        value["message"] = ""
-                            let noMessageData = Result.ApiData.init(JSON)
-                            error = Result.RequestError.apiError(noMessageData)
-                        }
-                        completion(Result.failure(error))
-                        return
-                    }
-                }else {
-                    //服务器异常
-                    let err = NSError.init(domain: "Internal Server Error", code: 500, userInfo: nil) as Error
-                    let error = Result.RequestError.netError(err)
-                    completion(Result.failure(error))
-                }
-            }
-            
-           
-        
-            
             return
-        //success, do anything
-           case .failure( _):
-            return
-        //failure
         }
         
-     
-
-       
+        if var value = response.result.value as? Dictionary<String, Any>  {
+            // 如果请求头有返回token，提出来
+            if let token = response.response?.allHeaderFields["token"] as? String {
+                if var data = value["data"] as? [String: Any] {
+                    data["token"] = token
+                    value["data"] = data
+                }
+            }
+            if let code = value["code"] as? Int {
+                let data = Result.ApiData.init(value)
+                if code == 0 {
+                    // 接口调用成功
+                    completion(Result.success(data))
+                }else {
+                    // 接口调用失败
+                    var error = Result.RequestError.apiError(data)
+                    let isHandled = self.checkError(error.apiError!)
+                    if isHandled {
+//                        // 如果是经过处理会弹出提示弹窗的情况，则不显示后台返回的提示
+//                        value["message"] = ""
+                        let noMessageData = Result.ApiData.init(value)
+                        error = Result.RequestError.apiError(noMessageData)
+                    }
+                    completion(Result.failure(error))
+                    return
+                }
+            }else {
+                //服务器异常
+                let err = NSError.init(domain: "Internal Server Error", code: 500, userInfo: nil) as Error
+                let error = Result.RequestError.netError(err)
+                completion(Result.failure(error))
+            }
+        }
     }
     
     /// code异常处理
     private static func checkError(_ errorData: Result.ApiData) -> Bool {
         
-//        let code = errorData.code
-//        guard code != 0 else { return true }
-//        if code == 90000 { // token失效
-//            LJUser.user.logout(isForce: true)
-//            return true
-//        }else if code == 90001 { // 用户在别处登录
-//            LJUser.user.logout(isForce: true)
-//            return true
-//        }else if code == 8901 { // 账户被禁用
-//            LJUser.user.logout(isForce: true)
-//            return true
-//        }else if code == 8902 { // 账户被注销
-//            LJUser.user.logout(isForce: true)
-//            return true
-//        }else if code == 91000 { // 版本强制更新
-//            // 版本检测
-////            ALFVersionCheckManager.manager.check()
-//            return true
-//        }
+        let code = errorData.code
+        guard code != 0 else { return true }
+        if code == 90000 { // token失效
+            //LJUser.user.logout(isForce: true)
+            return true
+        }else if code == 90001 { // 用户在别处登录
+            //LJUser.user.logout(isForce: true)
+            return true
+        }else if code == 8901 { // 账户被禁用
+            //LJUser.user.logout(isForce: true)
+            return true
+        }else if code == 8902 { // 账户被注销
+            //LJUser.user.logout(isForce: true)
+            return true
+        }else if code == 91000 { // 版本强制更新
+            // 版本检测
+            //            ALFVersionCheckManager.manager.check()
+            return true
+        }
         return false
     }
 }
 
 
-    
+
 
 //MARK: Tool
 
 extension LJNetManager {
     
     /// url拼接
-//    private static func appendUrl(api: String) -> URL {
-//        var str = "\(LJConfig.baseURL)\(api)"
-//        str = str.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-//        return URL(string: str)!
-//    }
+    private static func appendUrl(api: String) -> URL {
+        var str = "\(LJConfig.baseURL)\(api)"
+        str = str.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        return URL(string: str)!
+    }
     
     /// 随机字符串
     private static var oneceStr: String {
@@ -245,46 +218,46 @@ extension LJNetManager {
         }
     }
     
-//    /// MD5
-//    private static func MD5String(str: String) -> String {
-//        let cStrl = str.cString(using: String.Encoding.utf8)
-//        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 16)
-//        CC_MD5(cStrl, CC_LONG(strlen(cStrl!)), buffer)
-//        var md5String = ""
-//        for idx in 0...15 {
-//            let obcStrl = String.init(format: "%02x", buffer[idx]);
-//            md5String.append(obcStrl);
-//        }
-//        free(buffer)
-//        return md5String
-//    }
-//
+    /// MD5
+    /*private static func MD5String(str: String) -> String {
+        let cStrl = str.cString(using: String.Encoding.utf8)
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 16)
+        CC_MD5(cStrl, CC_LONG(strlen(cStrl!)), buffer)
+        var md5String = ""
+        for idx in 0...15 {
+            let obcStrl = String.init(format: "%02x", buffer[idx]);
+            md5String.append(obcStrl);
+        }
+        free(buffer)
+        return md5String
+    }*/
+    
     /// 签名
     /// - Parameters:
     ///   - params: 参数
     ///   - utcStr: 当前时间戳
     /// - Returns: 签名结果
-//    private static func sign(params: [String: String], utcStr: String) -> String {
-//        let oneceStr = Self.oneceStr
-//        var params = params
-//        params["nonceStr"] = oneceStr
-//        params["utcStr"] = utcStr
-//        let paramStrArray = Array(params).sorted { (a, b) -> Bool in
-//            return a.key.localizedStandardCompare(b.key) == .orderedAscending
-//        }.map{"\($0.key)=\($0.value)"}
-//        let paramStr = paramStrArray.joined(separator: "&")
-//        let key = "wweevv@technehqz@20210101@wweevv"
-//        let signStr = "\(paramStr)&key=\(key)"
-//        let signValue = Self.MD5String(str: signStr).uppercased()
-//        return signValue
-//    }
-
+    /*private static func sign(params: [String: String], utcStr: String) -> String {
+        let oneceStr = Self.oneceStr
+        var params = params
+        params["nonceStr"] = oneceStr
+        params["utcStr"] = utcStr
+        let paramStrArray = Array(params).sorted { (a, b) -> Bool in
+            return a.key.localizedStandardCompare(b.key) == .orderedAscending
+        }.map{"\($0.key)=\($0.value)"}
+        let paramStr = paramStrArray.joined(separator: "&")
+        let key = "wweevv@technehqz@20210101@wweevv"
+        let signStr = "\(paramStr)&key=\(key)"
+        let signValue = Self.MD5String(str: signStr).uppercased()
+        return signValue
+    }*/
+    
 }
 
 //MARK: - 请求结果
 
 extension LJNetManager {
-        
+    
     /// 网络请求结果
     ///
     /// - success: 请求成功，附带返回的数据
@@ -360,7 +333,7 @@ extension LJNetManager {
             }
             return msg
         }
-
+        
         /// 网络请求错误
         ///
         /// - netError: 网络错误
@@ -402,7 +375,7 @@ extension LJNetManager {
                 }
             }
         }
-
+        
         /// 接口返回的数据
         public struct ApiData {
             var code: Int = 0
@@ -462,7 +435,7 @@ extension LJNetManager {
                 }
                 
             }
-
+            
             
         }
     }

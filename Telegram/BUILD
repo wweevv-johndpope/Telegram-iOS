@@ -1817,6 +1817,9 @@ plist_fragment(
         <string>SFCompactRounded-Semibold.otf</string>
         <string>AremacFS-Regular.otf</string>
         <string>AremacFS-Semibold.otf</string>
+        <string>Rubik-Medium.ttf</string>
+        <string>Rubik-Regular.ttf</string>
+        <string>Rubik-Bold.ttf</string>
     </array>
     <key>UIBackgroundModes</key>
     <array>
@@ -1953,7 +1956,8 @@ ios_application(
         ":Main",
         ":Lib",
         "//third-party/Alamofire",
-        
+        "//third-party/MBProgressHUD:MBProgressHUD",
+        "//third-party/MJRefresh:MJRefresh",
     ],
 )
 

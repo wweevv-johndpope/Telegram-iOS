@@ -6,8 +6,7 @@
 //
 
 import UIKit
-
-//extension UILabel: LJExtensionCompatible {}
+import Foundation
 
 extension LJExtension where Base == UILabel {
   
