@@ -20,19 +20,9 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 import ContactsUI
-//import SnapKit
-import HandyJSON
-import Alamofire
 import Supabase
 import PostgREST
-import Alamofire
 import Realtime
-//import FirebaseAuth
-//import FirebaseAnalytics
-//import FirebaseCore
-
-
-
 
 public class WEVRootViewController: ViewController {
     private let context: AccountContext
@@ -40,8 +30,8 @@ public class WEVRootViewController: ViewController {
         return context
     }
     
-    private var contactsNode: WEVRootNode {
-        return self.displayNode as! WEVRootNode
+    private var contactsNode: WEVDiscoverRootNode {
+        return self.displayNode as! WEVDiscoverRootNode
     }
     private var validLayout: ContainerViewLayout?
     
@@ -96,7 +86,7 @@ public class WEVRootViewController: ViewController {
         rt.connect()
         rt.onOpen {
             
-            self.allUsersUpdateChanges =  rt.channel(.table("slim_video", schema: "public"))
+            self.allUsersUpdateChanges =  rt.channel(.table("live_video", schema: "public"))
             self.allUsersUpdateChanges?.on(.insert) { message in
                 print("☕️ test - insert")
                 print(message.payload)
@@ -115,9 +105,7 @@ public class WEVRootViewController: ViewController {
             print("🔖 message")
             print(message.payload)
             print(message.event)
-            
-            //            print(message.status)
-            
+            //print(message.status)
         }
         
         
@@ -226,7 +214,7 @@ public class WEVRootViewController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVRootNode(context: self.context, sortOrder: sortOrderPromise.get() |> distinctUntilChanged, present: { [weak self] c, a in
+        self.displayNode = WEVDiscoverRootNode(context: self.context, sortOrder: sortOrderPromise.get() |> distinctUntilChanged, present: { [weak self] c, a in
             self?.present(c, in: .window(.root), with: a)
         }, controller: self)
         
