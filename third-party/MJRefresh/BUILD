@@ -1,10 +1,3 @@
-filegroup(
-    name = "Resources",
-    srcs = glob([
-        "Sources/MJRefresh/MJRefresh.bundle",
-    ], exclude = ["Sources/MJRefresh/MJRefresh.bundle"]),
-)
-
 objc_library(
     name = "MJRefresh",
     enable_modules = True,
