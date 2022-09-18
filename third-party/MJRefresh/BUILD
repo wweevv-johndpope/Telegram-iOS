@@ -14,6 +14,9 @@ objc_library(
         "Sources/MJRefresh/*.m",
         "Sources/MJRefresh/MJRefresh.bundle",
     ]),
+     data = [
+        "Sources/MJRefresh/MJRefresh.bundle",
+     ],
     hdrs = glob([
         "Sources/MJRefresh/*.h",
     ]),
