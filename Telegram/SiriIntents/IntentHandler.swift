@@ -70,7 +70,7 @@ class IntentHandler: INExtension {
 
 @available(iOSApplicationExtension 10.0, iOS 10.0, *)
 @objc(IntentHandler)
-class DefaultIntentHandler: INExtension, INSendMessageIntentHandling, INSearchForMessagesIntentHandling, INSetMessageAttributeIntentHandling, INStartAudioCallIntentHandling, INSearchCallHistoryIntentHandling {
+class DefaultIntentHandler: INExtension, INSendMessageIntentHandling, INSearchForMessagesIntentHandling, INSetMessageAttributeIntentHandling, INSearchCallHistoryIntentHandling {
     private let accountPromise = Promise<Account?>()
     private let allAccounts = Promise<[(AccountRecordId, PeerId, Bool)]>()
     
@@ -643,7 +643,7 @@ class DefaultIntentHandler: INExtension, INSendMessageIntentHandling, INSearchFo
     
     // MARK: - INStartAudioCallIntentHandling
     
-    public func resolveContacts(for intent: INStartAudioCallIntent, with completion: @escaping ([INPersonResolutionResult]) -> Void) {
+    public func resolveContacts(for intent: INStartCallIntent, with completion: @escaping ([INPersonResolutionResult]) -> Void) {
         if let appGroupUrl = self.appGroupUrl {
             let rootPath = rootPathForBasePath(appGroupUrl.path)
             if let data = try? Data(contentsOf: URL(fileURLWithPath: appLockStatePath(rootPath: rootPath))), let state = try? JSONDecoder().decode(LockState.self, from: data), isAppLocked(state: state) {
@@ -662,16 +662,16 @@ class DefaultIntentHandler: INExtension, INSendMessageIntentHandling, INSearchFo
     }
     
     @available(iOSApplicationExtension 11.0, iOS 11.0, *)
-    public func resolveDestinationType(for intent: INStartAudioCallIntent, with completion: @escaping (INCallDestinationTypeResolutionResult) -> Void) {
+    public func resolveDestinationType(for intent: INStartCallIntent, with completion: @escaping (INCallDestinationTypeResolutionResult) -> Void) {
         completion(.success(with: .normal))
     }
     
-    public func handle(intent: INStartAudioCallIntent, completion: @escaping (INStartAudioCallIntentResponse) -> Void) {
+    public func handle(intent: INStartCallIntent, completion: @escaping (INStartCallIntentResponse) -> Void) {
         if let appGroupUrl = self.appGroupUrl {
             let rootPath = rootPathForBasePath(appGroupUrl.path)
             if let data = try? Data(contentsOf: URL(fileURLWithPath: appLockStatePath(rootPath: rootPath))), let state = try? JSONDecoder().decode(LockState.self, from: data), isAppLocked(state: state) {
-                let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartAudioCallIntent.self))
-                let response = INStartAudioCallIntentResponse(code: .failureRequiringAppLaunch, userActivity: userActivity)
+                let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartCallIntent.self))
+                let response = INStartCallIntentResponse(code: .failureRequiringAppLaunch, userActivity: userActivity)
                 completion(response)
                 return
             }
@@ -697,13 +697,13 @@ class DefaultIntentHandler: INExtension, INSendMessageIntentHandling, INSearchFo
             return .single(peerId)
         }
         |> deliverOnMainQueue).start(next: { peerId in
-            let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartAudioCallIntent.self))
+            let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartCallIntent.self))
             userActivity.userInfo = ["handle": "TGCA\(peerId.toInt64())"]
-            let response = INStartAudioCallIntentResponse(code: .continueInApp, userActivity: userActivity)
+            let response = INStartCallIntentResponse(code: .continueInApp, userActivity: userActivity)
             completion(response)
         }, error: { _ in
-            let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartAudioCallIntent.self))
-            let response = INStartAudioCallIntentResponse(code: .failureRequiringAppLaunch, userActivity: userActivity)
+            let userActivity = NSUserActivity(activityType: NSStringFromClass(INStartCallIntent.self))
+            let response = INStartCallIntentResponse(code: .failureRequiringAppLaunch, userActivity: userActivity)
             completion(response)
         }))
     }

@@ -399,9 +399,9 @@ plist_fragment(
 )
 
 official_apple_pay_merchants = [
-    "merchant.ph.telegra.Telegraph",
-    "merchant.sberbank.ph.telegra.Telegraph",
-    "merchant.sberbank.test.ph.telegra.Telegraph",
+    "merchant.com.wweevv.client",
+    "merchant.sberbank.com.wweevv.client",
+    "merchant.sberbank.test.com.wweevv.client",
     "merchant.privatbank.test.telergramios",
     "merchant.privatbank.prod.telergram",
     "merchant.paymaster.test.telegramios",
@@ -416,11 +416,11 @@ official_apple_pay_merchants = [
 ]
 
 official_bundle_ids = [
-    "ph.telegra.Telegraph",
+    "com.wweevv.client",
     "org.telegram.Telegram-iOS",
 ]
 
-apple_pay_merchants = official_apple_pay_merchants if telegram_bundle_id == "ph.telegra.Telegraph" else []
+apple_pay_merchants = official_apple_pay_merchants if telegram_bundle_id == "com.wweevv.client" else []
 
 apple_pay_merchants_fragment = "" if apple_pay_merchants == [] else """
 <key>com.apple.developer.in-app-payments</key>
@@ -712,7 +712,7 @@ watchos_application(
     minimum_os_version = "5.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:WatchApp.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:watchkitapp.mobileprovision",
     }),
     resources = [
         ":TelegramWatchAppResources",
@@ -1296,7 +1296,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionNotificationContentExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:NotificationContent.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:Notification_Content.mobileprovision",
     }),
     deps = [":NotificationContentExtensionLib"],
     frameworks = [
@@ -1533,7 +1533,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionIntentsExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Intents.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:SiriIntents.mobileprovision",
     }),
     deps = [":IntentsExtensionLib"],
     frameworks = [
@@ -1706,7 +1706,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionNotificationServiceExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:NotificationService.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:Notification_Service.mobileprovision",
     }),
     deps = ["//Telegram/NotificationService:NotificationServiceExtensionLib"],
     frameworks = [
@@ -1907,9 +1907,9 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
     }),
-    entitlements = ":TelegramEntitlements.entitlements",
+    #entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
         ":TelegramInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1972,9 +1972,9 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
     }),
-    entitlements = ":TelegramEntitlements.entitlements",
+    #entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
         ":TelegramInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1995,9 +1995,9 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
     }),
-    entitlements = ":TelegramEntitlements.entitlements",
+    #entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
         ":TelegramInfoPlist",
         ":BuildNumberInfoPlist",
