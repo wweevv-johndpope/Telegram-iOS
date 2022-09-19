@@ -105,19 +105,18 @@ public final class TelegramRootController: NavigationController {
         
         var controllers: [ViewController] = []
         
-        let vc = WEVRootViewController(context: self.context)
+        //Feed Screen deattach from tabbar 
+        /*let vc = WEVRootViewController(context: self.context)
         vc.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
         }
-        controllers.append(vc)
+        controllers.append(vc)*/
         
         let discoverVC = WEVRootViewController(context: self.context)
         discoverVC.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
         }
         controllers.append(discoverVC)
-        
-        
         
         let contactsController = ContactsController(context: self.context)
         contactsController.switchToChatsController = {  [weak self] in

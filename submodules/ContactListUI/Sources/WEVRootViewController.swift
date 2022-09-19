@@ -116,9 +116,12 @@ public class WEVRootViewController: ViewController {
         
         self.title =  "Discover"//self.presentationData.strings.Contacts_Title
         self.tabBarItem.title = "Discover"
-        
-        self.tabBarItem.image =  UIImage(named:"tabbar_discover_unselect")
+        /*if !self.presentationData.reduceMotion {
+            self.tabBarItem.animationName = "discover"
+        }*/
+        self.tabBarItem.image =   UIImage(named:"tabbar_discover_unselect")
         self.tabBarItem.selectedImage =  UIImage(named:"tabbar_discover_selected")
+
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
@@ -199,13 +202,14 @@ public class WEVRootViewController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = "Stream" //self.presentationData.strings.Contacts_Title
-        self.tabBarItem.title = "Feed"//self.presentationData.strings.Contacts_Title
-        if !self.presentationData.reduceMotion {
-            self.tabBarItem.animationName = "TabContacts"
+        self.title = "Discover" //self.presentationData.strings.Contacts_Title
+        self.tabBarItem.title = "Discover"//self.presentationData.strings.Contacts_Title
+        
+        /*if !self.presentationData.reduceMotion {
+            self.tabBarItem.animationName = "discover"
         } else {
             self.tabBarItem.animationName = nil
-        }
+        }*/
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         if self.navigationItem.rightBarButtonItem != nil {
             //            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))

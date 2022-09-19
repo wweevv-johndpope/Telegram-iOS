@@ -426,8 +426,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         bannerView.dataArray = bannerDataArray
         bannerView.didSelected = {[weak self] (video) in
             guard let self = self else {return}
-            //let vc = WEVVideoDetailViewController.init(video: video)
-            //WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
+            self.playVideo(video: video)
             print("self:",self)
         }
         
@@ -451,7 +450,10 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let video = showDataArray[indexPath.row]
         print("video:",video)
-        
+        self.playVideo(video: video)
+    }
+    
+    func playVideo(video: WEVVideoModel) {
         if let url = video.videlLiveUrl {
             let size = CGSize(width:1280,height:720)
             
