@@ -29,12 +29,3 @@
 [submodule "third-party/libx264/x264"]
 	path = third-party/libx264/x264
 	url = https://github.com/mirror/x264.git
-[submodule "third-party/MBProgressHUD/Sources"]
-	path = third-party/MBProgressHUD/Sources
-	url = https://github.com/jdg/MBProgressHUD
-[submodule "third-party/Alamofire/Sources"]
-	path = third-party/Alamofire/Sources
-	url = https://github.com/Alamofire/Alamofire
-[submodule "third-party/MJRefresh/Sources"]
-	path = third-party/MJRefresh/Sources
-	url = https://github.com/CoderMJLee/MJRefresh

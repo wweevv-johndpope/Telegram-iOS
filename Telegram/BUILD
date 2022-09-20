@@ -1907,9 +1907,9 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
-    #entitlements = ":TelegramEntitlements.entitlements",
+    entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
         ":TelegramInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1972,7 +1972,7 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
     entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
@@ -1995,7 +1995,7 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:wev_profile_adhoc.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
     entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
