@@ -1,6 +1,4 @@
 
 exports_files([
-	"Widget.mobileprovision",	"Share.mobileprovision",	"Notification_Service.mobileprovision",	"Notification_Content.mobileprovision",	"wev_profile_adhoc.mobileprovision",	"SiriIntents.mobileprovision",	"BroadcastUpload.mobileprovision",
-	"watchkitapp.mobileprovision",
-	"WatchExtension.mobileprovision",
+	"Widget.mobileprovision",	"WatchExtension.mobileprovision",	"watchkitapp.mobileprovision",	"SiriIntents.mobileprovision",	"Share.mobileprovision",	"Notification_Service.mobileprovision",	"Notification_Content.mobileprovision",	"BroadcastUpload.mobileprovision",	"wev_profile.mobileprovision",
 ])

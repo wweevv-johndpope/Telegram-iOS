@@ -2,7 +2,7 @@
 telegram_bundle_id = "com.wweevv.client"
 telegram_api_id = "10868059"
 telegram_api_hash = "c7d096b8b22cebe6c6f8da98d759afb2"
-telegram_team_id = "WN7F7CHYTJ"
+telegram_team_id = "PP83B8JPN5"
 telegram_app_center_id = "0"
 telegram_is_internal_build = "false"
 telegram_is_appstore_build = "true"
