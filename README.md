@@ -33,8 +33,8 @@ cp -R build-system/example-configuration/* $HOME/telegram-configuration/
 cp -R build-system/example-configuration-development/* $HOME/telegram-configuration-development/
 ```
 
-- Modify the values in `variables.bzl`
-- Replace the provisioning profiles in `provisioning` with valid files
+- Modify the values in `variables.bzl` (wweevv not required in build system it's already setup for this project)
+- Replace the provisioning profiles in `provisioning` with valid files (wweevv not required in build system it's already added provisioning profile for this project)
 
 4. (Optional) Create a build cache directory to speed up rebuilds
 
