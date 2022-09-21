@@ -400,19 +400,19 @@ plist_fragment(
 
 official_apple_pay_merchants = [
     "merchant.com.wweevv.client",
+    "merchant.yandex.com.wweevv.client",
     "merchant.sberbank.com.wweevv.client",
     "merchant.sberbank.test.com.wweevv.client",
-    "merchant.privatbank.test.telergramios",
-    "merchant.privatbank.prod.telergram",
-    "merchant.paymaster.test.telegramios",
-    "merchant.paymaster.prod.telegramios",
-    "merchant.smartglocal.prod.telegramios",
-    "merchant.smartglocal.test.telegramios",
-    "merchant.yoomoney.test.telegramios",
-    "merchant.yoomoney.prod.telegramios",
-    "merchant.org.telegram.Best2pay.test",
-    "merchant.psbank.test.telegramios",
-    "merchant.psbank.prod.telegramios",
+    "merchant.privatbank.test.wweevvios",
+    "merchant.privatbank.prod.wweevv",
+    "merchant.wweevv.tranzzo.test",
+    #--"merchant.smartglocal.prod.telegramios",
+    #--"merchant.smartglocal.test.telegramios",
+    #--"merchant.yoomoney.test.telegramios",
+    #--"merchant.yoomoney.prod.telegramios",
+    #--"merchant.org.telegram.Best2pay.test",
+    #--"merchant.psbank.test.telegramios",
+    #--"merchant.psbank.prod.telegramios",
 ]
 
 official_bundle_ids = [
@@ -505,8 +505,8 @@ plist_fragment(
         associated_domains_fragment,
         icloud_fragment,
         apple_pay_merchants_fragment,
-        unrestricted_voip_fragment,
-        carplay_fragment,
+        #--unrestricted_voip_fragment,
+        #--carplay_fragment,
         communication_notifications_fragment,
     ])
 )
@@ -1153,6 +1153,10 @@ plist_fragment(
         <key>NSExtensionPrincipalClass</key>
         <string>ShareRootController</string>
     </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
     )
@@ -1228,6 +1232,10 @@ plist_fragment(
         <key>NSExtensionPrincipalClass</key>
         <string>NotificationViewController</string>
     </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
     )
@@ -1263,7 +1271,7 @@ genrule(
     cmd_bash =
 """
     name=NotificationContentExtension.appex
-    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/10\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionNotificationContentExtension.sh)
+    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/13\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionNotificationContentExtension.sh)
 """,
     srcs = [
         "PatchMinOSVersion.source.sh",
@@ -1450,6 +1458,10 @@ plist_fragment(
         <key>NSExtensionPrincipalClass</key>
         <string>IntentHandler</string>
     </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
     )
@@ -1500,7 +1512,7 @@ genrule(
     cmd_bash =
 """
     name=IntentsExtension.appex
-    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/10\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionIntentsExtension.sh)
+    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/13\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionIntentsExtension.sh)
 """,
     srcs = [
         "PatchMinOSVersion.source.sh",
@@ -1565,6 +1577,10 @@ plist_fragment(
         <key>RPBroadcastProcessMode</key>
         <string>RPBroadcastProcessModeSampleBuffer</string>
     </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
     )
@@ -1594,7 +1610,7 @@ genrule(
     cmd_bash =
 """
     name=BroadcastUploadExtension.appex
-    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/11\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionBroadcastUploadExtension.sh)
+    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/13\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionBroadcastUploadExtension.sh)
 """,
     srcs = [
         "PatchMinOSVersion.source.sh",
@@ -1663,6 +1679,10 @@ plist_fragment(
             </array>
         </dict>
     </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
     )
@@ -1673,7 +1693,7 @@ genrule(
     cmd_bash =
 """
     name=NotificationServiceExtension.appex
-    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/10\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionNotificationServiceExtension.sh)
+    cat $(location PatchMinOSVersion.source.sh) | sed -e "s/<<<MIN_OS_VERSION>>>/13\\.0/g" | sed -e "s/<<<NAME>>>/$$name/g" > $(location SetMinOsVersionNotificationServiceExtension.sh)
 """,
     srcs = [
         "PatchMinOSVersion.source.sh",
@@ -1841,6 +1861,7 @@ plist_fragment(
     <key>UIRequiredDeviceCapabilities</key>
     <array>
         <string>armv7</string>
+        <string>arm64</string>
     </array>
     <key>UIRequiresPersistentWiFi</key>
     <true/>

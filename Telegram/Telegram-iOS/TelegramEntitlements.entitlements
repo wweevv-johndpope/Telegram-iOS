@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:wweevv.me</string>
@@ -17,6 +17,16 @@
 	<array>
 		<string>CloudDocuments</string>
 		<string>CloudKit</string>
+	</array>
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.com.wweevv.client</string>
+		<string>merchant.privatbank.prod.wweevv</string>
+		<string>merchant.privatbank.test.wweevvios</string>
+		<string>merchant.sberbank.com.wweevv.client</string>
+		<string>merchant.sberbank.test.com.wweevv.client</string>
+		<string>merchant.yandex.com.wweevv.client</string>
+		<string>merchant.wweevv.tranzzo.test</string>
 	</array>
 	<key>com.apple.developer.siri</key>
 	<true/>
