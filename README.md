@@ -59,7 +59,7 @@ python3 build-system/Make/Make.py \
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     generateProject \
-    --configurationPath="$HOME/telegram-configuration-development" \
+    --configurationPath="$HOME/telegram-configuration-development"
 ```
 6. (Optional) Generate an Xcode project for production
 
@@ -67,7 +67,7 @@ python3 build-system/Make/Make.py \
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     generateProject \
-    --configurationPath="$HOME/telegram-configuration" \
+    --configurationPath="$HOME/telegram-configuration"
 ```
 7. Clear Cache
 
