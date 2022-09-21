@@ -29,6 +29,3 @@
 [submodule "third-party/libx264/x264"]
 	path = third-party/libx264/x264
 	url = https://github.com/mirror/x264.git
-[submodule "third-party/Alamofire/Sources"]
-	path = third-party/Alamofire/Sources
-	url = https://github.com/Alamofire/Alamofire

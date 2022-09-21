@@ -8,21 +8,25 @@
 import Foundation
 import UIKit
 
-//TODO - move this
+
+struct API {
+    static let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XCJ1c2VySWRcIjpcInVzX2M1TTN6MER4OHZcIixcImVtYWlsXCI6XCJ3d2VldnYxQGdtYWlsLmNvbVwifSIsImlhdCI6MTY2MzI0MTQ2N30.GEYCOKk5xbsMX0lk0q0EE6nRl4KiHRaFzYS2i2M3PSuATx82i_giIu-UE3wJq3owPTxCQD47q67V92SL1Q3q5A"
+}
 /// 字体
 struct LJFont {
     
     static func regular(_ size: CGFloat) -> UIFont {
-        UIFont.systemFont(ofSize: size)
+        UIFont(name: "Rubik-Regular", size: size) ?? UIFont.systemFont(ofSize: size)
     }
-    
+
     static func medium(_ size: CGFloat) -> UIFont {
-        UIFont.systemFont(ofSize: size)
+        UIFont(name: "Rubik-Medium", size: size) ?? UIFont.systemFont(ofSize: size)
     }
     
     static func bold(_ size: CGFloat) -> UIFont {
-        UIFont.systemFont(ofSize: size)
+        UIFont(name: "Rubik-Bold", size: size) ?? UIFont.systemFont(ofSize: size)
     }
+
 }
 
 struct LJColor {

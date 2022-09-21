@@ -9,6 +9,7 @@ import Foundation
 import HandyJSON
 import UIKit
 
+/// 频道
 enum WEVChannel: String, HandyJSONEnum, CaseIterable {
     
     case youtube = "YouTube"

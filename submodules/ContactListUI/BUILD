@@ -43,7 +43,8 @@ swift_library(
         "//submodules/GalleryUI:GalleryUI",
         "//submodules/Postbox:Postbox",
         "//third-party/Supabase:Supabase",
-       
+        "//third-party/MBProgressHUD:MBProgressHUD",
+        "//third-party/MJRefresh:MJRefresh",
     ],
     visibility = [
         "//visibility:public",

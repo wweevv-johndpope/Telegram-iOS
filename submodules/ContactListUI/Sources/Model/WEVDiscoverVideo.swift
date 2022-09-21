@@ -42,68 +42,16 @@ struct LiveVideos: Codable {
     }
 }
 
-extension LiveVideos {
-    //Facebook Twitch YouTube LinkedIn Periscope
-    public var image: UIImage {
-        get {
-            var name = ""
-            switch channelId {
-            case channelType.youtube.rawValue:
-                name = "channel_youtube"
-            case channelType.twitch.rawValue:
-                name = "channel_twitch"
-            case channelType.facebook.rawValue:
-                name = "channel_facebook"
-            default:
-                break
-            }
-            return UIImage.init(named: name) ?? UIImage()
-        }
-    }
-    
-    public var smallImage: UIImage {
-        get {
-            var name = ""
-            switch channelId {
-            case channelType.youtube.rawValue:
-                name = "channel_youtube"
-            case channelType.twitch.rawValue:
-                name = "channel_twitch"
-            case channelType.facebook.rawValue:
-                name = "channel_facebook"
-            default:
-                break
-            }
-            return UIImage.init(named: name) ?? UIImage()
-        }
-    }
-    
-    public var unselectedImage: UIImage {
-        get {
-            var name = ""
-            switch channelId {
-            case channelType.youtube.rawValue:
-                name = "channel_youtube_unselected"
-            case channelType.twitch.rawValue:
-                name = "channel_twitch_unselected"
-            case channelType.facebook.rawValue:
-                name = "channel_facebook_unselected"
-            default:
-                break
-            }
-            return UIImage.init(named: name) ?? UIImage()
-        }
-    }
-    
+extension WEVVideoModel {
     public var videlLiveUrl: String? {
         get {
             var url:String? = nil
-            switch channelId {
-            case channelType.youtube.rawValue:
+            switch channel {
+            case .youtube:
                 url = "https://www.youtube.com/watch?v=\(videoId)"
-            case channelType.twitch.rawValue:
+            case .twitch:
                 url = "https://www.twitch.tv/\(videoId)"
-            case channelType.facebook.rawValue:
+            case .facebook:
                 //url = "https://www.youtube.com/watch?v=\(videoId)"
                 url = nil
             default:

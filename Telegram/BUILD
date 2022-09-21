@@ -379,7 +379,7 @@ plist_fragment(
             <string>{telegram_bundle_id}</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>telegram</string>
+                <string>Wweevv</string>
             </array>
         </dict>
         <dict>
@@ -399,9 +399,9 @@ plist_fragment(
 )
 
 official_apple_pay_merchants = [
-    "merchant.ph.telegra.Telegraph",
-    "merchant.sberbank.ph.telegra.Telegraph",
-    "merchant.sberbank.test.ph.telegra.Telegraph",
+    "merchant.com.wweevv.client",
+    "merchant.sberbank.com.wweevv.client",
+    "merchant.sberbank.test.com.wweevv.client",
     "merchant.privatbank.test.telergramios",
     "merchant.privatbank.prod.telergram",
     "merchant.paymaster.test.telegramios",
@@ -416,11 +416,11 @@ official_apple_pay_merchants = [
 ]
 
 official_bundle_ids = [
-    "ph.telegra.Telegraph",
+    "com.wweevv.client",
     "org.telegram.Telegram-iOS",
 ]
 
-apple_pay_merchants = official_apple_pay_merchants if telegram_bundle_id == "ph.telegra.Telegraph" else []
+apple_pay_merchants = official_apple_pay_merchants if telegram_bundle_id == "com.wweevv.client" else []
 
 apple_pay_merchants_fragment = "" if apple_pay_merchants == [] else """
 <key>com.apple.developer.in-app-payments</key>
@@ -583,7 +583,7 @@ plist_fragment(
     template =
     """
     <key>CFBundleDisplayName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     """
 )
 
@@ -631,7 +631,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.watchkitapp.watchkitextension</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>WKExtensionDelegateClassName</key>
@@ -651,7 +651,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.watchkitapp</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
@@ -712,7 +712,7 @@ watchos_application(
     minimum_os_version = "5.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:WatchApp.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:watchkitapp.mobileprovision",
     }),
     resources = [
         ":TelegramWatchAppResources",
@@ -1118,7 +1118,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.Share</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1208,7 +1208,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.NotificationContent</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1296,7 +1296,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionNotificationContentExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:NotificationContent.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:Notification_Content.mobileprovision",
     }),
     deps = [":NotificationContentExtensionLib"],
     frameworks = [
@@ -1314,7 +1314,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.Widget</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1423,7 +1423,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.SiriIntents</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1533,7 +1533,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionIntentsExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Intents.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:SiriIntents.mobileprovision",
     }),
     deps = [":IntentsExtensionLib"],
     frameworks = [
@@ -1553,7 +1553,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.BroadcastUpload</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1646,7 +1646,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.NotificationService</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1706,7 +1706,7 @@ ios_extension(
     ipa_post_processor = ":SetMinOsVersionNotificationServiceExtension",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:NotificationService.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:Notification_Service.mobileprovision",
     }),
     deps = ["//Telegram/NotificationService:NotificationServiceExtensionLib"],
     frameworks = [
@@ -1731,11 +1731,11 @@ plist_fragment(
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>Wweevv</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
@@ -1817,6 +1817,9 @@ plist_fragment(
         <string>SFCompactRounded-Semibold.otf</string>
         <string>AremacFS-Regular.otf</string>
         <string>AremacFS-Semibold.otf</string>
+        <string>Rubik-Medium.ttf</string>
+        <string>Rubik-Regular.ttf</string>
+        <string>Rubik-Bold.ttf</string>
     </array>
     <key>UIBackgroundModes</key>
     <array>
@@ -1904,7 +1907,7 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
     entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
@@ -1953,7 +1956,8 @@ ios_application(
         ":Main",
         ":Lib",
         "//third-party/Alamofire",
-        
+        "//third-party/MBProgressHUD:MBProgressHUD",
+        "//third-party/MJRefresh:MJRefresh",
     ],
 )
 
@@ -1968,7 +1972,7 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
     entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [
@@ -1991,7 +1995,7 @@ ios_application(
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
-        "//conditions:default": "@build_configuration//provisioning:Telegram.mobileprovision",
+        "//conditions:default": "@build_configuration//provisioning:wev_profile.mobileprovision",
     }),
     entitlements = ":TelegramEntitlements.entitlements",
     infoplists = [

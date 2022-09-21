@@ -31,7 +31,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     let liveLabel: UIView = {
         let view = UIView()
         view.backgroundColor = LJColor.hex(0xE84646)
-        view.layer.cornerRadius = 10
+        view.layer.cornerRadius = 7.5
         return view
     }()
     
@@ -42,20 +42,13 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         return view
     }()
     
-    let wordLabel = UILabel.lj.configure(font: LJFont.regular(11), textColor: .white, text: "LIVE")
+    let wordLabel = UILabel.lj.configure(font: LJFont.regular(9), textColor: .white, text: "LIVE")
     
     public var model: WEVVideoModel? = nil {
         didSet {
             updateView()
         }
     }
-    
-    public var liveVideo: LiveVideos? = nil {
-        didSet {
-            updateView()
-        }
-    }
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -114,7 +107,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         
         channelNameLabel.snp.makeConstraints { (make) in
             make.left.equalTo(channelImageView.snp.right).offset(5)
-            make.top.equalToSuperview().offset(9)
+            make.top.equalToSuperview().offset(10)
             make.centerY.equalTo(channelImageView)
             make.right.equalTo(liveLabel.snp.left).offset(-5)
         }
@@ -123,7 +116,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         liveLabel.snp.makeConstraints { (make) in
             make.right.equalToSuperview().offset(-5)
             make.centerY.equalTo(channelNameLabel)
-            make.size.equalTo(CGSize(width: 55, height: 20))
+            make.size.equalTo(CGSize(width: 55, height: 15))
         }
         
         point.snp.makeConstraints { (make) in
@@ -167,30 +160,20 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     }
     
     private func updateView() {
-        guard let video = liveVideo else {return }
-        
-        //For Time being only youTube Video //slim_video have only youtube videos
-        channelImageView.image = video.smallImage
-        channelNameLabel.text = video.channelId
-
-        
-        if let n = video.viewerCount{
-            var numberStr = "\(n)"
-            var unit = "viewers"
-            if n == 1 {
-                unit = "viewer"
-            }
-            if n >= 1000 {
-                numberStr = String.init(format: "%.1fk", Double(n) / 1000.0)
-            }
-            amountLabel.text = "  \(numberStr) \(unit)  "
-            amountLabel.isHidden = false
-        }else{
-            amountLabel.isHidden = true
+        guard let model = model else { return }
+        channelImageView.image = model.channel?.smallImage
+        channelNameLabel.text = model.channel?.title
+        liveLabel.isHidden = false
+        var numberStr = "\(model.views)"
+        var unit = "viewers"
+        if model.views == 1 {
+            unit = "viewer"
         }
-      
-        if let thumbnailUrl = video.videoThumbnailsUrl {
-            imageView.kf.setImage(with: URL.init(string: thumbnailUrl), placeholder: nil)
+        if model.views >= 1000 {
+            numberStr = String.init(format: "%.1fk", Double(model.views) / 1000.0)
         }
+        amountLabel.text = "  \(numberStr) \(unit)  "
+        
+        imageView.kf.setImage(with: URL.init(string: model.videoThumbnailsUrl), placeholder: nil)
     }
 }

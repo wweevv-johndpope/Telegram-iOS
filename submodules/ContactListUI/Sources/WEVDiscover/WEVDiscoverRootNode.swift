@@ -27,15 +27,38 @@ import GalleryUI
 import Postbox
 import TelegramCore
 import InstantPageUI
+import MBProgressHUD
+import HandyJSON
+import CoreLocation
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
     
-    private var arrBannerVideos: [WEVVideoModel] = []
-    private var arrLiveVideos: [LiveVideos] = []
-    
+    /// 根据状态返回该显示的视频
+    private var showDataArray: [WEVVideoModel] {
+        get {
+            switch searchStatus {
+            case .searchCompleted:
+                return searchDataArray
+            case .normal:
+                return dataArray
+            case .searching:
+                return []
+            }
+        }
+        set {
+            switch searchStatus {
+            case .searchCompleted:
+                searchDataArray = newValue
+            case .normal:
+                dataArray = newValue
+            case .searching:
+                break
+            }
+        }
+    }
     //var ytVideos: [YoutubeVideo] = []
     
     
@@ -56,12 +79,21 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     /// bannerView数据列表
     private var bannerDataArray: [WEVVideoModel] = []
     //filter
-    private var arrChannelFilter: [WEVChannel] = WEVChannel.allCases
-    
+    private var selectedChannelArray: [WEVChannel] = WEVChannel.allCases
+    /// 关键字搜索情况下的请求才需要传，由上个请求得到，第一页传nil
+    private var searchOffset: Int?
     //seatch VC
     private var searchStatus: SearchStatus = .normal
     private var searchWord: String? = nil
+    
     private var searchDataArray: [WEVVideoModel] = []
+    /// 下一页数据
+    ///  /// 数据列表
+    private var dataArray: [WEVVideoModel] = []
+    private var nextPageToken: String?
+
+    /// 当前位置
+    private var currentLocation: CLLocation?
     
     private lazy var emptyView: WEVEmptyHintView = {
         let view = WEVEmptyHintView()
@@ -72,7 +104,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private var isShouldLoadBannerData: Bool {
         get {
             // 非搜索非筛选
-            (arrChannelFilter.isEmpty || arrChannelFilter.count == WEVChannel.allCases.count)
+            (selectedChannelArray.isEmpty || selectedChannelArray.count == WEVChannel.allCases.count)
             && searchStatus == .normal
         }
     }
@@ -83,27 +115,6 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             isShouldLoadBannerData && !bannerDataArray.isEmpty
         }
     }
-    
-    func fetchLiveVideos() {
-        //TODO:- Show progress HUD
-        self.controller.database?.from("live_video").select(columns:Columns.liveVideos).execute() { result in
-            switch result {
-            case let .success(response):
-                do {
-                    let videos = try response.decoded(to: [LiveVideos].self)
-                    self.arrLiveVideos = videos
-                } catch (let exception){
-                    print(exception)
-                }
-            case let .failure(error):
-                print(error.localizedDescription)
-            }
-            DispatchQueue.main.async {
-                self.collectionView?.reloadData()
-            }
-        }
-    }
-    
     
     private var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
@@ -132,15 +143,17 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         let view = WEVDiscoverSearchBar()
         view.filterAction = {[weak self] in
             guard let self = self else {return}
-            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.arrChannelFilter)
-            vc.selectedArray = self.arrChannelFilter
+            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
+            vc.selectedArray = self.selectedChannelArray
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
-                self.arrChannelFilter = channelArray
-                //                self.scrollViewLoadData(isHeadRefesh: true)
-                self.collectionView!.reloadData()
+                self.selectedChannelArray = channelArray
+                self.scrollViewLoadData(isHeadRefesh: true)
+                DispatchQueue.main.async {
+                    self.collectionView!.reloadData()
+                }
             }
-            //            self.present(vc, animated: true, completion: nil)
+            self.controller.present(vc, animated: true, completion: nil)
         }
         
         view.cancelAction = {[weak self] in
@@ -149,9 +162,11 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             self.searchWord = nil
             self.searchBar.text = ""
             self.searchDataArray.removeAll()
-            self.collectionView!.reloadData()
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+            }
             self.refreshSearchStatusView()
-            self.emptyView.removeFromSuperview()
+            self.refreshEmptyView()
         }
         
         view.didBeginEditing = {[weak self] in
@@ -165,7 +180,6 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             guard let self = self else {return}
             self.search(word: word)
             self.refreshSearchStatusView()
-            self.refreshEmptyView()
         }
         
         view.textDidChange = {[weak self] word in
@@ -177,23 +191,12 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         return view
     }()
     
-    private func searchLiveName(word: String) {
-        //        LJNetManager.Video.searchName(liveName: word) {[weak self] (result) in
-        //            guard let self = self else {return}
-        //            if result.isSuccess,
-        //               let data = result.successArrayData,
-        //               let array = [WEVVideoModel.Anchor].deserialize(from: data) as? [WEVVideoModel.Anchor] {
-        //                self.searchView.searchNameArray = array.compactMap{$0.liveName}
-        //            }else {
-        //                MBProgressHUD.lj.showHint(result.message)
-        //            }
-        //        }
-    }
     
     private func search(word: String) {
+        searchBar.textField.resignFirstResponder()
         searchWord = word
         searchStatus = .searchCompleted
-        //        scrollViewLoadData(isHeadRefesh: true)
+        scrollViewLoadData(isHeadRefesh: true)
         WEVSearchRecordManager.add(record: word)
         searchView.recordArray = WEVSearchRecordManager.recordArray
     }
@@ -201,7 +204,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     /// 刷新空白提示页面
     func refreshEmptyView() {
-        if arrBannerVideos.isEmpty  {
+        if showDataArray.isEmpty && !isShowBannerView {
             switch searchStatus {
             case .normal:
                 let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
@@ -218,7 +221,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 make.top.left.equalToSuperview()
                 make.size.equalToSuperview()
             }
-        } else {
+        }else {
             emptyView.removeFromSuperview()
         }
     }
@@ -243,7 +246,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             updateListView(false)
             searchBar.style = .searchCompleted
         }
-        collectionView!.reloadData()
+        DispatchQueue.main.async {
+            self.collectionView?.reloadData()
+        }
     }
     
     init(context: AccountContext, sortOrder: Signal<ContactsSortOrder, NoError>, present: @escaping (ViewController, Any?) -> Void, controller: WEVRootViewController) {
@@ -274,8 +279,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         super.init()
         
-        self.fetchLiveVideos()
-        
+        self.scrollViewLoadData(isHeadRefesh: true)
+
         self.setViewBlock({
             return UITracingLayerView()
         })
@@ -292,7 +297,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var collectionView: UICollectionView?
     
     private func updateThemeAndStrings() {
-        self.collectionView?.reloadData()
+        DispatchQueue.main.async {
+            self.collectionView?.reloadData()
+        }
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         
@@ -371,6 +378,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
         view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
         view.contentInsetAdjustmentBehavior = .never
+        view.lj.addMJReshreHeader(delegate: self)
+        view.lj.addMJReshreFooter(delegate: self)
         self.collectionView = view
         return view
     }
@@ -391,30 +400,22 @@ extension WEVDiscoverRootNode: UICollectionViewDelegateFlowLayout {
     }
     
     public  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        //if isShowBannerView {
-            return CGSize.init(width: LJScreen.width, height: 80)
-        /*}else {
+        if isShowBannerView {
+            return CGSize.init(width: LJScreen.width, height: 210 * LJScreen.width / 375)
+        }else {
             return CGSize.zero
-        }*/
-        
+        }
     }
-    
 }
 
 extension WEVDiscoverRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch searchStatus {
-        case .normal:
-            return arrLiveVideos.count
-        default:
-            return 0
-        }
+        return showDataArray.count
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
-        cell.liveVideo = arrLiveVideos[indexPath.row]
-        //cell.fixConstraints()
+        cell.model = showDataArray[indexPath.row]
         return cell
     }
     
@@ -425,8 +426,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         bannerView.dataArray = bannerDataArray
         bannerView.didSelected = {[weak self] (video) in
             guard let self = self else {return}
-            //let vc = WEVVideoDetailViewController.init(video: video)
-            //WEVVideoCheckManger.checkAndEnterVideo(video, from: self, completion: nil)
+            self.playVideo(video: video)
             print("self:",self)
         }
         
@@ -448,9 +448,12 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
     
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let video = arrLiveVideos[indexPath.row]
+        let video = showDataArray[indexPath.row]
         print("video:",video)
-        
+        self.playVideo(video: video)
+    }
+    
+    func playVideo(video: WEVVideoModel) {
         if let url = video.videlLiveUrl {
             let size = CGSize(width:1280,height:720)
             
@@ -490,4 +493,94 @@ extension WEVDiscoverRootNode {
         /// 非搜索
         case normal
     }
+}
+//MARK: - Data
+extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
+    func scrollViewLoadData(isHeadRefesh: Bool) {
+        let channelArray = searchStatus == .normal ? selectedChannelArray : []
+        let keyWord = searchStatus == .normal ? nil : searchWord
+        let nextPageToken = isHeadRefesh ? nil : self.nextPageToken
+        let searchOffset = (!isHeadRefesh && keyWord != nil) ? self.searchOffset : nil
+        DispatchQueue.main.async {
+            MBProgressHUD.showAdded(to: self.controller.view, animated: true)
+        }
+        LJNetManager.Video.discoverList(channelArray: channelArray,
+                                        keyWord: keyWord,
+                                        nextPageToken: nextPageToken,
+                                        offset: searchOffset,
+                                        latitude: currentLocation?.coordinate.latitude,
+                                        longitude: currentLocation?.coordinate.longitude)
+        {[weak self] (result) in
+            guard let self = self else {return}
+            DispatchQueue.main.async {
+                MBProgressHUD.hide(for: self.controller.view, animated: true)
+                self.collectionView?.lj.endRefreshing(isHeader: isHeadRefesh)
+            }
+            if result.isSuccess,
+               let data = result.successDicData,
+               let list = data["liveVideoPojoList"] as? [Any],
+               var array = [WEVVideoModel].deserialize(from: list) as? [WEVVideoModel],
+               let nextPageToken = data["nextPageToken"] as? String {
+                if isHeadRefesh {
+                    self.showDataArray.removeAll()
+                }
+                array = array.filter { (item) -> Bool in
+                    !self.showDataArray.contains(where: {$0.videoId == item.videoId})
+                }
+                self.nextPageToken = nextPageToken
+                self.searchOffset = data["offset"] as? Int
+                self.showDataArray.append(contentsOf: array)
+                DispatchQueue.main.async {
+                    self.collectionView?.reloadData()
+                }
+                self.refreshEmptyView()
+            }else {
+                DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(result.message)
+                }
+            }
+        }
+        
+        // 下拉刷新且非搜索非筛选情况下才重新加载数据
+        if isHeadRefesh && isShouldLoadBannerData {
+            loadBannerData()
+        }
+        
+    }
+    
+    /// 加载Banner数据
+    private func loadBannerData() {
+        LJNetManager.Video.discoverBannerList {[weak self] (result) in
+            guard let self = self else {return}
+            if result.isSuccess,
+               let data = result.successArrayData,
+               let array = [WEVVideoModel].deserialize(from: data) as? [WEVVideoModel] {
+                self.bannerDataArray = array
+                DispatchQueue.main.async {
+                    self.collectionView?.reloadData()
+                }
+            }else {
+                DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(result.message)
+                }
+            }
+        }
+    }
+    
+    /// 根据输入内容匹配直播名字
+    private func searchLiveName(word: String) {
+        LJNetManager.Video.searchName(liveName: word) {[weak self] (result) in
+            guard let self = self else {return}
+            if result.isSuccess,
+               let data = result.successArrayData,
+               let array = [WEVVideoModel.Anchor].deserialize(from: data) as? [WEVVideoModel.Anchor] {
+                self.searchView.searchNameArray = array.compactMap{$0.liveName}
+            }else {
+                DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(result.message)
+                }
+            }
+        }
+    }
+    
 }
