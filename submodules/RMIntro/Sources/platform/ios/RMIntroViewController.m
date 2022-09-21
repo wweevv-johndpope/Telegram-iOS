@@ -231,55 +231,55 @@ typedef enum {
 #if TARGET_OS_SIMULATOR && defined(__aarch64__)
     return;
 #endif
-//
-//    if (/*[[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground*/true && !_isOpenGLLoaded)
-//    {
-//        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-//        if (!_context)
-//            NSLog(@"Failed to create ES context");
-//
-//        bool isIpad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
-//
-//        CGFloat size = 200;
-//        if (isIpad)
-//            size *= 1.2;
-//
-//        int height = 50;
-//        if (isIpad)
-//            height += 138 / 2;
-//
-//        _glkView = [[GLKView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width / 2 - size / 2, height, size, size) context:_context];
-//        _glkView.backgroundColor = _backgroundColor;
-//        _glkView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-//        _glkView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-//        _glkView.drawableMultisample = GLKViewDrawableMultisample4X;
-//        _glkView.enableSetNeedsDisplay = false;
-//        _glkView.userInteractionEnabled = false;
-//        _glkView.delegate = self;
-//
-//        [self setupGL];
-//        [self.view addSubview:_glkView];
-//
-//        [self startTimer];
-//        _isOpenGLLoaded = true;
-//    }
+    
+    if (/*[[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground*/true && !_isOpenGLLoaded)
+    {
+        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        if (!_context)
+            NSLog(@"Failed to create ES context");
+        
+        bool isIpad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
+        
+        CGFloat size = 200;
+        if (isIpad)
+            size *= 1.2;
+        
+        int height = 50;
+        if (isIpad)
+            height += 138 / 2;
+        
+        _glkView = [[GLKView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width / 2 - size / 2, height, size, size) context:_context];
+        _glkView.backgroundColor = _backgroundColor;
+        _glkView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+        _glkView.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+        _glkView.drawableMultisample = GLKViewDrawableMultisample4X;
+        _glkView.enableSetNeedsDisplay = false;
+        _glkView.userInteractionEnabled = false;
+        _glkView.delegate = self;
+        
+        [self setupGL];
+        [self.view addSubview:_glkView];
+        
+        [self startTimer];
+        _isOpenGLLoaded = true;
+    }
 }
 
 - (void)freeGL
 {
-//    if (!_isOpenGLLoaded)
-//        return;
-//
-//    [self stopTimer];
-//
-//    if ([EAGLContext currentContext] == _glkView.context)
-//        [EAGLContext setCurrentContext:nil];
-//
-//    _glkView.context = nil;
-//    _context = nil;
-//    [_glkView removeFromSuperview];
-//    _glkView = nil;
-//    _isOpenGLLoaded = false;
+    if (!_isOpenGLLoaded)
+        return;
+
+    [self stopTimer];
+    
+    if ([EAGLContext currentContext] == _glkView.context)
+        [EAGLContext setCurrentContext:nil];
+
+    _glkView.context = nil;
+    _context = nil;
+    [_glkView removeFromSuperview];
+    _glkView = nil;
+    _isOpenGLLoaded = false;
 }
 
 - (void)loadView {
@@ -525,7 +525,7 @@ typedef enum {
     }
     
     _pageControl.frame = CGRectMake(0, pageControlY, self.view.bounds.size.width, 7);
-//    _glkView.frame = CGRectChangedOriginY(_glkView.frame, glViewY - statusBarHeight);
+    _glkView.frame = CGRectChangedOriginY(_glkView.frame, glViewY - statusBarHeight);
     
     [_startButton sizeToFit];
     _startButton.frame = CGRectMake(floor((self.view.bounds.size.width - _startButton.frame.size.width) / 2.0f), self.view.bounds.size.height - startButtonY - statusBarHeight, _startButton.frame.size.width, 48.0f);
@@ -566,7 +566,7 @@ typedef enum {
 
 - (void)updateAndRender
 {
-//    [_glkView display];
+    [_glkView display];
 }
 
 - (void)dealloc
@@ -579,7 +579,7 @@ typedef enum {
 
 - (void)setupGL
 {
-//    [EAGLContext setCurrentContext:_glkView.context];
+    [EAGLContext setCurrentContext:_glkView.context];
     
     UIColor *color = _backgroundColor;
     
@@ -593,11 +593,15 @@ typedef enum {
     }
     set_intro_background_color(red, green, blue);
     
-    set_telegram_textures(setup_texture(@"telegram_sphere.png", color), setup_texture(@"telegram_plane1.png", color));
+    set_telegram_textures(setup_texture(@"telegram_sphere.png", color), setup_texture(@"telegram_plane1_.png", color));
+    /*set_telegram_textures(setup_texture(@"Mockup2.png", color), setup_texture(@"telegram_plane1.png", color));
+    set_telegram_textures(setup_texture(@"Mockup3.png", color), setup_texture(@"telegram_plane1.png", color));
+    set_telegram_textures(setup_texture(@"Mockup4.png", color), setup_texture(@"telegram_plane1.png", color));
+    set_telegram_textures(setup_texture(@"Mockup.png", color), setup_texture(@"telegram_plane1.png", color));*/
     
-    set_ic_textures(setup_texture(@"ic_bubble_dot.png", color), setup_texture(@"ic_bubble.png", color), setup_texture(@"ic_cam_lens.png", color), setup_texture(@"ic_cam.png", color), setup_texture(@"ic_pencil.png", color), setup_texture(@"ic_pin.png", color), setup_texture(@"ic_smile_eye.png", color), setup_texture(@"ic_smile.png", color), setup_texture(@"ic_videocam.png", color));
+    //set_ic_textures(setup_texture(@"ic_bubble_dot.png", color), setup_texture(@"ic_bubble.png", color), setup_texture(@"ic_cam_lens.png", color), setup_texture(@"ic_cam.png", color), setup_texture(@"ic_pencil.png", color), setup_texture(@"ic_pin.png", color), setup_texture(@"ic_smile_eye.png", color), setup_texture(@"ic_smile.png", color), setup_texture(@"ic_videocam.png", color));
     
-    set_fast_textures(setup_texture(@"fast_body.png", color), setup_texture(@"fast_spiral.png", color), setup_texture(@"fast_arrow.png", color), setup_texture(@"fast_arrow_shadow.png", color));
+    set_fast_textures(setup_texture(@"Mockup2.png", color), setup_texture(@"Mockup2.png", color), setup_texture(@"fast_arrow.png", color), setup_texture(@"fast_arrow_shadow.png", color));
     
     set_free_textures(setup_texture(@"knot_up1.png", color), setup_texture(@"knot_down.png", color));
     

@@ -31,7 +31,7 @@ static const vec4 blue_color = {0,0,1, 1.0f};
 
 static LayerParams ribbonLayer, privateLayer;
 
-static TexturedShape spiral;
+//static TexturedShape spiral;
 static Shape mask1;
 static Shape cloud_extra_mask1;
 static Shape cloud_extra_mask2;
@@ -42,8 +42,8 @@ static Shape cloud_cover;
 
 static Shape free_bg;
 static TexturedShape fast_body;
-static TexturedShape fast_arrow_shadow;
-static TexturedShape fast_arrow;
+//static TexturedShape fast_arrow_shadow;
+//static TexturedShape fast_arrow;
 
 static TexturedShape free_knot1;
 static TexturedShape free_knot2;
@@ -55,7 +55,7 @@ static TexturedShape powerful_mask, powerful_infinity, powerful_infinity_white;
 
 static Shape private_bg;
 
-static TexturedShape telegram_sphere, telegram_plane;
+static TexturedShape telegram_sphere; //telegram_plane;
 
 static Shape cloud_bg;
 
@@ -424,15 +424,15 @@ void on_surface_created() {
 
     // Telegram
     telegram_sphere = create_textured_rectangle(CSizeMake(148, 148), telegram_sphere_texture);
-    telegram_plane = create_textured_rectangle(CSizeMake(82, 74), telegram_plane_texture);
-    telegram_plane.params.anchor=xyzMake(6, -5, 0);
+    //telegram_plane = create_textured_rectangle(CSizeMake(82, 74), telegram_plane_texture);
+    //telegram_plane.params.anchor=xyzMake(6, -5, 0);
 
 
 
     // Fast
-    fast_body = create_textured_rectangle(CSizeMake(148, 148), fast_body_texture);
+    fast_body = create_textured_rectangle(CSizeMake(121, 220), fast_body_texture);
 
-    fast_arrow_shadow = create_textured_rectangle(CSizeMake(164/2, 44/2), fast_arrow_shadow_texture);
+    /*fast_arrow_shadow = create_textured_rectangle(CSizeMake(164/2, 44/2), fast_arrow_shadow_texture);
     fast_arrow_shadow.params.position.x=-1;
     fast_arrow_shadow.params.position.y=2;
 
@@ -440,7 +440,7 @@ void on_surface_created() {
     fast_arrow.params.anchor.x=fast_arrow_shadow.params.anchor.x=-19;
 
     int ang = 180;
-    spiral = create_segmented_square(r1, D2R(35+1), D2R(35+1-10 + ang), fast_spiral_texture);
+    spiral = create_segmented_square(r1, D2R(35+1), D2R(35+1-10 + ang), fast_spiral_texture);*/
 
 
 
@@ -1537,17 +1537,17 @@ void on_draw_frame() {
 
             scale = 1;
 
-            fast_body.params.alpha = 1;
-            fast_body.params.scale = xyzMake(scale, scale, 1);
-            draw_textured_shape(&fast_body, main_matrix, NORMAL);
+            //fast_body.params.alpha = 1;
+            //fast_body.params.scale = xyzMake(scale, scale, 1);
+            //draw_textured_shape(&fast_body, main_matrix, NORMAL);
         }
 
         telegram_sphere.params.alpha = alpha;
         telegram_sphere.params.scale = xyzMake(scale, scale, 1);
 
-        telegram_plane.params.alpha=1;
+        //telegram_plane.params.alpha=1;
 
-        float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
+        /*float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
 
         float dx = sin(tt)*75;
         float dy = -sin(tt)*60;
@@ -1556,7 +1556,7 @@ void on_draw_frame() {
 
         float scale = (cos(tt)+1)*.5;
 
-        telegram_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
+        telegram_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);*/
 
         if (tt < D2R(125)) {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -1795,7 +1795,7 @@ void on_draw_frame() {
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-            change_segmented_square(&spiral, r1, D2R(rr+seg),  D2R(speedometer_scroll_offset + calculated_speedometer_sin + t(-seg+ang, 0, 0, duration_const, EaseOut)));
+            /*change_segmented_square(&spiral, r1, D2R(rr+seg),  D2R(speedometer_scroll_offset + calculated_speedometer_sin + t(-seg+ang, 0, 0, duration_const, EaseOut)));
 
             spiral.params.scale = xyzMake(1, 1, 1);
             spiral.params.rotation = t(180., 0, 0, duration_const, EaseOut);
@@ -1805,7 +1805,7 @@ void on_draw_frame() {
             fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = t(1,0,0,duration_const,Linear);
             fast_arrow.params.rotation = fast_arrow_shadow.params.rotation = t(rr, rr-180-160, 0, duration_const, EaseOut) + speedometer_scroll_offset + calculated_speedometer_sin;
             draw_textured_shape(&fast_arrow_shadow, main_matrix, NORMAL_ONE);
-            draw_textured_shape(&fast_arrow, main_matrix, NORMAL_ONE);
+            draw_textured_shape(&fast_arrow, main_matrix, NORMAL_ONE);*/
         }
     }
     else if (current_page == 1)
@@ -1818,7 +1818,7 @@ void on_draw_frame() {
 
         if (direct == 1) {
 
-            float value = 0;
+            /*float value = 0;
             float e = 2.71;
 
             float arg = time * 50;
@@ -1837,13 +1837,13 @@ void on_draw_frame() {
             fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = t(0, 1, 0, duration_const, Linear);
             fast_arrow.params.rotation = fast_arrow_shadow.params.rotation = -330 + value + ta + speedometer_scroll_offset;
             draw_textured_shape(&fast_arrow_shadow, main_matrix, NORMAL_ONE);
-            draw_textured_shape(&fast_arrow, main_matrix, NORMAL_ONE);
+            draw_textured_shape(&fast_arrow, main_matrix, NORMAL_ONE);*/
 
         } else {
 
-            spiral.params.alpha = fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = 1;
+            //spiral.params.alpha = fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = 1;
 
-            float value = 0;
+            /*float value = 0;
             float e = 2.71;
 
             float arg = time*50;
@@ -1861,7 +1861,7 @@ void on_draw_frame() {
 
             fast_arrow.params.rotation = fast_arrow_shadow.params.rotation = speedometer_scroll_offset + value + calculated_speedometer_sin + t(rr+360+6, rr+360-180-dangle, 0, duration_const, EaseInEaseOut);
             draw_textured_shape(&fast_arrow_shadow, main_matrix, NORMAL);
-            draw_textured_shape(&fast_arrow, main_matrix, NORMAL);
+            draw_textured_shape(&fast_arrow, main_matrix, NORMAL);*/
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             free_bg.params.alpha = t(1, 0, 0, duration_const, Linear);
@@ -1875,7 +1875,7 @@ void on_draw_frame() {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
         if (direct == 1) {
-            spiral.params.alpha = fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = 1;
+            /*spiral.params.alpha = fast_arrow.params.alpha = fast_arrow_shadow.params.alpha = 1;
 
             int ang = 180;
             change_segmented_square(&spiral, r1, D2R(rr+seg+speedometer_scroll_offset), D2R(t(-seg+ang, 360, 0, duration_const, EaseInEaseOut)));
@@ -1887,7 +1887,7 @@ void on_draw_frame() {
 
             fast_arrow.params.rotation = fast_arrow_shadow.params.rotation = speedometer_scroll_offset + t(rr, rr+360+6, 0, duration_const, EaseInEaseOut);
             draw_textured_shape(&fast_arrow_shadow, main_matrix, NORMAL);
-            draw_textured_shape(&fast_arrow, main_matrix, NORMAL);
+            draw_textured_shape(&fast_arrow, main_matrix, NORMAL);*/
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             free_bg.params.alpha = t(0, 1, 0, duration_const, Linear);
@@ -2014,7 +2014,7 @@ void on_draw_frame() {
             telegram_sphere.params.scale = xyzMake(scale, scale, 1);
             draw_textured_shape(&telegram_sphere, main_matrix, NORMAL);
 
-            float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
+            /*float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
 
             float dx = sin(tt)*75;
             float dy = -sin(tt)*60;
@@ -2028,7 +2028,7 @@ void on_draw_frame() {
             if (tt < D2R(125)) {
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 draw_textured_shape(&telegram_plane, main_matrix, NORMAL_ONE);
-            }
+            }*/
         }
     }
     else if (current_page==1)
@@ -2040,7 +2040,7 @@ void on_draw_frame() {
             telegram_sphere.params.alpha = t(1, 0, 0, duration_const, Linear);
             draw_textured_shape(&telegram_sphere, main_matrix, NORMAL);
 
-            float tt = time * M_PI*2*1.5;
+            /*float tt = time * M_PI*2*1.5;
 
             float dx = sin(tt)*75;
             float dy = -sin(tt)*60;
@@ -2054,7 +2054,7 @@ void on_draw_frame() {
             if (tt < D2R(125)) {
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 draw_textured_shape(&telegram_plane, main_matrix, NORMAL_ONE);
-            }
+            }*/
         }
     }
     else if (current_page == 2)
