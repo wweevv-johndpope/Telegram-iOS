@@ -42,7 +42,7 @@ cp -R build-system/example-configuration-development/* $HOME/telegram-configurat
 mkdir -p "$HOME/telegram-bazel-cache"
 ```
 
-5. (Optional) Build the app (Not Required at all for Now)
+5.  Generate IPA Build of app 
 
 ```
 python3 build-system/Make/Make.py \
