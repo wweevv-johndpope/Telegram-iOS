@@ -25,10 +25,13 @@ git clone --recursive -j8 https://github.com/TelegramMessenger/Telegram-iOS.git
 ```
 //Production 
 mkdir -p $HOME/telegram-configuration (For Production)
+
 //development
 mkdir -p $HOME/telegram-configuration-development (For development)
+
 //Production Configuration copy
 cp -R build-system/example-configuration/* $HOME/telegram-configuration/
+
 //development Configuration copy
 cp -R build-system/example-configuration-development/* $HOME/telegram-configuration-development/
 ```
