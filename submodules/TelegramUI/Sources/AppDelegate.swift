@@ -706,7 +706,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         }, dismissNativeController: {
             self.window?.rootViewController?.dismiss(animated: true, completion: nil)
         }, getAvailableAlternateIcons: {
-            if #available(iOS 10.3, *) {
+            /*if #available(iOS 10.3, *) {
                 var icons = [
                     PresentationAppIcon(name: "BlueIcon", imageName: "BlueIcon", isDefault: buildConfig.isAppStoreBuild),
                     PresentationAppIcon(name: "New2", imageName: "New2"),
@@ -728,13 +728,15 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 return icons
             } else {
                 return []
-            }
+            }*/
+            return []
         }, getAlternateIconName: {
-            if #available(iOS 10.3, *) {
+            /*if #available(iOS 10.3, *) {
                 return application.alternateIconName
             } else {
                 return nil
-            }
+            }*/
+            return nil
         }, requestSetAlternateIconName: { name, completion in
             if #available(iOS 10.3, *) {
                 application.setAlternateIconName(name, completionHandler: { error in

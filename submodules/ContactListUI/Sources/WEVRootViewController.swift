@@ -60,14 +60,14 @@ public class WEVRootViewController: ViewController {
     
     
     
-    var client:SupabaseClient?
+    /*var client:SupabaseClient?
     var database:PostgrestClient?
     var realtimeClient:RealtimeClient?
-    var allUsersUpdateChanges:Realtime.Channel?
+    var allUsersUpdateChanges:Realtime.Channel*/
     
     
-    private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
-    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+    //private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
+    //private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
     
     
 
@@ -78,7 +78,7 @@ public class WEVRootViewController: ViewController {
         super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
 
 //        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
-        let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
+        /*let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
         
         //        self.client = client
         self.database = database
@@ -106,7 +106,7 @@ public class WEVRootViewController: ViewController {
             print(message.payload)
             print(message.event)
             //print(message.status)
-        }
+        }*/
         
         
 //        self.tabBarItemContextActionType = .always
@@ -118,6 +118,7 @@ public class WEVRootViewController: ViewController {
         self.tabBarItem.title = "Discover"
         /*if !self.presentationData.reduceMotion {
             self.tabBarItem.animationName = "discover"
+            self.tabBarItem.animationOffset = CGPoint(x: 0.0, y: UIScreenPixel)
         }*/
         self.tabBarItem.image =   UIImage(named:"tabbar_discover_unselect")
         self.tabBarItem.selectedImage =  UIImage(named:"tabbar_discover_selected")
@@ -207,6 +208,7 @@ public class WEVRootViewController: ViewController {
         
         /*if !self.presentationData.reduceMotion {
             self.tabBarItem.animationName = "discover"
+            self.tabBarItem.animationOffset = CGPoint(x: 0.0, y: UIScreenPixel)
         } else {
             self.tabBarItem.animationName = nil
         }*/

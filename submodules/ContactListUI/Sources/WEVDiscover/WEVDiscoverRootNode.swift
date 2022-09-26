@@ -358,6 +358,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 return self.searchView
             }
             self.addSubnode(searchNode)
+            
             searchView.snp.makeConstraints { (make) in
                 make.edges.equalTo(collectionView!)
             }
@@ -538,6 +539,7 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
                 DispatchQueue.main.async {
                     MBProgressHUD.lj.showHint(result.message)
                 }
+                self.refreshEmptyView()
             }
         }
         
@@ -545,7 +547,6 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
         if isHeadRefesh && isShouldLoadBannerData {
             loadBannerData()
         }
-        
     }
     
     /// 加载Banner数据

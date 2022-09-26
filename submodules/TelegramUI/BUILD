@@ -298,6 +298,7 @@ swift_library(
         "//third-party/Alamofire",
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
+        "//third-party/XLPagerTabStrip",
     ] + select({
         "@build_bazel_rules_apple//apple:ios_armv7": [],
         "@build_bazel_rules_apple//apple:ios_arm64": appcenter_targets,
