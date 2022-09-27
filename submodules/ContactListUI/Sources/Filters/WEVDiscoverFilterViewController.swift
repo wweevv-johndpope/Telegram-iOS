@@ -99,8 +99,9 @@ class WEVDiscoverFilterViewController: LJBaseViewController {
     
     @objc private func confirmButtonAction() {
         guard !selectedArray.isEmpty else {return}
-        didSelected?(selectedArray)
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true) {
+            self.didSelected?(self.selectedArray)
+        }
     }
 }
 

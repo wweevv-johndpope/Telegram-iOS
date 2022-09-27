@@ -61,7 +61,6 @@ class WEVDiscoverSearchView: UITableView {
         delegate = self
         dataSource = self
         separatorStyle = .none
-        backgroundColor = .clear
         rowHeight = UITableView.automaticDimension
         estimatedRowHeight = UITableView.automaticDimension
         estimatedSectionHeaderHeight = 0

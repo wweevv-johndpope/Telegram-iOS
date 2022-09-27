@@ -1979,7 +1979,7 @@ ios_application(
         "//third-party/Alamofire",
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
-        "//third-party/XLPagerTabStrip",
+        "//third-party/MXSegmentedControl",
     ],
 )
 

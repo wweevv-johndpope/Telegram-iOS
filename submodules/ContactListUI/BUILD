@@ -45,7 +45,7 @@ swift_library(
         "//third-party/Supabase:Supabase",
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
-        "//third-party/XLPagerTabStrip",
+        "//third-party/MXSegmentedControl",
     ],
     visibility = [
         "//visibility:public",
