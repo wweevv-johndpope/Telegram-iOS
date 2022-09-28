@@ -30,12 +30,25 @@ import InstantPageUI
 import MBProgressHUD
 import HandyJSON
 import CoreLocation
+import MXSegmentedControl
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
     let contactListNode: ContactListNode
     var controller:WEVRootViewController!
     
+    private let context: AccountContext
+    private(set) var searchDisplayController: SearchDisplayController?
+    private var offersTableViewNode:ASDisplayNode?
+    private var containerLayout: (ContainerViewLayout, CGFloat)?
+    //    var interactor:WCInteractor?
+    var navigationBar: NavigationBar?
+    var listNode:ListView!
+    var requestDeactivateSearch: (() -> Void)?
+    var requestOpenPeerFromSearch: ((ContactListPeer) -> Void)?
+    var requestAddContact: ((String) -> Void)?
+    var openPeopleNearby: (() -> Void)?
+    var openInvite: (() -> Void)?
     /// 根据状态返回该显示的视频
     private var showDataArray: [WEVVideoModel] {
         get {
@@ -59,28 +72,15 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             }
         }
     }
+    
     //var ytVideos: [YoutubeVideo] = []
-    
-    
-    private let context: AccountContext
-    private(set) var searchDisplayController: SearchDisplayController?
-    private var offersTableViewNode:ASDisplayNode?
-    private var containerLayout: (ContainerViewLayout, CGFloat)?
-    //    var interactor:WCInteractor?
-    var navigationBar: NavigationBar?
-    var listNode:ListView!
-    var requestDeactivateSearch: (() -> Void)?
-    var requestOpenPeerFromSearch: ((ContactListPeer) -> Void)?
-    var requestAddContact: ((String) -> Void)?
-    var openPeopleNearby: (() -> Void)?
-    var openInvite: (() -> Void)?
-    
     
     /// bannerView数据列表
     private var bannerDataArray: [WEVVideoModel] = []
     //filter
     private var selectedChannelArray: [WEVChannel] = WEVChannel.allCases
     /// 关键字搜索情况下的请求才需要传，由上个请求得到，第一页传nil
+    private var segementChannelAraay: [WEVChannel] = [WEVChannel.youtube]
     private var searchOffset: Int?
     //seatch VC
     private var searchStatus: SearchStatus = .normal
@@ -120,6 +120,33 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private var presentationDataDisposable: Disposable?
     private var mServicesTableView:ASDisplayNode?
     
+    
+    //segment control
+    private lazy var segmentControl: MXSegmentedControl = {
+        let segment = MXSegmentedControl()
+        segment.append(title: "Youtube")
+            .set(image: #imageLiteral(resourceName: "channel_youtube"))
+            .set(image: .left)
+            .set(padding: 16)
+        segment.append(title: "Twitch")
+            .set(image: #imageLiteral(resourceName: "channel_twitch"))
+            .set(image: .left)
+            .set(padding: 16)
+        segment.indicatorHeight = 3
+        segment.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        segment.separatorWidth = 1
+        segment.separatorColor = .systemGroupedBackground
+        segment.addTarget(self, action: #selector(segementChanged(sender:)), for: UIControl.Event.valueChanged)
+        segment.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        segment.separatorBottom = 5
+        return segment
+    }()
+    
+    
+    lazy var segmentHeight: CGFloat = 50
+    lazy var navigationBarHeight: CGFloat = 50
+
+    
     private lazy var searchView: WEVDiscoverSearchView = {
         let view = WEVDiscoverSearchView()
         view.recordArray = WEVSearchRecordManager.recordArray
@@ -147,11 +174,13 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             vc.selectedArray = self.selectedChannelArray
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
-                self.selectedChannelArray = channelArray
-                self.scrollViewLoadData(isHeadRefesh: true)
                 DispatchQueue.main.async {
                     self.collectionView!.reloadData()
+                    self.updateCollectionViewContraint(isShowing: channelArray.count == WEVChannel.allCases.count ? true : false)
                 }
+                //fetch filter data
+                self.selectedChannelArray = channelArray
+                self.scrollViewLoadData(isHeadRefesh: true)
             }
             self.controller.present(vc, animated: true, completion: nil)
         }
@@ -227,7 +256,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     }
     
     /// 刷新搜索状态相关视图
-    private func refreshSearchStatusView() {
+    private func refreshSearchStatusView(isInitial: Bool = false) {
         
         /// 是否显示搜索界面
         func updateListView(_ isShowSearchView: Bool) {
@@ -239,15 +268,55 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         case .searching:
             updateListView(true)
             searchBar.style = .searching
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                if !isInitial {
+                    self.updateCollectionViewContraint(isShowing: false)
+                }
+            }
         case .normal:
             updateListView(false)
             searchBar.style = .normal
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                if !isInitial {
+                    self.updateCollectionViewContraint(isShowing: true)
+                }
+            }
         case .searchCompleted:
             updateListView(false)
             searchBar.style = .searchCompleted
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                if !isInitial {
+                    self.updateCollectionViewContraint(isShowing: false)
+                }
+            }
         }
-        DispatchQueue.main.async {
-            self.collectionView?.reloadData()
+    }
+    
+    @objc func segementChanged(sender: MXSegmentedControl) {
+        print(self.segmentControl.selectedIndex)
+        print(sender.selectedIndex)
+        //remove all selected channel Array
+        segementChannelAraay.removeAll()
+        segementChannelAraay.append(sender.selectedIndex == 0 ? WEVChannel.youtube : WEVChannel.twitch)
+        //api call to get data
+        self.scrollViewLoadData(isHeadRefesh: true)
+    }
+    
+    func updateCollectionViewContraint(isShowing: Bool) {
+        if isShowing {
+            self.collectionView?.snp.updateConstraints({ make in
+                make.top.equalToSuperview().offset(navigationBarHeight + segmentHeight)
+            })
+        } else {
+            self.collectionView?.snp.updateConstraints({ make in
+                make.top.equalToSuperview().offset(navigationBarHeight)
+            })
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.controller.view.layoutIfNeeded()
         }
     }
     
@@ -260,9 +329,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         
         let options = [ContactListAdditionalOption(title: presentationData.strings.Contacts_AddPeopleNearby, icon: .generic(UIImage(bundleImageName: "Contact List/PeopleNearbyIcon")!), action: {
-            //   addNearbyImpl?()
+            //addNearbyImpl?()
         }), ContactListAdditionalOption(title: presentationData.strings.Contacts_InviteFriends, icon: .generic(UIImage(bundleImageName: "Contact List/AddMemberIcon")!), action: {
-            //            inviteImpl?()
+            //inviteImpl?()
         })]
         
         let presentation = sortOrder |> map { sortOrder -> ContactListPresentation in
@@ -300,7 +369,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         DispatchQueue.main.async {
             self.collectionView?.reloadData()
         }
-        self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
+        //self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         
     }
@@ -330,6 +399,21 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         self.contactListNode.containerLayoutUpdated(ContainerViewLayout(size: layout.size, metrics: layout.metrics, deviceMetrics: layout.deviceMetrics, intrinsicInsets: insets, safeInsets: layout.safeInsets, additionalInsets: layout.additionalInsets, statusBarHeight: layout.statusBarHeight, inputHeight: layout.inputHeight, inputHeightIsInteractivellyChanging: layout.inputHeightIsInteractivellyChanging, inVoiceOver: layout.inVoiceOver), headerInsets: headerInsets, transition: transition)
         
         if(mServicesTableView?.supernode == nil) { // load only once
+            
+            // 1. convert to ASDisplayNode
+            let segmentControlNode = ASDisplayNode { () -> UIView in
+                return self.segmentControl
+            }
+            
+            // 2. add node to view hierachy > then snapkit
+            self.addSubnode(segmentControlNode)
+            self.navigationBarHeight = navigationBarHeight
+            segmentControl.snp.makeConstraints { (make) in
+                make.left.right.equalToSuperview()
+                make.top.equalToSuperview().offset(navigationBarHeight)
+                make.height.equalTo(segmentHeight)
+            }
+            
            // 1. convert to ASDisplayNode
             mServicesTableView = ASDisplayNode { () -> UIView in
                 return self.getCollectionView(frame: .zero)
@@ -338,7 +422,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             self.addSubnode(mServicesTableView!)
             collectionView?.snp.makeConstraints { (make) in
                 make.left.right.equalToSuperview()
-                make.top.equalToSuperview().offset(navigationBarHeight)
+                make.top.equalToSuperview().offset(navigationBarHeight + segmentHeight)
                 make.bottom.equalToSuperview().offset(-LJScreen.tabBarHeight)
             }
             
@@ -358,12 +442,13 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 return self.searchView
             }
             self.addSubnode(searchNode)
+            
             searchView.snp.makeConstraints { (make) in
                 make.edges.equalTo(collectionView!)
             }
         }
         
-        refreshSearchStatusView()
+        refreshSearchStatusView(isInitial: true)
         
     }
     
@@ -497,7 +582,7 @@ extension WEVDiscoverRootNode {
 //MARK: - Data
 extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
     func scrollViewLoadData(isHeadRefesh: Bool) {
-        let channelArray = searchStatus == .normal ? selectedChannelArray : []
+        let channelArray = searchStatus == .normal ? (selectedChannelArray.count == WEVChannel.allCases.count ? segementChannelAraay : selectedChannelArray) : []
         let keyWord = searchStatus == .normal ? nil : searchWord
         let nextPageToken = isHeadRefesh ? nil : self.nextPageToken
         let searchOffset = (!isHeadRefesh && keyWord != nil) ? self.searchOffset : nil
@@ -538,6 +623,7 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
                 DispatchQueue.main.async {
                     MBProgressHUD.lj.showHint(result.message)
                 }
+                self.refreshEmptyView()
             }
         }
         
@@ -545,7 +631,6 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
         if isHeadRefesh && isShouldLoadBannerData {
             loadBannerData()
         }
-        
     }
     
     /// 加载Banner数据
