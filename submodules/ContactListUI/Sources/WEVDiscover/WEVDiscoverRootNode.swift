@@ -57,11 +57,11 @@ public struct YoutubeVideo: Codable {
 
 public struct SlimTwitchVideo: Codable {
     var userId: String? // youtube id
-    var profile_image_url:String? // TODO fix camel case.
-    var clip_view_count:String?
+    var profile_image_url:String?
+    var clip_view_count:Int?
     var clip_title:String?
     var clip_embed_url:String?
-    var stream_viewer_count:String?
+    var stream_viewer_count:Int?
 }
 
 public struct TwitchVideo: Codable {
