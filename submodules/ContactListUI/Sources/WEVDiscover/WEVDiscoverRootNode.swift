@@ -279,7 +279,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchBar.style = .normal
             DispatchQueue.main.async {
                 self.collectionView?.reloadData()
-                if !isInitial {
+                if !isInitial && self.selectedChannelArray.count == WEVChannel.allCases.count {
                     self.updateCollectionViewContraint(isShowing: true)
                 }
             }
@@ -288,9 +288,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchBar.style = .searchCompleted
             DispatchQueue.main.async {
                 self.collectionView?.reloadData()
-                if !isInitial {
+                /*if !isInitial {
                     self.updateCollectionViewContraint(isShowing: false)
-                }
+                }*/
             }
         }
     }
