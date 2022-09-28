@@ -32,6 +32,44 @@ import HandyJSON
 import CoreLocation
 import MXSegmentedControl
 
+
+public struct SlimVideo: Codable {
+    var id: String // youtube id
+    var blob:String  // youtube payload
+    //        var created_at:String
+    
+}
+
+public struct Thumbnail: Codable {
+    var url: String? // youtube id
+    var width:Int  // youtube payload
+    var height:Int
+}
+public struct YoutubeVideo: Codable {
+    var id: String? // youtube id
+    var title:String?  // youtube payload
+    var thumbnails:[Thumbnail?]
+    var description:String?
+    var duration:String?
+    var isLive:Bool?
+    var viewCount:Int?
+}
+
+public struct SlimTwitchVideo: Codable {
+    var userId: String? // youtube id
+    var profile_image_url:String? // TODO fix camel case.
+    var clip_view_count:String?
+    var clip_title:String?
+    var clip_embed_url:String?
+    var stream_viewer_count:String?
+}
+
+public struct TwitchVideo: Codable {
+    
+}
+
+
+
 public class WEVDiscoverRootNode: ASDisplayNode {
     
     let contactListNode: ContactListNode
@@ -49,6 +87,12 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var requestAddContact: ((String) -> Void)?
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
+
+     var ytVideos: [YoutubeVideo] = []
+    var twichVideos: [SlimTwitchVideo] = []
+    
+
+    
     /// 根据状态返回该显示的视频
     private var showDataArray: [WEVVideoModel] {
         get {
@@ -221,6 +265,58 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     }()
     
     
+    
+    func test(){
+        
+        
+        self.controller.database?.from("slim_video").select(columns:"id,blob").execute() { result in
+            switch result {
+            case let .success(response):
+                do {
+                    print(response)
+                    let videos = try response.decoded(to: [SlimVideo].self)
+                    let decoder = JSONDecoder()
+                    for  vid in videos{
+                        do {
+                            if let data = vid.blob.data(using: .utf8){
+                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
+                              //  print("video:",video)
+                                self.ytVideos.append(video)
+                            }
+                        }catch (let ex){
+                            print(ex)
+                        }
+                    }
+                } catch (let exception){
+                    print(exception)
+
+                }
+            case let .failure(error):
+                print(error.localizedDescription)
+            }
+            
+            
+            self.controller.database?.from("clips").select(columns:"*").execute() { result in
+                switch result {
+                case let .success(response):
+                    do {
+                        print(response)
+                        let videos = try response.decoded(to: [SlimTwitchVideo].self)
+                        self.twichVideos.append(contentsOf: videos)
+                        
+                    } catch (let exception){
+                        print(exception)
+
+                    }
+                case let .failure(error):
+                    print(error.localizedDescription)
+                }
+                
+                
+        }
+        }
+    }
+    
     private func search(word: String) {
         searchBar.textField.resignFirstResponder()
         searchWord = word
@@ -347,6 +443,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         self.contactListNode = ContactListNode.init(context: context, presentation: presentation)
         
         super.init()
+        
+        self.test()
         
         self.scrollViewLoadData(isHeadRefesh: true)
 
