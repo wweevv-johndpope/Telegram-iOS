@@ -294,19 +294,18 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             case let .failure(error):
                 print(error.localizedDescription)
             }
+
             
-            
-            self.controller.database?.from("clips").select(columns:"*").execute() { result in
+            self.controller.database?.from("clips").select(columns:"user_id,profile_image_url,clip_view_count,clip_title,clip_embed_url,stream_viewer_count").execute() { result in
                 switch result {
                 case let .success(response):
                     do {
-                        print(response)
+                        print("🌻 :",response)
                         let videos = try response.decoded(to: [SlimTwitchVideo].self)
                         self.twichVideos.append(contentsOf: videos)
                         
                     } catch (let exception){
-                        print(exception)
-
+                        print("🔥",exception)
                     }
                 case let .failure(error):
                     print(error.localizedDescription)
