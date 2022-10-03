@@ -66,8 +66,8 @@ public class WEVRootViewController: ViewController {
 //    var allUsersUpdateChanges:Realtime.Channel
     
     
-    private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
-    private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     
     
 
@@ -77,11 +77,12 @@ public class WEVRootViewController: ViewController {
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
 
-//        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
         let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
-        
-        //        self.client = client
         self.database = database
+        
+        //let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
+        //self.client = client
+        
 //        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
 //        rt.connect()
 //        rt.onOpen {

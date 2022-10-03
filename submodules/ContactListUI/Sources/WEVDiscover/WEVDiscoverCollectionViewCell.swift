@@ -50,6 +50,18 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    public var ytModel: YoutubeVideo? = nil {
+        didSet {
+            updateYoutubeView()
+        }
+    }
+    
+    public var twitchModel: SlimTwitchVideo? = nil {
+        didSet {
+            updateTwitchView()
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
@@ -175,5 +187,42 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         amountLabel.text = "  \(numberStr) \(unit)  "
         
         imageView.kf.setImage(with: URL.init(string: model.videoThumbnailsUrl), placeholder: nil)
+    }
+    
+    private func updateYoutubeView() {
+        guard let model = ytModel else { return }
+        channelImageView.image = WEVChannel.youtube.smallImage
+        channelNameLabel.text = model.title ?? ""
+        liveLabel.isHidden = false
+        var numberStr = "\(model.viewCount ?? 0)"
+        var unit = "viewers"
+        if model.viewCount == 1 {
+            unit = "viewer"
+        }
+        if model.viewCount ?? 0 >= 1000 {
+            numberStr = String.init(format: "%.1fk", Double(model.viewCount ?? 0) / 1000.0)
+        }
+        amountLabel.text = "  \(numberStr) \(unit)  "
+        if model.thumbnails.count > 0 {
+            imageView.kf.setImage(with: URL.init(string: model.thumbnails[0]?.url ?? ""), placeholder: nil)
+        }
+    }
+    
+    private func updateTwitchView() {
+        guard let model = twitchModel else { return }
+        channelImageView.image = WEVChannel.twitch.smallImage
+        channelNameLabel.text = model.clipTitle
+        liveLabel.isHidden = false
+        var numberStr = "\(model.clipViewCount)"
+        var unit = "viewers"
+        if model.clipViewCount == 1 {
+            unit = "viewer"
+        }
+        if model.clipViewCount >= 1000 {
+            numberStr = String.init(format: "%.1fk", Double(model.clipViewCount) / 1000.0)
+        }
+        amountLabel.text = "  \(numberStr) \(unit)  "
+        
+        imageView.kf.setImage(with: URL.init(string: model.clipThumbnailUrl), placeholder: nil)
     }
 }

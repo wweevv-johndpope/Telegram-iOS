@@ -65,6 +65,25 @@ struct LJConfig {
             return .release
         #endif
     }
+    
+    struct SupabaseKeys {
+        static let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
+        static let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+    }
+    
+    struct API {
+        static let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XCJ1c2VySWRcIjpcInVzX2M1TTN6MER4OHZcIixcImVtYWlsXCI6XCJ3d2VldnYxQGdtYWlsLmNvbVwifSIsImlhdCI6MTY2MzI0MTQ2N30.GEYCOKk5xbsMX0lk0q0EE6nRl4KiHRaFzYS2i2M3PSuATx82i_giIu-UE3wJq3owPTxCQD47q67V92SL1Q3q5A"
+    }
+    
+    struct SupabaseColumns {
+        static let clips = "id,user_id,user_name,profile_image_url,clip_id,clip_embed_url,clip_title,clip_view_count,clip_thumbnail_url"
+        static let youtube = "id,blob"
+    }
+    
+    struct SupabaseTablesName {
+        static let youtube = "slim_video"
+        static let clips = "clips"
+    }
 }
 
 func printLog<T>(_ message: T,

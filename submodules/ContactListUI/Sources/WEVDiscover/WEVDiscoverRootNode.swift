@@ -32,44 +32,6 @@ import HandyJSON
 import CoreLocation
 import MXSegmentedControl
 
-
-public struct SlimVideo: Codable {
-    var id: String // youtube id
-    var blob:String  // youtube payload
-    //        var created_at:String
-    
-}
-
-public struct Thumbnail: Codable {
-    var url: String? // youtube id
-    var width:Int  // youtube payload
-    var height:Int
-}
-public struct YoutubeVideo: Codable {
-    var id: String? // youtube id
-    var title:String?  // youtube payload
-    var thumbnails:[Thumbnail?]
-    var description:String?
-    var duration:String?
-    var isLive:Bool?
-    var viewCount:Int?
-}
-
-public struct SlimTwitchVideo: Codable {
-    var userId: String? // youtube id
-    var profile_image_url:String?
-    var clip_view_count:Int?
-    var clip_title:String?
-    var clip_embed_url:String?
-    var stream_viewer_count:Int?
-}
-
-public struct TwitchVideo: Codable {
-    
-}
-
-
-
 public class WEVDiscoverRootNode: ASDisplayNode {
     
     let contactListNode: ContactListNode
@@ -88,7 +50,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var openPeopleNearby: (() -> Void)?
     var openInvite: (() -> Void)?
 
-     var ytVideos: [YoutubeVideo] = []
+    var ytVideos: [YoutubeVideo] = []
     var twichVideos: [SlimTwitchVideo] = []
     
 
@@ -99,7 +61,11 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             switch searchStatus {
             case .searchCompleted:
                 return searchDataArray
-            case .normal:
+            case .youtube:
+                return []
+            case .twitch:
+                return []
+            case .filtered:
                 return dataArray
             case .searching:
                 return []
@@ -109,7 +75,11 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             switch searchStatus {
             case .searchCompleted:
                 searchDataArray = newValue
-            case .normal:
+            case .youtube:
+                break
+            case .twitch:
+                break
+            case .filtered:
                 dataArray = newValue
             case .searching:
                 break
@@ -127,7 +97,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private var segementChannelAraay: [WEVChannel] = [WEVChannel.youtube]
     private var searchOffset: Int?
     //seatch VC
-    private var searchStatus: SearchStatus = .normal
+    private var searchStatus: SearchStatus = .youtube
     private var searchWord: String? = nil
     
     private var searchDataArray: [WEVVideoModel] = []
@@ -149,7 +119,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         get {
             // 非搜索非筛选
             (selectedChannelArray.isEmpty || selectedChannelArray.count == WEVChannel.allCases.count)
-            && searchStatus == .normal
+            && (searchStatus == .youtube || searchStatus == .twitch)
         }
     }
     
@@ -218,9 +188,18 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             vc.selectedArray = self.selectedChannelArray
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
+                if channelArray.count == WEVChannel.allCases.count {
+                    self.searchStatus = .youtube
+                } else {
+                    self.searchStatus = .filtered
+                }
+                self.showDataArray = []
                 DispatchQueue.main.async {
                     self.collectionView!.reloadData()
                     self.updateCollectionViewContraint(isShowing: channelArray.count == WEVChannel.allCases.count ? true : false)
+                    if self.searchStatus != .filtered {
+                        self.refreshEmptyView()
+                    }
                 }
                 //fetch filter data
                 self.selectedChannelArray = channelArray
@@ -231,7 +210,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         view.cancelAction = {[weak self] in
             guard let self = self else {return}
-            self.searchStatus = .normal
+            self.searchStatus = self.segmentControl.selectedIndex == 0 ? .youtube : .twitch
             self.searchWord = nil
             self.searchBar.text = ""
             self.searchDataArray.removeAll()
@@ -266,10 +245,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     
     
-    func test(){
-        
-        
-        self.controller.database?.from("slim_video").select(columns:"id,blob").execute() { result in
+    func fetchYoutubeVideos(completion: @escaping (_ success: Bool) -> Void) {
+        self.controller.database?.from(LJConfig.SupabaseTablesName.youtube).select(columns:LJConfig.SupabaseColumns.youtube).execute() { result in
             switch result {
             case let .success(response):
                 do {
@@ -278,41 +255,49 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     let decoder = JSONDecoder()
                     for  vid in videos{
                         do {
-                            if let data = vid.blob.data(using: .utf8){
+                            if let data = vid.blob.data(using: .utf8) {
                                 let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
-                              //  print("video:",video)
+                                print("video:",video)
                                 self.ytVideos.append(video)
                             }
                         }catch (let ex){
                             print(ex)
                         }
                     }
-                } catch (let exception){
-                    print(exception)
-
+                } catch (let error){
+                    DispatchQueue.main.async {
+                        MBProgressHUD.lj.showHint(error.localizedDescription)
+                    }
                 }
             case let .failure(error):
-                print(error.localizedDescription)
-            }
-
-            
-            self.controller.database?.from("clips").select(columns:"user_id,profile_image_url,clip_view_count,clip_title,clip_embed_url,stream_viewer_count").execute() { result in
-                switch result {
-                case let .success(response):
-                    do {
-                        print("🌻 :",response)
-                        let videos = try response.decoded(to: [SlimTwitchVideo].self)
-                        self.twichVideos.append(contentsOf: videos)
-                        
-                    } catch (let exception){
-                        print("🔥",exception)
-                    }
-                case let .failure(error):
-                    print(error.localizedDescription)
+                DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(error.localizedDescription)
                 }
-                
-                
+            }
+            completion(true)
         }
+    }
+    
+    func fethcTwithVideo(completion: @escaping (_ success: Bool) -> Void) {
+        self.controller.database?.from(LJConfig.SupabaseTablesName.clips).select(columns:LJConfig.SupabaseColumns.clips).execute() { result in
+            switch result {
+            case let .success(response):
+                do {
+                    print("🌻 :",response)
+                    let videos = try response.decoded(to: [SlimTwitchVideo].self)
+                    self.twichVideos.append(contentsOf: videos)
+                    
+                } catch (let error){
+                    DispatchQueue.main.async {
+                        MBProgressHUD.lj.showHint(error.localizedDescription)
+                    }
+                }
+            case let .failure(error):
+                DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(error.localizedDescription)
+                }
+            }
+            completion(true)
         }
     }
     
@@ -328,25 +313,47 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     /// 刷新空白提示页面
     func refreshEmptyView() {
-        if showDataArray.isEmpty && !isShowBannerView {
+        if !isShowBannerView {
             switch searchStatus {
-            case .normal:
-                let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
-                emptyView.model = model
-            case .searchCompleted:
-                let model = WEVEmptyHintView.Model.init(title: "Oops!... no results found", image: "empty_discover_search", desc: "There are no results matching your search. Check your spelling or try another keyword.")
-                emptyView.model = model
+            case .youtube:
+                if ytVideos.isEmpty {
+                    let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
+                    emptyView.model = model
+                    self.showEmptyView()
+                } else {
+                    emptyView.removeFromSuperview()
+                }
+            case .twitch:
+                if twichVideos.isEmpty {
+                    let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
+                    emptyView.model = model
+                    self.showEmptyView()
+                } else {
+                    emptyView.removeFromSuperview()
+                }
+            case .searchCompleted, .filtered:
+                if showDataArray.isEmpty {
+                    let model = WEVEmptyHintView.Model.init(title: "Oops!... no results found", image: "empty_discover_search", desc: "There are no results matching your search. Check your spelling or try another keyword.")
+                    emptyView.model = model
+                    self.showEmptyView()
+                } else {
+                    emptyView.removeFromSuperview()
+                }
             default:
+                emptyView.removeFromSuperview()
                 break
-            }
-            emptyView.removeFromSuperview()
-            collectionView!.addSubview(emptyView)
-            emptyView.snp.makeConstraints { (make) in
-                make.top.left.equalToSuperview()
-                make.size.equalToSuperview()
             }
         }else {
             emptyView.removeFromSuperview()
+        }
+    }
+    
+    func showEmptyView() {
+        emptyView.removeFromSuperview()
+        collectionView!.addSubview(emptyView)
+        emptyView.snp.makeConstraints { (make) in
+            make.top.left.equalToSuperview()
+            make.size.equalToSuperview()
         }
     }
     
@@ -369,7 +376,16 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     self.updateCollectionViewContraint(isShowing: false)
                 }
             }
-        case .normal:
+        case .youtube:
+            updateListView(false)
+            searchBar.style = .normal
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                if !isInitial && self.selectedChannelArray.count == WEVChannel.allCases.count {
+                    self.updateCollectionViewContraint(isShowing: true)
+                }
+            }
+        case .twitch:
             updateListView(false)
             searchBar.style = .normal
             DispatchQueue.main.async {
@@ -387,17 +403,22 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     self.updateCollectionViewContraint(isShowing: false)
                 }*/
             }
+        default:
+            break
         }
     }
     
     @objc func segementChanged(sender: MXSegmentedControl) {
-        print(self.segmentControl.selectedIndex)
-        print(sender.selectedIndex)
         //remove all selected channel Array
-        segementChannelAraay.removeAll()
-        segementChannelAraay.append(sender.selectedIndex == 0 ? WEVChannel.youtube : WEVChannel.twitch)
+        /*segementChannelAraay.removeAll()
+        segementChannelAraay.append(sender.selectedIndex == 0 ? WEVChannel.youtube : WEVChannel.twitch)*/
         //api call to get data
-        self.scrollViewLoadData(isHeadRefesh: true)
+        //self.scrollViewLoadData(isHeadRefesh: true)
+        searchStatus = sender.selectedIndex == 0 ? .youtube : .twitch
+        DispatchQueue.main.async {
+            self.collectionView?.reloadData()
+            self.refreshEmptyView()
+        }
     }
     
     func updateCollectionViewContraint(isShowing: Bool) {
@@ -443,9 +464,29 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         super.init()
         
-        self.test()
+        //fetch youtubeVideo
+        //self.fetchYoutubeVideos()
         
-        self.scrollViewLoadData(isHeadRefesh: true)
+        //No need anymore
+        //self.scrollViewLoadData(isHeadRefesh: true)
+        
+        //fetch twitch Video
+
+        DispatchQueue.main.async {
+            MBProgressHUD.showAdded(to: self.controller.view, animated: true)
+        }
+        self.loadBannerData { success in
+            self.fetchYoutubeVideos { success in
+                self.fethcTwithVideo { success in
+                    DispatchQueue.main.async {
+                        MBProgressHUD.hide(for: self.controller.view, animated: true)
+                        self.collectionView?.reloadData()
+                        self.refreshEmptyView()
+                    }
+                }
+            }
+        }
+        
 
         self.setViewBlock({
             return UITracingLayerView()
@@ -592,12 +633,26 @@ extension WEVDiscoverRootNode: UICollectionViewDelegateFlowLayout {
 
 extension WEVDiscoverRootNode: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return showDataArray.count
+        switch searchStatus {
+        case .youtube:
+            return ytVideos.count
+        case .twitch:
+            return twichVideos.count
+        default:
+            return showDataArray.count
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WEVDiscoverCollectionViewCell", for: indexPath) as! WEVDiscoverCollectionViewCell
-        cell.model = showDataArray[indexPath.row]
+        switch searchStatus {
+        case .youtube:
+            cell.ytModel = ytVideos[indexPath.row]
+        case .twitch:
+            cell.twitchModel = twichVideos[indexPath.row]
+        default:
+            cell.model = showDataArray[indexPath.row]
+        }
         return cell
     }
     
@@ -630,9 +685,14 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
     
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let video = showDataArray[indexPath.row]
-        print("video:",video)
-        self.playVideo(video: video)
+        switch searchStatus {
+        case .youtube:
+            self.playClips(video: ytVideos[indexPath.row])
+        case .twitch:
+            self.playClips(clip: twichVideos[indexPath.row])
+        default:
+            self.playVideo(video: showDataArray[indexPath.row])
+        }
     }
     
     func playVideo(video: WEVVideoModel) {
@@ -664,6 +724,53 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             self.controller.present(galleryVC, in: .window(.root))
         }
     }
+    
+    func playClips(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil) {
+        
+        var videoTitle = ""
+        var videoDescription = ""
+        let websiteName = "YouTube"
+        var url = ""
+        if let ytVideo = video, let id = ytVideo.id {
+            videoTitle = ytVideo.title ?? ""
+            videoDescription = ytVideo.description ?? ""
+            url = "https://www.youtube.com/watch?v=" + id
+        } else if let twitch = clip {
+            url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
+            videoTitle = twitch.clipTitle
+        } else {
+            return
+        }
+        
+        
+        let size = CGSize(width:1280,height:720)
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
+        
+        //let messageAttribute = MessageAttribute
+        //JP HACK
+        // attributes = ishdidden / type = Url / reactions
+        let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+        
+        
+        // Source is message?
+        let source = GalleryControllerItemSource.standaloneMessage(message)
+        let context = self.controller.accountContext()
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
+            print("👹  we're in replaceRootController....")
+            self.controller?.navigationController?.popToRootViewController(animated: true)
+        }, baseNavigationController: navigationController, actionInteraction: nil)
+        //galleryVC.isChannel = true
+        galleryVC.temporaryDoNotWaitForReady = false
+        
+        //let nv = NavigationController(/
+        //self.controller.push(galleryVC)
+        
+        self.controller.present(galleryVC, in: .window(.root))
+
+    }
+    
+    
 }
 extension WEVDiscoverRootNode {
     /// 搜索状态
@@ -673,14 +780,36 @@ extension WEVDiscoverRootNode {
         /// 搜索完成
         case searchCompleted
         /// 非搜索
-        case normal
+        case youtube
+        
+        case twitch
+        
+        case filtered
     }
+    
+    /*enum SelectedTab {
+        //home screen Tab
+        case youtube
+        //home screen twitch
+        case twitch
+    }*/
 }
 //MARK: - Data
 extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
     func scrollViewLoadData(isHeadRefesh: Bool) {
-        let channelArray = searchStatus == .normal ? (selectedChannelArray.count == WEVChannel.allCases.count ? segementChannelAraay : selectedChannelArray) : []
-        let keyWord = searchStatus == .normal ? nil : searchWord
+        
+        switch searchStatus {
+        case .youtube, .twitch:
+            DispatchQueue.main.async {
+                self.collectionView?.lj.endRefreshing(isHeader: isHeadRefesh)
+            }
+            return
+        default:
+            break
+        }
+        
+        let channelArray = self.searchStatus == .filtered ? selectedChannelArray : []
+        let keyWord = (searchStatus == .youtube || searchStatus == .twitch) ? nil : searchWord
         let nextPageToken = isHeadRefesh ? nil : self.nextPageToken
         let searchOffset = (!isHeadRefesh && keyWord != nil) ? self.searchOffset : nil
         DispatchQueue.main.async {
@@ -726,12 +855,13 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
         
         // 下拉刷新且非搜索非筛选情况下才重新加载数据
         if isHeadRefesh && isShouldLoadBannerData {
-            loadBannerData()
+            loadBannerData { success in
+            }
         }
     }
     
     /// 加载Banner数据
-    private func loadBannerData() {
+    private func loadBannerData(completion: @escaping (_ success: Bool) -> Void) {
         LJNetManager.Video.discoverBannerList {[weak self] (result) in
             guard let self = self else {return}
             if result.isSuccess,
@@ -741,10 +871,12 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
                 DispatchQueue.main.async {
                     self.collectionView?.reloadData()
                 }
+                completion(result.isSuccess)
             }else {
                 DispatchQueue.main.async {
                     MBProgressHUD.lj.showHint(result.message)
                 }
+                completion(result.isSuccess)
             }
         }
     }
