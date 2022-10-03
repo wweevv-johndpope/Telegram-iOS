@@ -64,7 +64,7 @@ python3 build-system/Make/Make.py \
     generateProject \
     --configurationPath="$HOME/telegram-configuration-development"
 ```
-6. (Optional) Generate an Xcode project for production
+7. (Optional) Generate an Xcode project for production
 
 ```
 python3 build-system/Make/Make.py \
@@ -72,14 +72,14 @@ python3 build-system/Make/Make.py \
     generateProject \
     --configurationPath="$HOME/telegram-configuration"
 ```
-7. Clear Cache
+8. Clear Cache
 
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     clean
 ```
-8. Create Project without extension (Must required extesnion of releae build)
+9. Create Project without extension (Must required extesnion of releae build)
 
 ```
 python3 build-system/Make/Make.py \
