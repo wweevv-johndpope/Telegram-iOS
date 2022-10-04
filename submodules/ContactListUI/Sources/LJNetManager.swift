@@ -79,7 +79,7 @@ struct LJNetManager {
                       "utcStr": utcStr]/*,
                       "sign": signStr]*/
         //if let token = LJUser.user.token, LJUser.user.isLogin {
-        header["token"] = API.token
+        header["token"] = LJConfig.API.token
         //}
         // 发起请求
         sharedSessionManager.request(appendUrl(api: url), method: method, parameters: bodyParameters, encoding: JSONEncoding.default, headers: header).responseJSON(completionHandler: { (response) in

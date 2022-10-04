@@ -60,14 +60,14 @@ public class WEVRootViewController: ViewController {
     
     
     
-    /*var client:SupabaseClient?
+//    var client:SupabaseClient?
     var database:PostgrestClient?
-    var realtimeClient:RealtimeClient?
-    var allUsersUpdateChanges:Realtime.Channel*/
+//    var realtimeClient:RealtimeClient?
+//    var allUsersUpdateChanges:Realtime.Channel
     
     
-    //private let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
-    //private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     
     
 
@@ -77,40 +77,39 @@ public class WEVRootViewController: ViewController {
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
 
-//        let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
-        /*let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
-        
-        //        self.client = client
+        let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
         self.database = database
-        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
-        rt.connect()
-        rt.onOpen {
-            
-            self.allUsersUpdateChanges =  rt.channel(.table("live_video", schema: "public"))
-            self.allUsersUpdateChanges?.on(.insert) { message in
-                print("☕️ test - insert")
-                print(message.payload)
-                print(message.event)
+        
+        //let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
+        //self.client = client
+        
+//        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
+//        rt.connect()
+//        rt.onOpen {
+//
+//            self.allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
+//            self.allUsersUpdateChanges?.on(.insert) { message in
+//                print("☕️ test - insert")
+//                print(message.payload)
+//                print(message.event)
+//
+//
+//            }
+//            self.allUsersUpdateChanges?.subscribe()
+//        }
+//        self.realtimeClient = rt
+//        self.realtimeClient?.onError{error in
+//            print("🔥 error")
+//            print(error)
+//        }
+//        self.realtimeClient?.onMessage{message in
+//            print("🔖 message")
+//            print(message.payload)
+//            print(message.event)
+//            //print(message.status)
+//        }
+        
 
-                
-            }
-            self.allUsersUpdateChanges?.subscribe()
-        }
-        self.realtimeClient = rt
-        self.realtimeClient?.onError{error in
-            print("🔥 error")
-            print(error)
-        }
-        self.realtimeClient?.onMessage{message in
-            print("🔖 message")
-            print(message.payload)
-            print(message.event)
-            //print(message.status)
-        }*/
-        
-        
-//        self.tabBarItemContextActionType = .always
-        
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
