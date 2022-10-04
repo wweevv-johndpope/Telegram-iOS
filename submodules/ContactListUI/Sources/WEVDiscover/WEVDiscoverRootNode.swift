@@ -854,7 +854,6 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
         }
         
         // 下拉刷新且非搜索非筛选情况下才重新加载数据
-        /
         /*if isHeadRefesh && isShouldLoadBannerData {
             loadBannerData { success in
             }
