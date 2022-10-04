@@ -475,7 +475,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         DispatchQueue.main.async {
             MBProgressHUD.showAdded(to: self.controller.view, animated: true)
         }
-        self.loadBannerData { success in
+        //self.loadBannerData { success in
             self.fetchYoutubeVideos { success in
                 self.fethcTwithVideo { success in
                     DispatchQueue.main.async {
@@ -485,7 +485,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     }
                 }
             }
-        }
+        //}
         
 
         self.setViewBlock({
@@ -854,10 +854,11 @@ extension WEVDiscoverRootNode: LJScrollViewRefreshDelegate {
         }
         
         // 下拉刷新且非搜索非筛选情况下才重新加载数据
-        if isHeadRefesh && isShouldLoadBannerData {
+        /
+        /*if isHeadRefesh && isShouldLoadBannerData {
             loadBannerData { success in
             }
-        }
+        }*/
     }
     
     /// 加载Banner数据
