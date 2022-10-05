@@ -749,9 +749,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":MtProtoKitInfoPlist",
         ":BuildNumberInfoPlist",
@@ -789,9 +788,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":SwiftSignalKitInfoPlist",
         ":BuildNumberInfoPlist",
@@ -829,9 +827,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":PostboxInfoPlist",
         ":BuildNumberInfoPlist",
@@ -872,9 +869,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":TelegramApiInfoPlist",
         ":BuildNumberInfoPlist",
@@ -912,9 +908,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":TelegramCoreInfoPlist",
         ":BuildNumberInfoPlist",
@@ -957,9 +952,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":AsyncDisplayKitInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1029,7 +1023,7 @@ sh_binary(
     name = "AddAlternateIcons",
     data = [
         "Telegram-iOS/AlternateIcons.plist",
-        "Telegram-iOS/AlternateIcons-iPad.plist",
+        #"Telegram-iOS/AlternateIcons-iPad.plist",
     ],
     srcs = [":GenerateAddAlternateIcons"],
 )
@@ -1040,9 +1034,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":DisplayInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1084,9 +1077,8 @@ ios_framework(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":TelegramUIInfoPlist",
         ":BuildNumberInfoPlist",
@@ -1182,9 +1174,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":ShareInfoPlist",
         ":VersionInfoPlist",
@@ -1291,9 +1282,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":NotificationContentInfoPlist",
         ":VersionInfoPlist",
@@ -1395,9 +1385,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":WidgetInfoPlist",
         ":VersionInfoPlist",
@@ -1532,9 +1521,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":IntentsInfoPlist",
         ":VersionInfoPlist",
@@ -1630,9 +1618,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":BroadcastUploadInfoPlist",
         ":VersionInfoPlist",
@@ -1713,9 +1700,8 @@ ios_extension(
         telegram_bundle_id = telegram_bundle_id,
     ),
     families = [
-        "iphone",
-        "ipad",
-    ],
+        "iphone"],
+        #--"ipad"],
     infoplists = [
         ":NotificationServiceInfoPlist",
         ":VersionInfoPlist",
@@ -1852,7 +1838,6 @@ plist_fragment(
     <key>UIDeviceFamily</key>
     <array>
         <integer>1</integer>
-        <integer>2</integer>
     </array>
     <key>UIFileSharingEnabled</key>
     <false/>
@@ -1870,13 +1855,6 @@ plist_fragment(
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-    <key>UISupportedInterfaceOrientations~ipad</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationPortraitUpsideDown</string>
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
@@ -1924,7 +1902,9 @@ ios_application(
     bundle_id = "{telegram_bundle_id}".format(
         telegram_bundle_id = telegram_bundle_id,
     ),
-    families = ["iphone", "ipad"],
+    families = [
+        "iphone"],
+        #--"ipad"],
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -1958,17 +1938,17 @@ ios_application(
     strings = [
         ":AppStringResources",
     ],
-    extensions = select({
-        ":disableExtensionsSetting": [],
-        "//conditions:default": [
-            ":ShareExtension",
-            ":NotificationContentExtension",
-            ":NotificationServiceExtension",
-            ":IntentsExtension",
-            ":WidgetExtension",
-            ":BroadcastUploadExtension",
-        ],
-    }),
+    #--extensions = select({
+       #-- ":disableExtensionsSetting": [],
+       #-- "//conditions:default": [
+          #--  ":ShareExtension",
+          #--  ":NotificationContentExtension",
+          #--  ":NotificationServiceExtension",
+          #--  ":IntentsExtension",
+          #--  ":WidgetExtension",
+          #-- ":BroadcastUploadExtension",
+        #--],
+    #--}),
     watch_application = select({
         ":disableExtensionsSetting": None,
         "//conditions:default": ":TelegramWatchApp",
@@ -1990,7 +1970,9 @@ ios_application(
     bundle_id = "{telegram_bundle_id}".format(
         telegram_bundle_id = telegram_bundle_id,
     ),
-    families = ["iphone", "ipad"],
+    families = [
+        "iphone"],
+        #--"ipad"],
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
@@ -2013,7 +1995,9 @@ ios_application(
     bundle_id = "{telegram_bundle_id}".format(
         telegram_bundle_id = telegram_bundle_id,
     ),
-    families = ["iphone", "ipad"],
+    families = [
+        "iphone"],
+        #--"ipad"],
     minimum_os_version = "13.0",
     provisioning_profile = select({
         ":disableProvisioningProfilesSetting": None,
