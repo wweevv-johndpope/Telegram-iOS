@@ -45,15 +45,16 @@ cp -R build-system/example-configuration-development/* $HOME/telegram-configurat
 mkdir -p "$HOME/telegram-bazel-cache"
 ```
 
-5.  Generate IPA Build of app 
+5.  Generate IPA Build of app (remove disableExtensions to generate ipa with extension)
 
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     build \
     --configurationPath="$HOME/telegram-configuration" \
-    --buildNumber=100001 \
+    --buildNumber=8 \
     --configuration=release_universal
+    --disableExtensions
 ```
 
 6. Generate an Xcode project for development build
