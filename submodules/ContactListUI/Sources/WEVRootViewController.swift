@@ -83,21 +83,20 @@ public class WEVRootViewController: ViewController {
         //fetch videos on launch time
         self.contactsNode.fetchYoutubeVideos { success in
             self.contactsNode.fethcTwithVideo { success in
+                self.contactsNode.isLaunchSync = true
                 if let collectionView = self.contactsNode.collectionView {
                     DispatchQueue.main.async {
                         collectionView.reloadData()
                         self.contactsNode.refreshEmptyView()
                     }
-                } else {
-                    self.contactsNode.isLaunchSync = true
                 }
             }
         }
-        //print(self.contactsNode.ytVideos)
+        
         //let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
         //self.client = client
         
-        let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
+        /*let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
         rt.onOpen {
 
             let allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
@@ -123,7 +122,7 @@ public class WEVRootViewController: ViewController {
             //print(message.event)
             //print(message.status)
         }*/
-        rt.connect()
+        rt.connect()*/
 
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
@@ -231,6 +230,8 @@ public class WEVRootViewController: ViewController {
             //            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
             self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         }
+        self.contactsNode.presentationData = self.presentationData
+        self.contactsNode.updateThemeAndStrings()
     }
     
     override public func loadDisplayNode() {

@@ -130,7 +130,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         }
     }
     
-    private var presentationData: PresentationData
+    var presentationData: PresentationData
     private var presentationDataDisposable: Disposable?
     private var mServicesTableView:ASDisplayNode?
     
@@ -320,7 +320,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         if !isShowBannerView {
             switch searchStatus {
             case .youtube:
-                if ytVideos.isEmpty {
+                if ytVideos.isEmpty && isLaunchSync {
                     let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
                     emptyView.model = model
                     self.showEmptyView()
@@ -328,7 +328,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     emptyView.removeFromSuperview()
                 }
             case .twitch:
-                if twichVideos.isEmpty {
+                if twichVideos.isEmpty && isLaunchSync {
                     let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
                     emptyView.model = model
                     self.showEmptyView()
@@ -529,12 +529,14 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     var collectionView: UICollectionView?
     
-    private func updateThemeAndStrings() {
-        DispatchQueue.main.async {
+    func updateThemeAndStrings() {
+        /*DispatchQueue.main.async {
             self.collectionView?.reloadData()
-        }
-        //self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
+        }*/
+        self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
+        self.segmentControl.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        self.segmentControl.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         
     }
     
