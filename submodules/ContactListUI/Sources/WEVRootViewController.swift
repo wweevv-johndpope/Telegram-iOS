@@ -62,8 +62,8 @@ public class WEVRootViewController: ViewController {
     
 //    var client:SupabaseClient?
     var database:PostgrestClient?
-//    var realtimeClient:RealtimeClient?
-//    var allUsersUpdateChanges:Realtime.Channel
+    //var realtimeClient:RealtimeClient?
+    //var allUsersUpdateChanges:Realtime.Channel?
     
     
     private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
@@ -80,35 +80,50 @@ public class WEVRootViewController: ViewController {
         let database = PostgrestClient(url: "\(supabaseUrl)/rest/v1", headers: ["apikey":supabaseKey], schema: "public")
         self.database = database
         
+        //fetch videos on launch time
+        self.contactsNode.fetchYoutubeVideos { success in
+            self.contactsNode.fethcTwithVideo { success in
+                if let collectionView = self.contactsNode.collectionView {
+                    DispatchQueue.main.async {
+                        collectionView.reloadData()
+                        self.contactsNode.refreshEmptyView()
+                    }
+                } else {
+                    self.contactsNode.isLaunchSync = true
+                }
+            }
+        }
+        //print(self.contactsNode.ytVideos)
         //let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
         //self.client = client
         
-//        let rt = RealtimeClient(endPoint: "https://pqxcxltwoifmxcmhghzf.supabase.co/realtime/v1", params: ["apikey": supabaseKey])
-//        rt.connect()
-//        rt.onOpen {
-//
-//            self.allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
-//            self.allUsersUpdateChanges?.on(.insert) { message in
-//                print("☕️ test - insert")
-//                print(message.payload)
-//                print(message.event)
-//
-//
-//            }
-//            self.allUsersUpdateChanges?.subscribe()
-//        }
-//        self.realtimeClient = rt
-//        self.realtimeClient?.onError{error in
-//            print("🔥 error")
-//            print(error)
-//        }
-//        self.realtimeClient?.onMessage{message in
-//            print("🔖 message")
-//            print(message.payload)
-//            print(message.event)
-//            //print(message.status)
-//        }
+        let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
+        rt.onOpen {
+
+            let allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
+            allUsersUpdateChanges.on(.insert) { message in
+                print("☕️ clips - insert")
+                print(message.payload)
+                print(message.event)
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        rt.onError{error in
+            print("🔥 error")
+            print(error)
+        }
         
+        rt.onClose {
+            print(rt.isConnected)
+        }
+        
+        /*rt.onMessage{message in
+            print("🔖 message")
+            print(message.payload)
+            //print(message.event)
+            //print(message.status)
+        }*/
+        rt.connect()
 
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style

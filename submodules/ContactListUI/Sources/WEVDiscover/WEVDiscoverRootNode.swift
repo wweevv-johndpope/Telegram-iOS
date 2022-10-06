@@ -52,7 +52,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
 
     var ytVideos: [YoutubeVideo] = []
     var twichVideos: [SlimTwitchVideo] = []
-    
+    var isLaunchSync: Bool = false
 
     
     /// 根据状态返回该显示的视频
@@ -265,14 +265,16 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                         }
                     }
                 } catch (let error){
-                    DispatchQueue.main.async {
+                    /*DispatchQueue.main.async {
                         MBProgressHUD.lj.showHint(error.localizedDescription)
-                    }
+                    }*/
+                    debugPrint(error.localizedDescription)
                 }
             case let .failure(error):
-                DispatchQueue.main.async {
+                /*DispatchQueue.main.async {
                     MBProgressHUD.lj.showHint(error.localizedDescription)
-                }
+                }*/
+                debugPrint(error.localizedDescription)
             }
             completion(true)
         }
@@ -288,14 +290,16 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     self.twichVideos.append(contentsOf: videos)
                     
                 } catch (let error){
-                    DispatchQueue.main.async {
+                    /*DispatchQueue.main.async {
                         MBProgressHUD.lj.showHint(error.localizedDescription)
-                    }
+                    }*/
+                    debugPrint(error.localizedDescription)
                 }
             case let .failure(error):
-                DispatchQueue.main.async {
+                /*DispatchQueue.main.async {
                     MBProgressHUD.lj.showHint(error.localizedDescription)
-                }
+                }*/
+                debugPrint(error.localizedDescription)
             }
             completion(true)
         }
@@ -472,7 +476,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
         //fetch twitch Video
 
-        DispatchQueue.main.async {
+        /*DispatchQueue.main.async {
             MBProgressHUD.showAdded(to: self.controller.view, animated: true)
         }
         //self.loadBannerData { success in
@@ -485,7 +489,29 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     }
                 }
             }
-        //}
+        //}*/
+        
+        if isLaunchSync {
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                self.refreshEmptyView()
+            }
+        } /*else {
+            DispatchQueue.main.async {
+                MBProgressHUD.showAdded(to: self.controller.view, animated: true)
+            }
+            //self.loadBannerData { success in
+                self.fetchYoutubeVideos { success in
+                    self.fethcTwithVideo { success in
+                        DispatchQueue.main.async {
+                            MBProgressHUD.hide(for: self.controller.view, animated: true)
+                            self.collectionView?.reloadData()
+                            self.refreshEmptyView()
+                        }
+                    }
+                }
+            //}
+        }*/
         
 
         self.setViewBlock({
