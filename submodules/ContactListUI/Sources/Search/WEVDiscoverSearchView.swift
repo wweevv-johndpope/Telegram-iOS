@@ -310,12 +310,12 @@ class WEVDiscoverSearchBar: UIView {
     }()
     
     private func initView() {
-        addSubview(filterButton)
+        /*addSubview(filterButton)
         filterButton.snp.makeConstraints { (make) in
             make.right.equalToSuperview().offset(-10)
             make.size.equalTo(CGSize(width: 40, height: 40))
             make.centerY.equalToSuperview()
-        }
+        }*/
         
         addSubview(cancelSearchButton)
         cancelSearchButton.snp.makeConstraints { (make) in
