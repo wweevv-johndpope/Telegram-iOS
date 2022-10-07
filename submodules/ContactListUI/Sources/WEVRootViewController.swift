@@ -90,6 +90,7 @@ public class WEVRootViewController: ViewController {
                         self.contactsNode.refreshEmptyView()
                     }
                 }
+                self.contactsNode.twitchRealTimeSync()
             }
         }
         

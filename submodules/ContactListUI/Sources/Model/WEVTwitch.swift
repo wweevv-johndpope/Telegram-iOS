@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - Crew
 struct SlimTwitchVideo: Codable {
-    let id: Int16
+    let id: Int64
     let userId: String
     let userName: String
     let profileiImageUrl: String?

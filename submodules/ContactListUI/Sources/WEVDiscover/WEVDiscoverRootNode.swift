@@ -20,7 +20,6 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 import ContactsUI
-//import SnapKit
 import HandyJSON
 import Alamofire
 import GalleryUI
@@ -31,6 +30,7 @@ import MBProgressHUD
 import HandyJSON
 import CoreLocation
 import MXSegmentedControl
+import Realtime
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
@@ -491,13 +491,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             }
         //}*/
         
-        if isLaunchSync {
-            DispatchQueue.main.async {
-                self.collectionView?.reloadData()
-                self.refreshEmptyView()
-            }
-        } /*else {
-            DispatchQueue.main.async {
+        /*DispatchQueue.main.async {
                 MBProgressHUD.showAdded(to: self.controller.view, animated: true)
             }
             //self.loadBannerData { success in
@@ -510,8 +504,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                         }
                     }
                 }
-            //}
-        }*/
+            //}*/
         
 
         self.setViewBlock({
@@ -522,6 +515,105 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
     }
     
+    func twitchRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(LJConfig.SupabaseKeys.supabaseUrl)/realtime/v1", params: ["apikey": LJConfig.SupabaseKeys.supabaseKey])
+        
+        rt.onOpen {
+            print(rt.isConnected)
+            print("Socket opened.")
+            
+            let allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
+            //allUsersUpdateChanges.unsubscribe()
+
+            allUsersUpdateChanges.on(.all) { message in
+                /*print("☕️ clips - insert")
+                print(message.payload)
+                print(message.event)*/
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+            case .insert:
+                if let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                        if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                            DispatchQueue.main.async {
+                                self.twichVideos.insert(video, at: 0)
+                                let indertIndexPaths = IndexPath(item: 0, section: 0)
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        collectionView.insertItems(at: [indertIndexPaths])
+                                    } completion: { isFinished in
+                                        self.refreshEmptyView()
+                                    }
+                                }
+                            }
+                        } else {
+                            self.twichVideos.insert(video, at: 0)
+                        }
+                    }catch {
+                    }
+                }
+            case .update:
+                if let oldRecord = message.payload["old_record"] as? [String:Any], let id = oldRecord["id"] as? Int64, let record = message.payload["record"] as? [String:Any] {
+                    if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                        do {
+                            let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                            if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                                DispatchQueue.main.async {
+                                    self.twichVideos[index] = video
+                                    let indertIndexPaths = IndexPath(item: index, section: 0)
+                                    UIView.performWithoutAnimation {
+                                        collectionView.performBatchUpdates {
+                                            collectionView.reloadItems(at: [indertIndexPaths])
+                                        } completion: { isFinished in
+                                        }
+                                    }
+                                }
+                            } else {
+                                self.twichVideos[index] = video
+                            }
+                        }catch {
+                        }
+                    }
+                }
+            case .delete:
+                /*if let record = message.payload["old_record"] as? [String:Any], let id = record["id"] as? Int64 {
+                    if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                        if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                            UIView.performWithoutAnimation {
+                                DispatchQueue.main.async {
+                                    collectionView.performBatchUpdates {
+                                        self.twichVideos.remove(at: index)
+                                        let deleteIndexPaths = IndexPath(item: index, section: 0)
+                                        collectionView.deleteItems(at: [deleteIndexPaths])
+                                    } completion: { isFinished in
+                                        self.refreshEmptyView()
+                                    }
+                                }
+                            }
+                        } else {
+                            self.twichVideos.remove(at: index)
+                        }
+                    }
+                }*/
+                break
+            default:
+                break
+            }
+         }
+        rt.connect()
+    }
     
     deinit {
         self.presentationDataDisposable?.dispose()
@@ -612,6 +704,13 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchView.snp.makeConstraints { (make) in
                 make.edges.equalTo(collectionView!)
             }
+            
+            if isLaunchSync {
+                DispatchQueue.main.async {
+                    self.collectionView?.reloadData()
+                    self.refreshEmptyView()
+                }
+            }
         }
         
         refreshSearchStatusView(isInitial: true)
@@ -629,8 +728,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
         view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
         view.contentInsetAdjustmentBehavior = .never
-        view.lj.addMJReshreHeader(delegate: self)
-        view.lj.addMJReshreFooter(delegate: self)
+        //Code for pull to refresh
+        //view.lj.addMJReshreHeader(delegate: self)
+        //view.lj.addMJReshreFooter(delegate: self)
         self.collectionView = view
         return view
     }
