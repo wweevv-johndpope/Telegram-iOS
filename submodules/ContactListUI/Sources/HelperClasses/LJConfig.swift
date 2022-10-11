@@ -84,11 +84,13 @@ struct LJConfig {
     struct SupabaseColumns {
         static let clips = "id,user_id,user_name,profile_image_url,clip_id,clip_embed_url,clip_title,clip_view_count,clip_thumbnail_url"
         static let youtube = "id,blob"
+        static let rumble = "id,title,thumbnail_url,embed_url,m3u8,viewer_count"
     }
     
     struct SupabaseTablesName {
         static let youtube = "slim_video"
         static let clips = "clips"
+        static let rumble = "rumble"
     }
 }
 

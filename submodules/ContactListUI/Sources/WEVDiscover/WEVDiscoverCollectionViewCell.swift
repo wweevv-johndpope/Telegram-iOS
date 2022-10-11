@@ -62,6 +62,12 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    public var rumbleModel: RumbleVideo? = nil {
+        didSet {
+            updateRumbleView()
+        }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
@@ -192,7 +198,7 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
     private func updateYoutubeView() {
         guard let model = ytModel else { return }
         channelImageView.image = WEVChannel.youtube.smallImage
-        channelNameLabel.text = model.title ?? ""
+        channelNameLabel.text = model.title
         liveLabel.isHidden = false
         var numberStr = "\(model.viewCount ?? 0)"
         var unit = "viewers"
@@ -224,5 +230,23 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         amountLabel.text = "  \(numberStr) \(unit)  "
         
         imageView.kf.setImage(with: URL.init(string: model.clipThumbnailUrl), placeholder: nil)
+    }
+    
+    private func updateRumbleView() {
+        guard let model = rumbleModel else { return }
+        channelImageView.image = WEVChannel.rumble.smallImage
+        channelNameLabel.text = model.title
+        liveLabel.isHidden = false
+        var numberStr = "\(model.viewerCount)"
+        var unit = "viewers"
+        if model.viewerCount == 1 {
+            unit = "viewer"
+        }
+        if model.viewerCount >= 1000 {
+            numberStr = String.init(format: "%.1fk", Double(model.viewerCount) / 1000.0)
+        }
+        amountLabel.text = "  \(numberStr) \(unit)  "
+        
+        imageView.kf.setImage(with: URL.init(string: model.thumbnailUrl), placeholder: nil)
     }
 }

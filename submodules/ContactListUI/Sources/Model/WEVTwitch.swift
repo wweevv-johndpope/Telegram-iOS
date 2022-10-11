@@ -17,7 +17,7 @@ struct SlimTwitchVideo: Codable {
     let clipId: String?
     let clipEmbedUrl: String
     let clipTitle: String
-    let clipViewCount: Int16
+    let clipViewCount: Int64
     let clipThumbnailUrl: String
 
     enum CodingKeys: String, CodingKey {
