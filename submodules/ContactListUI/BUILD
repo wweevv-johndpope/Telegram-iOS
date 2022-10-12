@@ -37,7 +37,7 @@ swift_library(
         "//submodules/TelegramAnimatedStickerNode:TelegramAnimatedStickerNode",
         "//submodules/QrCodeUI:QrCodeUI",
         "//submodules/ContactListUI/HandyJSON:HandyJSON",
-        "//submodules/ContactListUI/Kingfisher",
+        "//third-party/Kingfisher",
         "//submodules/InstantPageUI:InstantPageUI",
         "//third-party/Alamofire",
         "//submodules/GalleryUI:GalleryUI",

@@ -296,6 +296,7 @@ swift_library(
         "//submodules/Components/PagerComponent:PagerComponent",
         "//submodules/Components/LottieAnimationComponent:LottieAnimationComponent",
         "//third-party/Alamofire",
+        "//third-party/Kingfisher",
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
         "//third-party/MXSegmentedControl",

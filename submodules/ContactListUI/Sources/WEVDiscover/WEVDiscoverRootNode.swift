@@ -30,6 +30,7 @@ import MBProgressHUD
 import HandyJSON
 import CoreLocation
 import MXSegmentedControl
+//import Kingfisher
 import Realtime
 
 public class WEVDiscoverRootNode: ASDisplayNode {
@@ -41,7 +42,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private(set) var searchDisplayController: SearchDisplayController?
     private var offersTableViewNode:ASDisplayNode?
     private var containerLayout: (ContainerViewLayout, CGFloat)?
-    //    var interactor:WCInteractor?
+    //var interactor:WCInteractor?
     var navigationBar: NavigationBar?
     var listNode:ListView!
     var requestDeactivateSearch: (() -> Void)?
@@ -1122,6 +1123,11 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
+            //let thumbURL = URL(string: twitch.clipThumbnailUrl)
+            
+            //KingfisherManager.shared.cache.retrieveImage(forKey: twitch.clipThumbnailUrl) { result in
+                //print(result)
+            //}
         } else if let rumble = rumbleVideo {
             url = rumble.embedUrl
             videoTitle = rumble.title
@@ -1131,33 +1137,30 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         
         
         let size = CGSize(width:1280,height:720)
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
         let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
+        
+        //let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: image.representations, immediateThumbnailData: image.immediateThumbnailData, reference: nil, partialReference: nil, flags: [])
+        
         
         //let messageAttribute = MessageAttribute
         //JP HACK
         // attributes = ishdidden / type = Url / reactions
-        let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+        let message = Message(stableId: 1, stableVersion: 0, id: MessageId(peerId: PeerId(0), namespace: 0, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
         
         
         // Source is message?
         let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { controller, ready in
             print("👹  we're in replaceRootController....")
-            self.controller?.navigationController?.popToRootViewController(animated: true)
+            if let baseNavigationController = self.navigationController {
+                baseNavigationController.replaceTopController(controller, animated: false, ready: ready)
+            }
         }, baseNavigationController: navigationController, actionInteraction: nil)
-        //galleryVC.isChannel = true
         galleryVC.temporaryDoNotWaitForReady = false
-        
-        //let nv = NavigationController(/
-        //self.controller.push(galleryVC)
-        
         self.controller.present(galleryVC, in: .window(.root))
-
     }
-    
-    
 }
 extension WEVDiscoverRootNode {
     /// 搜索状态
