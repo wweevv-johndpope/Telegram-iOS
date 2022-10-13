@@ -46,6 +46,7 @@ swift_library(
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
         "//third-party/MXSegmentedControl",
+        "//submodules/LegacyComponents:LegacyComponents",
     ],
     visibility = [
         "//visibility:public",

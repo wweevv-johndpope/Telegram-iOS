@@ -32,6 +32,8 @@ import CoreLocation
 import MXSegmentedControl
 //import Kingfisher
 import Realtime
+import LegacyComponents
+import SwiftSignalKit
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
@@ -1135,12 +1137,36 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return
         }
         
+        let thumbnail = UIImage(named: "channel_youtube")
+        var previewRepresentations: [TelegramMediaImageRepresentation] = []
+        var finalDimensions = CGSize(width:1280,height:720)
+        finalDimensions = TGFitSize(finalDimensions,CGSize(width:1280,height:720))
         
         let size = CGSize(width:1280,height:720)
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
-        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
+        var updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+
         
-        //let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: image.representations, immediateThumbnailData: image.immediateThumbnailData, reference: nil, partialReference: nil, flags: [])
+        if let thumbnail = thumbnail {
+            let resource = LocalFileMediaResource(fileId: Int64.random(in: Int64.min ... Int64.max))
+            let thumbnailSize = finalDimensions.aspectFitted(CGSize(width:1280,height:720))
+            //let thumbnailImage = TGScaleImageToPixelSize(thumbnail, thumbnailSize)!
+            //if let thumbnailData = thumbnailImage.jpegData(compressionQuality: 0.4) {
+                //account.postbox.mediaBox.storeResourceData(resource.id, data: thumbnailData)
+                previewRepresentations.append(TelegramMediaImageRepresentation(dimensions: PixelDimensions(thumbnailSize), resource: resource, progressiveSizes: [], immediateThumbnailData: nil))
+            //}
+            let data = thumbnail.pngData()
+            let media = TelegramMediaImage(imageId: MediaId(namespace: Namespaces.Media.LocalFile, id: 0), representations: previewRepresentations, immediateThumbnailData: data, reference: nil, partialReference: nil, flags: [])
+            
+            updatedContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: media, file: nil, attributes: [], instantPage: nil))
+
+        }
+        
+       // let media = TelegramMediaFile(fileId: MediaId(namespace: Namespaces.Media.LocalFile, id: Int64.random(in: Int64.min ... Int64.max)), partialReference: nil, resource: resource, previewRepresentations: previewRepresentations, videoThumbnails: [], immediateThumbnailData: nil, mimeType: "video/mp4", size: nil, attributes: fileAttributes)
+
+
+
+        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: Namespaces.Media.LocalFile, id: 0), content: updatedContent)
+        
         
         
         //let messageAttribute = MessageAttribute
