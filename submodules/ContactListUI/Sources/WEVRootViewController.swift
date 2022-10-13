@@ -83,47 +83,23 @@ public class WEVRootViewController: ViewController {
         //fetch videos on launch time
         self.contactsNode.fetchYoutubeVideos { success in
             self.contactsNode.fethcTwithVideo { success in
-                self.contactsNode.isLaunchSync = true
-                if let collectionView = self.contactsNode.collectionView {
-                    DispatchQueue.main.async {
-                        collectionView.reloadData()
-                        self.contactsNode.refreshEmptyView()
+                self.contactsNode.fethcRumbleVideo { success in
+                    self.contactsNode.isLaunchSync = true
+                    if let collectionView = self.contactsNode.collectionView {
+                        DispatchQueue.main.async {
+                            collectionView.reloadData()
+                            self.contactsNode.refreshEmptyView()
+                        }
                     }
+                    //Need to Fix delete issues for real time
+                    //May be that should be crash
+                    self.contactsNode.youTubeRealTimeSync()
+                    self.contactsNode.twitchRealTimeSync()
+                    self.contactsNode.rumbleRealTimeSync()
                 }
             }
         }
         
-        //let client = SupabaseClient(supabaseURL:URL(string: supabaseUrl)!, supabaseKey: supabaseKey)
-        //self.client = client
-        
-        /*let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
-        rt.onOpen {
-
-            let allUsersUpdateChanges =  rt.channel(.table("clips", schema: "public"))
-            allUsersUpdateChanges.on(.insert) { message in
-                print("☕️ clips - insert")
-                print(message.payload)
-                print(message.event)
-            }
-            allUsersUpdateChanges.subscribe()
-        }
-        rt.onError{error in
-            print("🔥 error")
-            print(error)
-        }
-        
-        rt.onClose {
-            print(rt.isConnected)
-        }
-        
-        /*rt.onMessage{message in
-            print("🔖 message")
-            print(message.payload)
-            //print(message.event)
-            //print(message.status)
-        }*/
-        rt.connect()*/
-
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
@@ -139,8 +115,8 @@ public class WEVRootViewController: ViewController {
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
-        //        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customDisplayNode: self.sortButton)
-        //        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
+        //self.navigationItem.leftBarButtonItem = UIBarButtonItem(customDisplayNode: self.sortButton)
+        //self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
         self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         
         self.scrollToTop = { [weak self] in

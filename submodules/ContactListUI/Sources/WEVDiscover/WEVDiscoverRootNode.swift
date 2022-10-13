@@ -20,7 +20,6 @@ import StickerResources
 import ContextUI
 import QrCodeUI
 import ContactsUI
-//import SnapKit
 import HandyJSON
 import Alamofire
 import GalleryUI
@@ -31,6 +30,7 @@ import MBProgressHUD
 import HandyJSON
 import CoreLocation
 import MXSegmentedControl
+import Realtime
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
@@ -52,6 +52,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
 
     var ytVideos: [YoutubeVideo] = []
     var twichVideos: [SlimTwitchVideo] = []
+    var rumbleVideos: [RumbleVideo] = []
     var isLaunchSync: Bool = false
 
     
@@ -64,6 +65,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             case .youtube:
                 return []
             case .twitch:
+                return []
+            case .rumble:
                 return []
             case .filtered:
                 return dataArray
@@ -78,6 +81,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             case .youtube:
                 break
             case .twitch:
+                break
+            case .rumble:
                 break
             case .filtered:
                 dataArray = newValue
@@ -139,16 +144,20 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private lazy var segmentControl: MXSegmentedControl = {
         let segment = MXSegmentedControl()
         segment.append(title: "Youtube")
-            .set(image: #imageLiteral(resourceName: "channel_youtube"))
+            .set(image: #imageLiteral(resourceName: "segment_youtube"))
             .set(image: .left)
             .set(padding: 16)
         segment.append(title: "Twitch")
-            .set(image: #imageLiteral(resourceName: "channel_twitch"))
+            .set(image: #imageLiteral(resourceName: "segemnt_twitch"))
+            .set(image: .left)
+            .set(padding: 16)
+        segment.append(title: "Rumble")
+            .set(image: #imageLiteral(resourceName: "segment-rumble"))
             .set(image: .left)
             .set(padding: 16)
         segment.indicatorHeight = 3
         segment.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
-        segment.separatorWidth = 1
+        segment.separatorWidth = 0.5
         segment.separatorColor = .systemGroupedBackground
         segment.addTarget(self, action: #selector(segementChanged(sender:)), for: UIControl.Event.valueChanged)
         segment.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
@@ -157,7 +166,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     }()
     
     
-    lazy var segmentHeight: CGFloat = 50
+    lazy var segmentHeight: CGFloat = 44
     lazy var navigationBarHeight: CGFloat = 50
 
     
@@ -305,6 +314,42 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         }
     }
     
+    func fethcRumbleVideo(completion: @escaping (_ success: Bool) -> Void) {
+        self.controller.database?.from(LJConfig.SupabaseTablesName.rumble).select(columns:LJConfig.SupabaseColumns.rumble).execute() { result in
+            switch result {
+            case let .success(response):
+                var errMsg = ""
+                do {
+                    print("🌻 :",response)
+                    let videos = try response.decoded(to: [RumbleVideo].self)
+                    self.rumbleVideos.append(contentsOf: videos)
+                    
+                }  catch let DecodingError.dataCorrupted(context) {
+                    errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
+                        
+                } catch let DecodingError.keyNotFound(key, context) {
+                    errMsg = "Key '\(key)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.valueNotFound(value, context) {
+                    errMsg = "Value '\(value)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+
+                } catch let DecodingError.typeMismatch(type, context)  {
+                    errMsg = "Type '\(type)' mismatch:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch {
+                    errMsg = "error: " + error.localizedDescription
+                }
+                if !errMsg.isEmpty {
+                    print("<<<<<<<<",errMsg,">>>>>>")
+                }
+            case let .failure(error):
+                /*DispatchQueue.main.async {
+                    MBProgressHUD.lj.showHint(error.localizedDescription)
+                }*/
+                debugPrint(error.localizedDescription)
+            }
+            completion(true)
+        }
+    }
+    
     private func search(word: String) {
         searchBar.textField.resignFirstResponder()
         searchWord = word
@@ -329,6 +374,14 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 }
             case .twitch:
                 if twichVideos.isEmpty && isLaunchSync {
+                    let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
+                    emptyView.model = model
+                    self.showEmptyView()
+                } else {
+                    emptyView.removeFromSuperview()
+                }
+            case .rumble:
+                if rumbleVideos.isEmpty && isLaunchSync {
                     let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
                     emptyView.model = model
                     self.showEmptyView()
@@ -418,7 +471,16 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         segementChannelAraay.append(sender.selectedIndex == 0 ? WEVChannel.youtube : WEVChannel.twitch)*/
         //api call to get data
         //self.scrollViewLoadData(isHeadRefesh: true)
-        searchStatus = sender.selectedIndex == 0 ? .youtube : .twitch
+        switch sender.selectedIndex {
+        case 0:
+            searchStatus = .youtube
+        case 1:
+            searchStatus = .twitch
+        case 2:
+            searchStatus = .rumble
+        default:
+            return
+        }
         DispatchQueue.main.async {
             self.collectionView?.reloadData()
             self.refreshEmptyView()
@@ -467,52 +529,6 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         self.contactListNode = ContactListNode.init(context: context, presentation: presentation)
         
         super.init()
-        
-        //fetch youtubeVideo
-        //self.fetchYoutubeVideos()
-        
-        //No need anymore
-        //self.scrollViewLoadData(isHeadRefesh: true)
-        
-        //fetch twitch Video
-
-        /*DispatchQueue.main.async {
-            MBProgressHUD.showAdded(to: self.controller.view, animated: true)
-        }
-        //self.loadBannerData { success in
-            self.fetchYoutubeVideos { success in
-                self.fethcTwithVideo { success in
-                    DispatchQueue.main.async {
-                        MBProgressHUD.hide(for: self.controller.view, animated: true)
-                        self.collectionView?.reloadData()
-                        self.refreshEmptyView()
-                    }
-                }
-            }
-        //}*/
-        
-        if isLaunchSync {
-            DispatchQueue.main.async {
-                self.collectionView?.reloadData()
-                self.refreshEmptyView()
-            }
-        } /*else {
-            DispatchQueue.main.async {
-                MBProgressHUD.showAdded(to: self.controller.view, animated: true)
-            }
-            //self.loadBannerData { success in
-                self.fetchYoutubeVideos { success in
-                    self.fethcTwithVideo { success in
-                        DispatchQueue.main.async {
-                            MBProgressHUD.hide(for: self.controller.view, animated: true)
-                            self.collectionView?.reloadData()
-                            self.refreshEmptyView()
-                        }
-                    }
-                }
-            //}
-        }*/
-        
 
         self.setViewBlock({
             return UITracingLayerView()
@@ -522,6 +538,332 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         
     }
     
+    func twitchRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(LJConfig.SupabaseKeys.supabaseUrl)/realtime/v1", params: ["apikey": LJConfig.SupabaseKeys.supabaseKey])
+        
+        rt.onOpen {
+            print("Socket opened.")
+            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.clips, schema: "public"))
+
+            allUsersUpdateChanges.on(.all) { message in
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+            case .insert:
+                if let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                                            self.twichVideos.insert(video, at: 0)
+                                            let indertIndexPaths = IndexPath(item: 0, section: 0)
+                                            collectionView.insertItems(at: [indertIndexPaths])
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                        self.refreshEmptyView()
+                                    }
+                                }
+                            }
+                        } else {
+                            let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                            self.twichVideos.insert(video, at: 0)
+                        }
+                    }catch {
+                    }
+                }
+            case .update:
+                if let oldRecord = message.payload["old_record"] as? [String:Any], let id = oldRecord["id"] as? Int64, let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                                                let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                                                self.twichVideos[index] = video
+                                                let indertIndexPaths = IndexPath(item: index, section: 0)
+                                                collectionView.reloadItems(at: [indertIndexPaths])
+                                            }
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                    }
+                                }
+                            }
+                        } else if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                            let video = try DictionaryDecoder().decode(SlimTwitchVideo.self, from: record)
+                            self.twichVideos[index] = video
+                        }
+                    }catch {
+                    }
+                }
+            case .delete:
+                if let record = message.payload["old_record"] as? [String:Any], let id = record["id"] as? Int64 {
+                    if let collectionView = self.collectionView, self.searchStatus == .twitch {
+                        UIView.performWithoutAnimation {
+                            DispatchQueue.main.async {
+                                collectionView.performBatchUpdates {
+                                    if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                                        self.twichVideos.remove(at: index)
+                                        let deleteIndexPaths = IndexPath(item: index, section: 0)
+                                        collectionView.deleteItems(at: [deleteIndexPaths])
+                                    }
+                                } completion: { isFinished in
+                                    self.refreshEmptyView()
+                                }
+                            }
+                        }
+                    } else if let index = self.twichVideos.firstIndex(where: {$0.id == id}) {
+                        self.twichVideos.remove(at: index)
+                    }
+                }
+                break
+            default:
+                break
+            }
+         }
+        rt.connect()
+    }
+    
+    func rumbleRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(LJConfig.SupabaseKeys.supabaseUrl)/realtime/v1", params: ["apikey": LJConfig.SupabaseKeys.supabaseKey])
+        
+        rt.onOpen {
+            print("Socket opened.")
+            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.rumble, schema: "public"))
+
+            allUsersUpdateChanges.on(.all) { message in
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+            case .insert:
+                if let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .rumble {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            let video = try DictionaryDecoder().decode(RumbleVideo.self, from: record)
+                                            self.rumbleVideos.insert(video, at: 0)
+                                            let indertIndexPaths = IndexPath(item: 0, section: 0)
+                                            collectionView.insertItems(at: [indertIndexPaths])
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                        self.refreshEmptyView()
+                                    }
+                                }
+                            }
+                        } else {
+                            let video = try DictionaryDecoder().decode(RumbleVideo.self, from: record)
+                            self.rumbleVideos.insert(video, at: 0)
+                        }
+                    }catch {
+                    }
+                }
+            case .update:
+                if let oldRecord = message.payload["old_record"] as? [String:Any], let id = oldRecord["id"] as? Int64, let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .rumble {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            if let index = self.rumbleVideos.firstIndex(where: {$0.id == id}) {
+                                                let video = try DictionaryDecoder().decode(RumbleVideo.self, from: record)
+                                                self.rumbleVideos[index] = video
+                                                let indertIndexPaths = IndexPath(item: index, section: 0)
+                                                collectionView.reloadItems(at: [indertIndexPaths])
+                                            }
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                    }
+                                }
+                            }
+                        } else if let index = self.rumbleVideos.firstIndex(where: {$0.id == id}) {
+                            let video = try DictionaryDecoder().decode(RumbleVideo.self, from: record)
+                            self.rumbleVideos[index] = video
+                        }
+                    }catch {
+                    }
+                }
+            case .delete:
+                if let record = message.payload["old_record"] as? [String:Any], let id = record["id"] as? Int64 {
+                    if let collectionView = self.collectionView, self.searchStatus == .rumble {
+                        UIView.performWithoutAnimation {
+                            DispatchQueue.main.async {
+                                collectionView.performBatchUpdates {
+                                    if let index = self.rumbleVideos.firstIndex(where: {$0.id == id}) {
+                                        self.rumbleVideos.remove(at: index)
+                                        let deleteIndexPaths = IndexPath(item: index, section: 0)
+                                        collectionView.deleteItems(at: [deleteIndexPaths])
+                                    }
+                                } completion: { isFinished in
+                                    self.refreshEmptyView()
+                                }
+                            }
+                        }
+                    } else if let index = self.rumbleVideos.firstIndex(where: {$0.id == id}) {
+                        self.rumbleVideos.remove(at: index)
+                    }
+                }
+                break
+            default:
+                break
+            }
+         }
+        rt.connect()
+    }
+    
+    func youTubeRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(LJConfig.SupabaseKeys.supabaseUrl)/realtime/v1", params: ["apikey": LJConfig.SupabaseKeys.supabaseKey])
+        
+        rt.onOpen {
+            print("Socket opened.")
+            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.youtube, schema: "public"))
+
+            allUsersUpdateChanges.on(.all) { message in
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+            case .insert:
+                if let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .youtube {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
+                                            if let data = video.blob.data(using: .utf8) {
+                                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                self.ytVideos.insert(ytVideo, at: 0)
+                                                let indertIndexPaths = IndexPath(item: 0, section: 0)
+                                                collectionView.insertItems(at: [indertIndexPaths])
+                                            }
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                        self.refreshEmptyView()
+                                    }
+                                }
+                            }
+                        } else {
+                            let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
+                            if let data = video.blob.data(using: .utf8) {
+                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data )
+                                self.ytVideos.insert(ytVideo, at: 0)
+                            }
+                        }
+                    }catch {
+                    }
+                }
+            case .update:
+                if let oldRecord = message.payload["old_record"] as? [String:Any], let id = oldRecord["id"] as? String, let record = message.payload["record"] as? [String:Any] {
+                    do {
+                        if let collectionView = self.collectionView, self.searchStatus == .youtube {
+                            DispatchQueue.main.async {
+                                UIView.performWithoutAnimation {
+                                    collectionView.performBatchUpdates {
+                                        do {
+                                            if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
+                                                let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
+                                                if let data = video.blob.data(using: .utf8) {
+                                                    let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                    self.ytVideos[index] = ytVideo
+                                                    let indertIndexPaths = IndexPath(item: index, section: 0)
+                                                    collectionView.reloadItems(at: [indertIndexPaths])
+                                                }
+                                            }
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    } completion: { isFinished in
+                                    }
+                                }
+                            }
+                        } else if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
+                            let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
+                            if let data = video.blob.data(using: .utf8) {
+                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                self.ytVideos[index] = ytVideo
+                            }
+                        }
+                    }catch {
+                    }
+                }
+            case .delete:
+                if let record = message.payload["old_record"] as? [String:Any], let id = record["id"] as? String {
+                    if let collectionView = self.collectionView, self.searchStatus == .youtube {
+                        UIView.performWithoutAnimation {
+                            DispatchQueue.main.async {
+                                collectionView.performBatchUpdates {
+                                    if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
+                                        self.ytVideos.remove(at: index)
+                                        let deleteIndexPaths = IndexPath(item: index, section: 0)
+                                        collectionView.deleteItems(at: [deleteIndexPaths])
+                                    }
+                                } completion: { isFinished in
+                                    self.refreshEmptyView()
+                                }
+                            }
+                        }
+                    } else if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
+                        self.ytVideos.remove(at: index)
+                    }
+                }
+                break
+            default:
+                break
+            }
+         }
+        rt.connect()
+    }
     
     deinit {
         self.presentationDataDisposable?.dispose()
@@ -612,6 +954,13 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchView.snp.makeConstraints { (make) in
                 make.edges.equalTo(collectionView!)
             }
+            
+            if isLaunchSync {
+                DispatchQueue.main.async {
+                    self.collectionView?.reloadData()
+                    self.refreshEmptyView()
+                }
+            }
         }
         
         refreshSearchStatusView(isInitial: true)
@@ -629,8 +978,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")
         view.register(WEVDiscoverBannerView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WEVDiscoverBannerView")
         view.contentInsetAdjustmentBehavior = .never
-        view.lj.addMJReshreHeader(delegate: self)
-        view.lj.addMJReshreFooter(delegate: self)
+        //Code for pull to refresh
+        //view.lj.addMJReshreHeader(delegate: self)
+        //view.lj.addMJReshreFooter(delegate: self)
         self.collectionView = view
         return view
     }
@@ -666,6 +1016,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return ytVideos.count
         case .twitch:
             return twichVideos.count
+        case .rumble:
+            return rumbleVideos.count
         default:
             return showDataArray.count
         }
@@ -678,6 +1030,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             cell.ytModel = ytVideos[indexPath.row]
         case .twitch:
             cell.twitchModel = twichVideos[indexPath.row]
+        case .rumble:
+            cell.rumbleModel = rumbleVideos[indexPath.row]
         default:
             cell.model = showDataArray[indexPath.row]
         }
@@ -718,6 +1072,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             self.playClips(video: ytVideos[indexPath.row])
         case .twitch:
             self.playClips(clip: twichVideos[indexPath.row])
+        case .rumble:
+            self.playClips(rumbleVideo: rumbleVideos[indexPath.row])
         default:
             self.playVideo(video: showDataArray[indexPath.row])
         }
@@ -753,19 +1109,22 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         }
     }
     
-    func playClips(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil) {
+    func playClips(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil) {
         
         var videoTitle = ""
         var videoDescription = ""
         let websiteName = "YouTube"
         var url = ""
-        if let ytVideo = video, let id = ytVideo.id {
-            videoTitle = ytVideo.title ?? ""
+        if let ytVideo = video {
+            videoTitle = ytVideo.title
             videoDescription = ytVideo.description ?? ""
-            url = "https://www.youtube.com/watch?v=" + id
+            url = "https://www.youtube.com/watch?v=" + ytVideo.id
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
+        } else if let rumble = rumbleVideo {
+            url = rumble.embedUrl
+            videoTitle = rumble.title
         } else {
             return
         }
@@ -811,6 +1170,8 @@ extension WEVDiscoverRootNode {
         case youtube
         
         case twitch
+        
+        case rumble
         
         case filtered
     }

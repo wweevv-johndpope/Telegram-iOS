@@ -16,6 +16,8 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
     
     case twitch = "Twitch"
     
+    case rumble = "Rumble"
+
     case facebook = "Facebook"
 
 //    Facebook Twitch YouTube LinkedIn Periscope
@@ -26,6 +28,8 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
                 return "YouTube"
             case .twitch:
                 return "Twitch"
+            case .rumble:
+                return "Rumble"
             case .facebook:
                 return "Facebook"
             }
@@ -40,6 +44,8 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
                 name = "channel_youtube"
             case .twitch:
                 name = "channel_twitch"
+            case.rumble:
+                name = "segment-rumble"
             case .facebook:
                 name = "channel_facebook"
             }
@@ -55,6 +61,8 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
                 name = "channel_youtube_small"
             case .twitch:
                 name = "channel_twitch_small"
+            case.rumble:
+                name = "channel_rumble_small"
             case .facebook:
                 name = "channel_facebook_small"
             }
@@ -70,6 +78,8 @@ enum WEVChannel: String, HandyJSONEnum, CaseIterable {
                 name = "channel_youtube_unselected"
             case .twitch:
                 name = "channel_twitch_unselected"
+            case.rumble:
+                name = "segment-rumble"
             case .facebook:
                 name = "channel_facebook_unselected"
             }

@@ -21,8 +21,8 @@ public struct Thumbnail: Codable {
     let height:Int
 }
 public struct YoutubeVideo: Codable {
-    let id: String? // youtube id
-    let title:String?  // youtube payload
+    let id: String // youtube id
+    let title:String  // youtube payload
     let thumbnails:[Thumbnail?]
     let description:String?
     let duration:String?

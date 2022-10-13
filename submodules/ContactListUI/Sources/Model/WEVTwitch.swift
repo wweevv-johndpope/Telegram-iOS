@@ -10,14 +10,14 @@ import UIKit
 
 // MARK: - Crew
 struct SlimTwitchVideo: Codable {
-    let id: Int16
+    let id: Int64
     let userId: String
     let userName: String
     let profileiImageUrl: String?
     let clipId: String?
     let clipEmbedUrl: String
     let clipTitle: String
-    let clipViewCount: Int16
+    let clipViewCount: Int64
     let clipThumbnailUrl: String
 
     enum CodingKeys: String, CodingKey {

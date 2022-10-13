@@ -67,8 +67,14 @@ struct LJConfig {
     }
     
     struct SupabaseKeys {
+        //Live
         static let supabaseUrl = "https://pqxcxltwoifmxcmhghzf.supabase.co"
         static let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxeGN4bHR3b2lmbXhjbWhnaHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjAxODczNDQsImV4cCI6MTk3NTc2MzM0NH0.NiufAQmZ3Oy7eP7wNWF-tvH-e2D-UIz-vPLpLAyDMow"
+        
+        //Development
+        static let supabaseUrlDev = "https://rlzbzdrueihvlzcqskgd.supabase.co"
+        static let supabaseKeyDev = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsemJ6ZHJ1ZWlodmx6Y3Fza2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjQ2MDE3MTYsImV4cCI6MTk4MDE3NzcxNn0.vlmVDDf50rb5SJ68F5u6IyckeTrW9c6Oa3_YhFyhD7c"
+        
     }
     
     struct API {
@@ -78,11 +84,13 @@ struct LJConfig {
     struct SupabaseColumns {
         static let clips = "id,user_id,user_name,profile_image_url,clip_id,clip_embed_url,clip_title,clip_view_count,clip_thumbnail_url"
         static let youtube = "id,blob"
+        static let rumble = "id,title,thumbnail_url,embed_url,m3u8,viewer_count"
     }
     
     struct SupabaseTablesName {
         static let youtube = "slim_video"
         static let clips = "clips"
+        static let rumble = "rumble"
     }
 }
 
