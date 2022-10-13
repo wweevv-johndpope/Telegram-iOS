@@ -116,6 +116,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var emptyView: WEVEmptyHintView = {
         let view = WEVEmptyHintView()
+        view.presentationData = self.presentationData
         return view
     }()
     
@@ -158,6 +159,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         segment.indicatorHeight = 3
         segment.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         segment.separatorWidth = 0.5
+        segment.backgroundColor = self.presentationData.theme.contextMenu.backgroundColor
         segment.separatorColor = .systemGroupedBackground
         segment.addTarget(self, action: #selector(segementChanged(sender:)), for: UIControl.Event.valueChanged)
         segment.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
@@ -172,6 +174,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var searchView: WEVDiscoverSearchView = {
         let view = WEVDiscoverSearchView()
+        view.presentationData = self.presentationData
         view.recordArray = WEVSearchRecordManager.recordArray
         view.didSelected = {[weak self] word in
             guard let self = self else {return}
@@ -191,6 +194,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var searchBar: WEVDiscoverSearchBar = {
         let view = WEVDiscoverSearchBar()
+        view.presentationData = self.presentationData
         view.filterAction = {[weak self] in
             guard let self = self else {return}
             let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
@@ -534,7 +538,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             return UITracingLayerView()
         })
         
-        self.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        self.backgroundColor = presentationData.theme.chatList.backgroundColor
         
     }
     
@@ -872,13 +876,17 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var collectionView: UICollectionView?
     
     func updateThemeAndStrings() {
-        /*DispatchQueue.main.async {
-            self.collectionView?.reloadData()
-        }*/
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         self.segmentControl.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         self.segmentControl.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        self.segmentControl.backgroundColor = self.presentationData.theme.contextMenu.backgroundColor
+        self.emptyView.presentationData = self.presentationData
+        self.searchBar.presentationData = self.presentationData
+        self.searchView.presentationData = self.presentationData
+        if let collectionView = collectionView {
+            collectionView.backgroundColor = presentationData.theme.chatList.backgroundColor
+        }
         
     }
     
@@ -972,7 +980,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         layout.itemSize = CGSize(width: width, height: 97 * width / 186)
         let view = UICollectionView.init(frame: frame, collectionViewLayout: layout)
-        view.backgroundColor = .white
+        view.backgroundColor = presentationData.theme.chatList.backgroundColor
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")

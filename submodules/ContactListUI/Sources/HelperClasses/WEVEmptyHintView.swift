@@ -7,9 +7,25 @@
 
 import Foundation
 import UIKit
+import TelegramPresentationData
 
 class WEVEmptyHintView: UIView {
     
+    public var presentationData: PresentationData? = nil {
+        didSet {
+            updateThemeColor()
+        }
+    }
+    
+    func updateThemeColor() {
+        guard let presentationData = self.presentationData else {
+            return
+        }
+        self.backgroundColor = presentationData.theme.chatList.backgroundColor
+        self.titleLabel.textColor = presentationData.theme.list.itemPrimaryTextColor
+        self.descLabel.textColor = presentationData.theme.list.itemPrimaryTextColor
+    }
+
     struct Model {
         var title: String
         var image: String
