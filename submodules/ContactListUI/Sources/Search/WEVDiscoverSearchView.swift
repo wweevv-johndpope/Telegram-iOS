@@ -373,8 +373,8 @@ class WEVDiscoverSearchBar: UIView {
         
         addSubview(textField)
         textField.snp.makeConstraints { (make) in
-            make.left.equalToSuperview().offset(15)
-            make.right.equalToSuperview().offset(-54)
+            make.left.equalToSuperview().offset(10)
+            make.right.equalToSuperview().offset(-10)
             make.centerY.equalToSuperview()
             make.height.equalTo(40)
         }
@@ -391,7 +391,7 @@ class WEVDiscoverSearchBar: UIView {
             cancelSearchButton.isHidden = true
             filterButton.isHidden = false
             textField.snp.updateConstraints { (make) in
-                make.right.equalToSuperview().offset(-54)
+                make.right.equalToSuperview().offset(-10)
             }
         case .searching, .searchCompleted:
             cancelSearchButton.isHidden = false
