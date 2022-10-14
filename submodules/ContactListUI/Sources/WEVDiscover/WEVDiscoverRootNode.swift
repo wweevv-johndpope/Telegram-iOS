@@ -119,6 +119,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var emptyView: WEVEmptyHintView = {
         let view = WEVEmptyHintView()
+        view.presentationData = self.presentationData
         return view
     }()
     
@@ -161,6 +162,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         segment.indicatorHeight = 3
         segment.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         segment.separatorWidth = 0.5
+        segment.backgroundColor = self.presentationData.theme.contextMenu.backgroundColor
         segment.separatorColor = .systemGroupedBackground
         segment.addTarget(self, action: #selector(segementChanged(sender:)), for: UIControl.Event.valueChanged)
         segment.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
@@ -175,6 +177,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var searchView: WEVDiscoverSearchView = {
         let view = WEVDiscoverSearchView()
+        view.presentationData = self.presentationData
         view.recordArray = WEVSearchRecordManager.recordArray
         view.didSelected = {[weak self] word in
             guard let self = self else {return}
@@ -194,6 +197,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     
     private lazy var searchBar: WEVDiscoverSearchBar = {
         let view = WEVDiscoverSearchBar()
+        view.presentationData = self.presentationData
         view.filterAction = {[weak self] in
             guard let self = self else {return}
             let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
@@ -296,16 +300,25 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         self.controller.database?.from(LJConfig.SupabaseTablesName.clips).select(columns:LJConfig.SupabaseColumns.clips).execute() { result in
             switch result {
             case let .success(response):
+                var errMsg = ""
                 do {
                     print("🌻 :",response)
                     let videos = try response.decoded(to: [SlimTwitchVideo].self)
                     self.twichVideos.append(contentsOf: videos)
                     
-                } catch (let error){
-                    /*DispatchQueue.main.async {
-                        MBProgressHUD.lj.showHint(error.localizedDescription)
-                    }*/
-                    debugPrint(error.localizedDescription)
+                } catch let DecodingError.dataCorrupted(context) {
+                    errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.keyNotFound(key, context) {
+                    errMsg = "Key '\(key)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.valueNotFound(value, context) {
+                    errMsg = "Value '\(value)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.typeMismatch(type, context)  {
+                    errMsg = "Type '\(type)' mismatch:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch {
+                    errMsg = "error: " + error.localizedDescription
+                }
+                if !errMsg.isEmpty {
+                    print("<<<<<<<<",errMsg,">>>>>>")
                 }
             case let .failure(error):
                 /*DispatchQueue.main.async {
@@ -327,7 +340,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     let videos = try response.decoded(to: [RumbleVideo].self)
                     self.rumbleVideos.append(contentsOf: videos)
                     
-                }  catch let DecodingError.dataCorrupted(context) {
+                } catch let DecodingError.dataCorrupted(context) {
                     errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
                         
                 } catch let DecodingError.keyNotFound(key, context) {
@@ -537,7 +550,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             return UITracingLayerView()
         })
         
-        self.backgroundColor = presentationData.theme.contextMenu.backgroundColor
+        self.backgroundColor = presentationData.theme.chatList.backgroundColor
         
     }
     
@@ -875,13 +888,17 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var collectionView: UICollectionView?
     
     func updateThemeAndStrings() {
-        /*DispatchQueue.main.async {
-            self.collectionView?.reloadData()
-        }*/
         self.backgroundColor = self.presentationData.theme.chatList.backgroundColor
         self.searchDisplayController?.updatePresentationData(self.presentationData)
         self.segmentControl.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         self.segmentControl.selectedTextColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        self.segmentControl.backgroundColor = self.presentationData.theme.contextMenu.backgroundColor
+        self.emptyView.presentationData = self.presentationData
+        self.searchBar.presentationData = self.presentationData
+        self.searchView.presentationData = self.presentationData
+        if let collectionView = collectionView {
+            collectionView.backgroundColor = presentationData.theme.chatList.backgroundColor
+        }
         
     }
     
@@ -975,7 +992,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         let width = (LJScreen.width - 1 * 2 - 1) / 2
         layout.itemSize = CGSize(width: width, height: 97 * width / 186)
         let view = UICollectionView.init(frame: frame, collectionViewLayout: layout)
-        view.backgroundColor = .white
+        view.backgroundColor = presentationData.theme.chatList.backgroundColor
         view.delegate = self
         view.dataSource = self
         view.register(WEVDiscoverCollectionViewCell.self, forCellWithReuseIdentifier: "WEVDiscoverCollectionViewCell")

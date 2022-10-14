@@ -10,6 +10,22 @@ import UIKit
 
 class WEVDiscoverSearchView: UITableView {
     
+    public var presentationData: PresentationData? = nil {
+        didSet {
+            updateSearchViewThemeColor()
+        }
+    }
+    
+    func updateSearchViewThemeColor() {
+        guard let presentationData = self.presentationData else {
+            return
+        }
+        self.backgroundColor = presentationData.theme.chatList.backgroundColor
+        DispatchQueue.main.async {
+            self.reloadData()
+        }
+    }
+    
     /// 选中某个关键字
     public var didSelected: ((String)->())? = nil
     
@@ -86,6 +102,10 @@ extension WEVDiscoverSearchView: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
         let title = dataArray[indexPath.row]
         cell.title = title
+        //check theme color
+        if let presentationData = self.presentationData  {
+            cell.presentationData = presentationData
+        }
         cell.style = isShowRecordList ? .record : .keyword
         cell.deleteAction = {[weak self] record in
             guard let self = self else {return}
@@ -110,6 +130,18 @@ class TableViewCell: LJBaseTableViewCell {
         case keyword
     }
     
+    public var presentationData: PresentationData? = nil {
+        didSet {
+            updateTitleThemeColor()
+        }
+    }
+    
+    func updateTitleThemeColor() {
+        guard let presentationData = self.presentationData else {
+            return
+        }
+        self.titleLabel.textColor = presentationData.theme.list.itemPrimaryTextColor
+    }
     /// 样式
     public var style: Style = .record {
         didSet {
@@ -195,7 +227,7 @@ class TableViewCell: LJBaseTableViewCell {
     }
 }
 
-
+import TelegramPresentationData
 class WEVDiscoverSearchBar: UIView {
     /// 样式
     enum Style {
@@ -214,6 +246,21 @@ class WEVDiscoverSearchBar: UIView {
         }
     }
     
+    public var presentationData: PresentationData? = nil {
+        didSet {
+            updateSearchbarThemeColor()
+        }
+    }
+    
+    func updateSearchbarThemeColor() {
+        guard let presentationData = self.presentationData else {
+            return
+        }
+        textField.backgroundColor = presentationData.theme.chatList.backgroundColor
+        textField.textColor = presentationData.theme.list.itemPrimaryTextColor
+        textField.tintColor = presentationData.theme.rootController.tabBar.selectedIconColor
+        cancelSearchButton.setTitleColor(presentationData.theme.rootController.tabBar.selectedIconColor, for: .normal)
+    }
     /// 筛选按键
     public var filterAction: (()->())? = nil
     
@@ -282,12 +329,12 @@ class WEVDiscoverSearchBar: UIView {
         textField.addTarget(self, action: #selector(textFieldDidChanged(textField:)), for: .editingChanged)
         textField.delegate = self
         textField.returnKeyType = .search
-        //        let clearButton = UIButton.init(type: .custom)
-        //        clearButton.setImage(UIImage.init(named: "discover_search_text_clear"), for: .normal)
-        //        clearButton.addTarget(self, action: #selector(clearButtonAction), for: .touchUpInside)
-        //        clearButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        //        textField.rightView = clearButton
-        //        textField.rightViewMode = .whileEditing
+        //let clearButton = UIButton.init(type: .custom)
+        //clearButton.setImage(UIImage.init(named: "discover_search_text_clear"), for: .normal)
+        //clearButton.addTarget(self, action: #selector(clearButtonAction), for: .touchUpInside)
+        //clearButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        //textField.rightView = clearButton
+        //textField.rightViewMode = .whileEditing
         return textField
     }()
     
@@ -326,11 +373,16 @@ class WEVDiscoverSearchBar: UIView {
         
         addSubview(textField)
         textField.snp.makeConstraints { (make) in
-            make.left.equalToSuperview().offset(15)
-            make.right.equalToSuperview().offset(-54)
+            make.left.equalToSuperview().offset(10)
+            make.right.equalToSuperview().offset(-10)
             make.centerY.equalToSuperview()
             make.height.equalTo(40)
         }
+    }
+    
+    private func updateThemeColor() {
+        //cancelSearchButton
+        //textField
     }
     
     private func updateStyleView() {
@@ -339,7 +391,7 @@ class WEVDiscoverSearchBar: UIView {
             cancelSearchButton.isHidden = true
             filterButton.isHidden = false
             textField.snp.updateConstraints { (make) in
-                make.right.equalToSuperview().offset(-54)
+                make.right.equalToSuperview().offset(-10)
             }
         case .searching, .searchCompleted:
             cancelSearchButton.isHidden = false
