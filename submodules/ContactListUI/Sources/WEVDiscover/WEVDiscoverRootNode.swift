@@ -297,16 +297,25 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         self.controller.database?.from(LJConfig.SupabaseTablesName.clips).select(columns:LJConfig.SupabaseColumns.clips).execute() { result in
             switch result {
             case let .success(response):
+                var errMsg = ""
                 do {
                     print("🌻 :",response)
                     let videos = try response.decoded(to: [SlimTwitchVideo].self)
                     self.twichVideos.append(contentsOf: videos)
                     
-                } catch (let error){
-                    /*DispatchQueue.main.async {
-                        MBProgressHUD.lj.showHint(error.localizedDescription)
-                    }*/
-                    debugPrint(error.localizedDescription)
+                } catch let DecodingError.dataCorrupted(context) {
+                    errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.keyNotFound(key, context) {
+                    errMsg = "Key '\(key)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.valueNotFound(value, context) {
+                    errMsg = "Value '\(value)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch let DecodingError.typeMismatch(type, context)  {
+                    errMsg = "Type '\(type)' mismatch:" + context.debugDescription + "\n\( context.codingPath)"
+                } catch {
+                    errMsg = "error: " + error.localizedDescription
+                }
+                if !errMsg.isEmpty {
+                    print("<<<<<<<<",errMsg,">>>>>>")
                 }
             case let .failure(error):
                 /*DispatchQueue.main.async {
@@ -328,7 +337,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     let videos = try response.decoded(to: [RumbleVideo].self)
                     self.rumbleVideos.append(contentsOf: videos)
                     
-                }  catch let DecodingError.dataCorrupted(context) {
+                } catch let DecodingError.dataCorrupted(context) {
                     errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
                         
                 } catch let DecodingError.keyNotFound(key, context) {
