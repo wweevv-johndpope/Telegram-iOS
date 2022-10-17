@@ -48,6 +48,7 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let isSecret: Bool
     let landscape: Bool
     let timecode: Double?
+    let isShowLike: Bool
     let playbackRate: () -> Double?
     let configuration: GalleryConfiguration?
     let playbackCompleted: () -> Void
@@ -56,7 +57,7 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let storeMediaPlaybackState: (MessageId, Double?, Double) -> Void
     let present: (ViewController, Any?) -> Void
 
-    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
+    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.content = content
@@ -72,6 +73,7 @@ public class UniversalVideoGalleryItem: GalleryItem {
         self.isSecret = isSecret
         self.landscape = landscape
         self.timecode = timecode
+        self.isShowLike = isShowLike
         self.playbackRate = playbackRate
         self.configuration = configuration
         self.playbackCompleted = playbackCompleted
@@ -1421,6 +1423,15 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
             self.zoomableContent = (videoSize, videoNode)
                         
             var barButtonItems: [UIBarButtonItem] = []
+            
+            //code for add like button
+            if item.isShowLike {
+                //Show like button over here
+                let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                self.pictureInPictureButton = rightBarButtonItem
+                barButtonItems.append(rightBarButtonItem)
+            }
+
             if hasLinkedStickers {
                 let rightBarButtonItem = UIBarButtonItem(image: generateTintedImage(image: UIImage(bundleImageName: "Media Gallery/Stickers"), color: .white), style: .plain, target: self, action: #selector(self.openStickersButtonPressed))
                 barButtonItems.append(rightBarButtonItem)
@@ -1430,7 +1441,7 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
                 self.pictureInPictureButton = rightBarButtonItem
                 barButtonItems.append(rightBarButtonItem)
                 self.hasPictureInPicture = true
-            } else {
+            }  else {
                 self.hasPictureInPicture = false
             }
 
@@ -1458,7 +1469,7 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
                     barButtonItems.append(moreMenuItem)
                 }
             }
-
+            
             self._rightBarButtonItems.set(.single(barButtonItems))
         
             videoNode.playbackCompleted = { [weak self, weak videoNode] in
@@ -2176,6 +2187,10 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
                 })
             }
         }
+    }
+    
+    @objc func likeButtonPressed() {
+        print("Pressed like buttom")
     }
     
     @objc func pictureInPictureButtonPressed() {
