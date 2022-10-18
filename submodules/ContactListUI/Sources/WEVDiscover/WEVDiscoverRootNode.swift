@@ -1143,7 +1143,6 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
             //let thumbURL = URL(string: twitch.clipThumbnailUrl)
-            
             //KingfisherManager.shared.cache.retrieveImage(forKey: twitch.clipThumbnailUrl) { result in
                 //print(result)
             //}
@@ -1196,7 +1195,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         // Source is message?
         let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, replaceRootController: { controller, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, isVideoLiked: false, replaceRootController: { controller, ready in
             print("👹  we're in replaceRootController....")
             if let baseNavigationController = self.navigationController {
                 baseNavigationController.replaceTopController(controller, animated: false, ready: ready)
@@ -1212,9 +1211,15 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return nil
         }))
 
-        galleryVC.onDidAppear = {
-            //completion()
+        
+        galleryVC.onLike = {
+            print("user liked video")
         }
+        
+        galleryVC.onDislike = {
+            print("user unliked video")
+        }
+        
         //self.controller.present(galleryVC, in: .window(.root))
     }
 }

@@ -49,6 +49,7 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let landscape: Bool
     let timecode: Double?
     let isShowLike: Bool
+    var isVideoLiked: Bool
     let playbackRate: () -> Double?
     let configuration: GalleryConfiguration?
     let playbackCompleted: () -> Void
@@ -56,8 +57,11 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let openActionOptions: (GalleryControllerInteractionTapAction, Message) -> Void
     let storeMediaPlaybackState: (MessageId, Double?, Double) -> Void
     let present: (ViewController, Any?) -> Void
+    public var onLike: (() -> Void)?
+    public var onDislike: (() -> Void)?
 
-    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
+
+    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, isVideoLiked: Bool = false, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.content = content
@@ -74,6 +78,7 @@ public class UniversalVideoGalleryItem: GalleryItem {
         self.landscape = landscape
         self.timecode = timecode
         self.isShowLike = isShowLike
+        self.isVideoLiked = isVideoLiked
         self.playbackRate = playbackRate
         self.configuration = configuration
         self.playbackCompleted = playbackCompleted
@@ -94,6 +99,14 @@ public class UniversalVideoGalleryItem: GalleryItem {
         
         if self.displayInfoOnTop, case let .message(message) = self.contentInfo {
             node.titleContentView?.setMessage(message, presentationData: self.presentationData, accountPeerId: self.context.account.peerId)
+        }
+        
+        node.onLike = {
+            self.onLike?()
+        }
+        
+        node.onDislike = {
+            self.onDislike?()
         }
         
         return node
@@ -758,6 +771,9 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
     private var hasPictureInPicture = false
 
     private var pictureInPictureButton: UIBarButtonItem?
+    
+    public var onLike: (() -> Void)?
+    public var onDislike: (() -> Void)?
     
     private var requiresDownload = false
     
@@ -1426,10 +1442,15 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
             
             //code for add like button
             if item.isShowLike {
-                //Show like button over here
-                let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
-                self.pictureInPictureButton = rightBarButtonItem
-                barButtonItems.append(rightBarButtonItem)
+                if item.isVideoLiked {
+                    //Show like button over here
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_selected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                    barButtonItems.append(rightBarButtonItem)
+                } else {
+                    //Show like button over here
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                    barButtonItems.append(rightBarButtonItem)
+                }
             }
 
             if hasLinkedStickers {
@@ -2189,9 +2210,30 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
         }
     }
     
-    @objc func likeButtonPressed() {
-        print("Pressed like buttom")
-    }
+        @objc func likeButtonPressed() {
+            if let item = self.item {
+                item.isVideoLiked = !item.isVideoLiked
+                let rightBarButtonItem = UIBarButtonItem(image: item.isVideoLiked ? UIImage(named: "tabbar_feed_selected") : UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                
+                var barButtonItems: [UIBarButtonItem] = []
+                self._rightBarButtonItems.get().start { itemsArray in
+                    if let barItems = itemsArray {
+                        barButtonItems.append(contentsOf: barItems)
+                        barButtonItems[0] = rightBarButtonItem
+                    }
+                } error: { error in
+                } completed: {
+                    print("Compelted")
+                }
+                
+                self._rightBarButtonItems.set(.single(barButtonItems))
+                if item.isVideoLiked {
+                    self.onLike?()
+                } else {
+                    self.onDislike?()
+                }
+            }
+        }
     
     @objc func pictureInPictureButtonPressed() {
         var isNativePictureInPictureSupported = false
