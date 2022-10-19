@@ -10,7 +10,7 @@ public struct PeerId: Hashable, CustomStringConvertible, Comparable, Codable {
             return Namespace(rawValue: 0x7)
         }
 
-        fileprivate var rawValue: UInt32
+        var rawValue: UInt32
 
         var predecessor: Namespace {
             if self.rawValue != 0 {
