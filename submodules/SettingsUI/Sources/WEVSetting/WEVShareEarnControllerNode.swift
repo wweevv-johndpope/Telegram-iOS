@@ -81,14 +81,16 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
         if !self.didSetReady {
             self.didSetReady = true
             self._ready.set(true)
+            self.initView()
+            self.updateView()
         }
     }
 
     func toggleEditing() {
         self.isEditingValue = !self.isEditingValue
     }
-
-    /*private lazy var inviteCodeLabel: UILabel = {
+    
+    private lazy var inviteCodeLabel: UILabel = {
         let view = UILabel.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: LJColor.black)
         view.textAlignment = .center
         return view
@@ -147,10 +149,10 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
         
         let codeBgView: UIView = {
             let codeBgView = UIView()
-            codeBgView.backgroundColor = LJColor.hex(0xEFF0F2, 0.79)
+            codeBgView.backgroundColor = .clear //LJColor.hex(0xEFF0F2, 0.79)
             codeBgView.layer.cornerRadius = 16
            
-            let descLabel = UILabel.lj.configure(font: LJFont.regular(14), text: "Share your code with a friend. When they use it to register to Wweevv you will earn points!\nThe more you refer, the better the points.")
+            let descLabel = UILabel.lj.configure(font: LJFont.regular(14), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Share your code with a friend. When they use it to register to Wweevv you will earn points!\nThe more you refer, the better the points.")
             descLabel.lj.setLineSpacing()
             descLabel.textAlignment = .center
             descLabel.numberOfLines = 0
@@ -160,7 +162,7 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
                 make.left.equalToSuperview().offset(15)
                 make.right.equalToSuperview().offset(-15)
             }
-            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: LJColor.black, text: "Your code")
+            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Your code")
             codeBgView.addSubview(youCode)
             youCode.snp.makeConstraints { (make) in
                 make.top.equalTo(descLabel.snp.bottom).offset(24)
@@ -201,12 +203,12 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
             make.top.equalTo(imageView.snp.bottom).offset(32)
         }
         
-        let descLabel = UILabel.lj.configure(font: LJFont.regular(12), textColor: LJColor.black, text: "1 invite = 2 points, 10 invites = 25 points, 50 invites = 200 points, 100 invites = 500 points and 250 invites = 3,000 points!")
-        descLabel.lj.setLineSpacing()
-        descLabel.textAlignment = .center
-        descLabel.numberOfLines = 0
-        containView.addSubview(descLabel)
-        descLabel.snp.makeConstraints { (make) in
+        let descPointLabel = UILabel.lj.configure(font: LJFont.regular(12), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "1 invite = 2 points, 10 invites = 25 points, 50 invites = 200 points, 100 invites = 500 points and 250 invites = 3,000 points!")
+        descPointLabel.lj.setLineSpacing()
+        descPointLabel.textAlignment = .center
+        descPointLabel.numberOfLines = 0
+        containView.addSubview(descPointLabel)
+        descPointLabel.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(15)
             make.right.equalToSuperview().offset(-15)
             make.top.equalTo(codeBgView.snp.bottom).offset(24)
@@ -215,35 +217,35 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
     }
     
     private func updateView() {
-        inviteCodeLabel.text = LJUser.user.inviteCode
-        inviteCodeEditButton.isHidden = LJUser.user.editInviteCode
+        inviteCodeLabel.text = "hl9prv" //LJUser.user.inviteCode
+        inviteCodeEditButton.isHidden = true //LJUser.user.editInviteCode
     }
     
     //MARK: - Action
 
     @objc private func shareButtonAction() {
-        MBProgressHUD.showAdded(to: self.view, animated: true)
+        /*MBProgressHUD.showAdded(to: self.view, animated: true)
         WEVShareManager.manger.shareApp(from: self) {[weak self] (isSuccess) in
             guard let self = self else {return}
             MBProgressHUD.hide(for: self.view, animated: true)
-        }
+        }*/
     }
     
     weak var editAlertAction: UIAlertAction?
     
     /// 点击编辑按键
     @objc private func editButtonAction() {
-        let alert = UIAlertController.init(title: "Please note that each account is only allowed to edit the Referral code once.", message: nil, preferredStyle: .alert)
+        /*let alert = UIAlertController.init(title: "Please note that each account is only allowed to edit the Referral code once.", message: nil, preferredStyle: .alert)
         alert.addAction(.init(title: "OK", style: .default, handler: { (_) in
             self.showEditInviteCodeAlert(code: LJUser.user.inviteCode)
         }))
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)*/
     }
     
     /// 显示编辑弹窗
     /// - Parameter code: 已经填写的邀请码
     private func showEditInviteCodeAlert(code: String?) {
-        let editAlert = UIAlertController.init(title: "Referral Code", message: nil, preferredStyle: .alert)
+        /*let editAlert = UIAlertController.init(title: "Referral Code", message: nil, preferredStyle: .alert)
         editAlert.addTextField { (textField) in
             textField.textColor = LJColor.hex(0x141419)
             textField.font = LJFont.regular(13)
@@ -263,7 +265,7 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
         editAlert.addAction(editAction)
         editAlertAction = editAction
         present(editAlert, animated: true, completion: nil)
-        checkEditingInviteCode(code ?? "")
+        checkEditingInviteCode(code ?? "")*/
     }
     
     @objc private func textFieldDidChanged(_ textField: UITextField) {
@@ -301,7 +303,7 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
             }
             completion(result.isSuccess)
         }*/
-    }*/
+    }
 
 }
 
