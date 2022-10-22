@@ -7208,6 +7208,8 @@ Sorry for the inconvenience.";
 "ClearCache.ClearDescription" = "All media will stay in the Telegram cloud and can be re-downloaded if you need them again.";
 
 "ChatSettings.StickersAndReactions" = "Stickers and Emoji";
+"WEV.ShareAndEarn" = "Share to Earn";
+"WEV.WatchLater" = "Watch Later";
 
 "Localization.TranslateMessages" = "Translate Messages";
 "Localization.ShowTranslate" = "Show Translate Button";

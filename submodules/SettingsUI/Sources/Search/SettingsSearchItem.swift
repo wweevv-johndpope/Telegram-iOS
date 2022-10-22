@@ -51,6 +51,10 @@ extension SettingsSearchableItemIcon {
                 return PresentationResourcesSettings.chatFolders
             case .deleteAccount:
                 return PresentationResourcesSettings.deleteAccount
+            case .watchLater:
+                return PresentationResourcesSettings.watchLater
+            case .shareEarn:
+                return PresentationResourcesSettings.shareEarn
         }
     }
 }
