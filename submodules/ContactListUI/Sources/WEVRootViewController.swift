@@ -91,9 +91,7 @@ public class WEVRootViewController: ViewController {
                             self.contactsNode.refreshEmptyView()
                         }
                     }
-                    if let likedVideosIds = UserDefaults.standard.object(forKey: "likedVideosIds") as? [String] {
-                        self.contactsNode.arrLikeVideoIds.append(contentsOf: likedVideosIds)
-                    }
+                    self.contactsNode.arrVideoWatchLists.append(contentsOf: fetchWatchList())
                     //Need to Fix delete issues for real time
                     //May be that should be crash
                     self.contactsNode.youTubeRealTimeSync()
