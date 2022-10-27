@@ -22,7 +22,7 @@ public final class TelegramRootController: NavigationController {
     private let context: AccountContext
     
     public var rootTabController: TabBarController?
-    
+    public var wevRootViewController: WEVRootViewController?
     public var contactsController: ContactsController?
     public var callListController: CallListController?
     public var chatListController: ChatListController?
@@ -107,13 +107,7 @@ public final class TelegramRootController: NavigationController {
         
         var controllers: [ViewController] = []
         
-        //Feed Screen deattach from tabbar 
-        /*let vc = WEVRootViewController(context: self.context)
-        vc.switchToChatsController = {  [weak self] in
-            self?.openChatsController(activateSearch: false)
-        }
-        controllers.append(vc)*/
-        
+        //Feed Screen deattach from tabbar
         let discoverVC = WEVRootViewController(context: self.context)
         discoverVC.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
@@ -151,6 +145,7 @@ public final class TelegramRootController: NavigationController {
         
         tabBarController.setControllers(controllers, selectedIndex: restoreSettignsController != nil ? (controllers.count - 1) : (controllers.count - 2))
         
+        self.wevRootViewController = discoverVC
         self.contactsController = contactsController
         self.callListController = callListController
         self.chatListController = chatListController
@@ -164,6 +159,7 @@ public final class TelegramRootController: NavigationController {
             return
         }
         var controllers: [ViewController] = []
+        controllers.append(self.wevRootViewController!)
         controllers.append(self.contactsController!)
         if showCallsTab {
             controllers.append(self.callListController!)
