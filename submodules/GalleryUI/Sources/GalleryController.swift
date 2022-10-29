@@ -145,7 +145,7 @@ private func galleryMessageCaptionText(_ message: Message) -> String {
     return message.text
 }
 
-public func galleryItemForEntry(context: AccountContext, presentationData: PresentationData, entry: MessageHistoryEntry, isCentral: Bool = false, streamVideos: Bool, loopVideos: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, playbackRate: @escaping () -> Double?, displayInfoOnTop: Bool = false, configuration: GalleryConfiguration? = nil, tempFilePath: String? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void = { _ in }, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void = { _, _ in }, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void = { _, _, _ in }, present: @escaping (ViewController, Any?) -> Void) -> GalleryItem? {
+public func galleryItemForEntry(context: AccountContext, presentationData: PresentationData, entry: MessageHistoryEntry, isCentral: Bool = false, streamVideos: Bool, loopVideos: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, isVideoLiked: Bool = false, playbackRate: @escaping () -> Double?, displayInfoOnTop: Bool = false, configuration: GalleryConfiguration? = nil, tempFilePath: String? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void = { _ in }, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void = { _, _ in }, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void = { _, _, _ in }, present: @escaping (ViewController, Any?) -> Void) -> GalleryItem? {
     let message = entry.message
     let location = entry.location
     if let (media, mediaImage) = mediaForMessage(message: message) {
@@ -178,7 +178,7 @@ public func galleryItemForEntry(context: AccountContext, presentationData: Prese
                 }
                                 
                 let caption = galleryCaptionStringWithAppliedEntities(text, entities: entities, message: message)
-                return UniversalVideoGalleryItem(context: context, presentationData: presentationData, content: content, originData: GalleryItemOriginData(title: message.effectiveAuthor.flatMap(EnginePeer.init)?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), timestamp: message.timestamp), indexData: location.flatMap { GalleryItemIndexData(position: Int32($0.index), totalCount: Int32($0.count)) }, contentInfo: .message(message), caption: caption, displayInfoOnTop: displayInfoOnTop, hideControls: hideControls, fromPlayingVideo: fromPlayingVideo, isSecret: isSecret, landscape: landscape, timecode: timecode, playbackRate: playbackRate, configuration: configuration, playbackCompleted: playbackCompleted, performAction: performAction, openActionOptions: openActionOptions, storeMediaPlaybackState: storeMediaPlaybackState, present: present)
+                return UniversalVideoGalleryItem(context: context, presentationData: presentationData, content: content, originData: GalleryItemOriginData(title: message.effectiveAuthor.flatMap(EnginePeer.init)?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), timestamp: message.timestamp), indexData: location.flatMap { GalleryItemIndexData(position: Int32($0.index), totalCount: Int32($0.count)) }, contentInfo: .message(message), caption: caption, displayInfoOnTop: displayInfoOnTop, hideControls: hideControls, fromPlayingVideo: fromPlayingVideo, isSecret: isSecret, landscape: landscape, timecode: timecode,isShowLike: isShowLike, isVideoLiked: isVideoLiked, playbackRate: playbackRate, configuration: configuration, playbackCompleted: playbackCompleted, performAction: performAction, openActionOptions: openActionOptions, storeMediaPlaybackState: storeMediaPlaybackState, present: present)
             } else {
                 if let fileName = file.fileName, (fileName as NSString).pathExtension.lowercased() == "json" {
                     return ChatAnimationGalleryItem(context: context, presentationData: presentationData, message: message, location: location)
@@ -227,7 +227,7 @@ public func galleryItemForEntry(context: AccountContext, presentationData: Prese
                     }
                     description = galleryCaptionStringWithAppliedEntities(descriptionText, entities: entities, message: message)
                 }
-                return UniversalVideoGalleryItem(context: context, presentationData: presentationData, content: content, originData: GalleryItemOriginData(title: message.effectiveAuthor.flatMap(EnginePeer.init)?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), timestamp: message.timestamp), indexData: location.flatMap { GalleryItemIndexData(position: Int32($0.index), totalCount: Int32($0.count)) }, contentInfo: .message(message), caption: NSAttributedString(string: ""), description: description, displayInfoOnTop: displayInfoOnTop, fromPlayingVideo: fromPlayingVideo, isSecret: isSecret, landscape: landscape, timecode: timecode, playbackRate: playbackRate, configuration: configuration, performAction: performAction, openActionOptions: openActionOptions, storeMediaPlaybackState: storeMediaPlaybackState, present: present)
+                return UniversalVideoGalleryItem(context: context, presentationData: presentationData, content: content, originData: GalleryItemOriginData(title: message.effectiveAuthor.flatMap(EnginePeer.init)?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), timestamp: message.timestamp), indexData: location.flatMap { GalleryItemIndexData(position: Int32($0.index), totalCount: Int32($0.count)) }, contentInfo: .message(message), caption: NSAttributedString(string: ""), description: description, displayInfoOnTop: displayInfoOnTop, fromPlayingVideo: fromPlayingVideo, isSecret: isSecret, landscape: landscape, timecode: timecode, isShowLike: isShowLike, isVideoLiked: isVideoLiked, playbackRate: playbackRate, configuration: configuration, performAction: performAction, openActionOptions: openActionOptions, storeMediaPlaybackState: storeMediaPlaybackState, present: present)
             } else {
                 return nil
             }
@@ -396,12 +396,16 @@ public class GalleryController: ViewController, StandalonePresentableController,
     
     public var centralItemUpdated: ((MessageId) -> Void)?
     public var onDidAppear: (() -> Void)?
+    public var onLike: (() -> Void)?
+    public var onDislike: (() -> Void)?
     public var useSimpleAnimation: Bool = false
     
     private var initialOrientation: UIInterfaceOrientation?
     
+    private var isShowLikeButton: Bool = false
+    private var isVideoLiked: Bool = false
 
-    public init(context: AccountContext, source: GalleryControllerItemSource, invertItemOrder: Bool = false, streamSingleVideo: Bool = false, fromPlayingVideo: Bool = false, landscape: Bool = false, timecode: Double? = nil, playbackRate: Double? = nil, synchronousLoad: Bool = false, replaceRootController: @escaping (ViewController, Promise<Bool>?) -> Void, baseNavigationController: NavigationController?, actionInteraction: GalleryControllerActionInteraction? = nil) {
+    public init(context: AccountContext, source: GalleryControllerItemSource, invertItemOrder: Bool = false, streamSingleVideo: Bool = false, fromPlayingVideo: Bool = false, landscape: Bool = false, timecode: Double? = nil, playbackRate: Double? = nil, synchronousLoad: Bool = false, isShowLike: Bool = false, isVideoLiked: Bool = false, replaceRootController: @escaping (ViewController, Promise<Bool>?) -> Void, baseNavigationController: NavigationController?, actionInteraction: GalleryControllerActionInteraction? = nil) {
         
         
         self.context = context
@@ -415,7 +419,8 @@ public class GalleryController: ViewController, StandalonePresentableController,
         self.landscape = landscape
         self.timecode = timecode
         self.playbackRate = playbackRate
-        
+        self.isShowLikeButton = isShowLike
+        self.isVideoLiked = isVideoLiked
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         
         var performActionImpl: ((GalleryControllerInteractionTapAction) -> Void)?
@@ -553,7 +558,7 @@ public class GalleryController: ViewController, StandalonePresentableController,
                                 if entry.message.stableId == strongSelf.centralEntryStableId {
                                     isCentral = true
                                 }
-                                if let item = galleryItemForEntry(context: context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: streamSingleVideo, fromPlayingVideo: isCentral && fromPlayingVideo, landscape: isCentral && landscape, timecode: isCentral ? timecode : nil, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
+                                if let item = galleryItemForEntry(context: context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: streamSingleVideo, fromPlayingVideo: isCentral && fromPlayingVideo, landscape: isCentral && landscape, timecode: isCentral ? timecode : nil, isShowLike: isShowLike, isVideoLiked: isVideoLiked, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
                                     if let strongSelf = self {
                                         strongSelf.presentInGlobalOverlay(c, with: a)
                                     }
@@ -561,8 +566,18 @@ public class GalleryController: ViewController, StandalonePresentableController,
                                     if isCentral {
                                         centralItemIndex = items.count
                                     }
+                                    if let universal = item as? UniversalVideoGalleryItem {
+                                        universal.onLike = {
+                                            self?.onLike?()
+                                        }
+                                        
+                                        universal.onDislike = {
+                                            self?.onDislike?()
+                                        }
+                                    }
                                     items.append(item)
                                 }
+                                
                             }
                             
                             strongSelf.galleryNode.pager.replaceItems(items, centralItemIndex: centralItemIndex)
@@ -1111,13 +1126,22 @@ public class GalleryController: ViewController, StandalonePresentableController,
             if entry.message.stableId == self.centralEntryStableId {
                 isCentral = true
             }
-            if let item = galleryItemForEntry(context: self.context, presentationData: self.presentationData, entry: entry, streamVideos: self.streamVideos, fromPlayingVideo: isCentral && self.fromPlayingVideo, landscape: isCentral && self.landscape, timecode: isCentral ? self.timecode : nil, playbackRate: { [weak self] in return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: self.configuration, performAction: self.performAction, openActionOptions: self.openActionOptions, storeMediaPlaybackState: self.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
+            if let item = galleryItemForEntry(context: self.context, presentationData: self.presentationData, entry: entry, streamVideos: self.streamVideos, fromPlayingVideo: isCentral && self.fromPlayingVideo, landscape: isCentral && self.landscape, timecode: isCentral ? self.timecode : nil, isShowLike: self.isShowLikeButton, isVideoLiked: self.isVideoLiked, playbackRate: { [weak self] in return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: self.configuration, performAction: self.performAction, openActionOptions: self.openActionOptions, storeMediaPlaybackState: self.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
                 if let strongSelf = self {
                     strongSelf.presentInGlobalOverlay(c, with: a)
                 }
             }) {
                 if isCentral {
                     centralItemIndex = items.count
+                }
+                if let universal = item as? UniversalVideoGalleryItem {
+                    universal.onLike = {
+                        self.onLike?()
+                    }
+                    
+                    universal.onDislike = {
+                        self.onDislike?()
+                    }
                 }
                 items.append(item)
             }
@@ -1192,13 +1216,22 @@ public class GalleryController: ViewController, StandalonePresentableController,
                                                 if entry.message.stableId == strongSelf.centralEntryStableId {
                                                     isCentral = true
                                                 }
-                                                if let item = galleryItemForEntry(context: strongSelf.context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: false, fromPlayingVideo: isCentral && strongSelf.fromPlayingVideo, landscape: isCentral && strongSelf.landscape, timecode: isCentral ? strongSelf.timecode : nil, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: strongSelf.configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
+                                                if let item = galleryItemForEntry(context: strongSelf.context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: false, fromPlayingVideo: isCentral && strongSelf.fromPlayingVideo, landscape: isCentral && strongSelf.landscape, timecode: isCentral ? strongSelf.timecode : nil, isShowLike: strongSelf.isShowLikeButton, isVideoLiked: strongSelf.isVideoLiked, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: strongSelf.configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
                                                     if let strongSelf = self {
                                                         strongSelf.presentInGlobalOverlay(c, with: a)
                                                     }
                                                 }) {
                                                     if isCentral {
                                                         centralItemIndex = items.count
+                                                    }
+                                                    if let universal = item as? UniversalVideoGalleryItem {
+                                                        universal.onLike = {
+                                                            self?.onLike?()
+                                                        }
+                                                        
+                                                        universal.onDislike = {
+                                                            self?.onDislike?()
+                                                        }
                                                     }
                                                     items.append(item)
                                                 }
@@ -1244,13 +1277,22 @@ public class GalleryController: ViewController, StandalonePresentableController,
                                                 if entry.message.stableId == strongSelf.centralEntryStableId {
                                                     isCentral = true
                                                 }
-                                                if let item = galleryItemForEntry(context: strongSelf.context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: false, fromPlayingVideo: isCentral && strongSelf.fromPlayingVideo, landscape: isCentral && strongSelf.landscape, timecode: isCentral ? strongSelf.timecode : nil, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: strongSelf.configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
+                                                if let item = galleryItemForEntry(context: strongSelf.context, presentationData: strongSelf.presentationData, entry: entry, isCentral: isCentral, streamVideos: false, fromPlayingVideo: isCentral && strongSelf.fromPlayingVideo, landscape: isCentral && strongSelf.landscape, timecode: isCentral ? strongSelf.timecode : nil, isShowLike: strongSelf.isShowLikeButton, isVideoLiked: strongSelf.isVideoLiked, playbackRate: { return self?.playbackRate }, displayInfoOnTop: displayInfoOnTop, configuration: strongSelf.configuration, performAction: strongSelf.performAction, openActionOptions: strongSelf.openActionOptions, storeMediaPlaybackState: strongSelf.actionInteraction?.storeMediaPlaybackState ?? { _, _, _ in }, present: { [weak self] c, a in
                                                     if let strongSelf = self {
                                                         strongSelf.presentInGlobalOverlay(c, with: a)
                                                     }
                                                 }) {
                                                     if isCentral {
                                                         centralItemIndex = items.count
+                                                    }
+                                                    if let universal = item as? UniversalVideoGalleryItem {
+                                                        universal.onLike = {
+                                                            self?.onLike?()
+                                                        }
+                                                        
+                                                        universal.onDislike = {
+                                                            self?.onDislike?()
+                                                        }
                                                     }
                                                     items.append(item)
                                                 }

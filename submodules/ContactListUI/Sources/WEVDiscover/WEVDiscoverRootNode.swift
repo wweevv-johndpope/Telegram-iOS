@@ -30,7 +30,10 @@ import MBProgressHUD
 import HandyJSON
 import CoreLocation
 import MXSegmentedControl
+//import Kingfisher
 import Realtime
+import LegacyComponents
+import SwiftSignalKit
 
 public class WEVDiscoverRootNode: ASDisplayNode {
     
@@ -41,7 +44,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     private(set) var searchDisplayController: SearchDisplayController?
     private var offersTableViewNode:ASDisplayNode?
     private var containerLayout: (ContainerViewLayout, CGFloat)?
-    //    var interactor:WCInteractor?
+    //var interactor:WCInteractor?
     var navigationBar: NavigationBar?
     var listNode:ListView!
     var requestDeactivateSearch: (() -> Void)?
@@ -54,6 +57,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var twichVideos: [SlimTwitchVideo] = []
     var rumbleVideos: [RumbleVideo] = []
     var isLaunchSync: Bool = false
+    var arrLikeVideoIds: [String] = []
 
     
     /// 根据状态返回该显示的视频
@@ -1132,49 +1136,132 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         var videoDescription = ""
         let websiteName = "YouTube"
         var url = ""
+        var isLikedVideo = false
         if let ytVideo = video {
             videoTitle = ytVideo.title
             videoDescription = ytVideo.description ?? ""
             url = "https://www.youtube.com/watch?v=" + ytVideo.id
+            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == ytVideo.id}) == nil ? false : true
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
+            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == String(twitch.id)}) == nil ? false : true
+            //let thumbURL = URL(string: twitch.clipThumbnailUrl)
+            //KingfisherManager.shared.cache.retrieveImage(forKey: twitch.clipThumbnailUrl) { result in
+                //print(result)
+            //}
         } else if let rumble = rumbleVideo {
             url = rumble.embedUrl
             videoTitle = rumble.title
+            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == String(rumble.id)}) == nil ? false : true
         } else {
             return
         }
         
+        /*let thumbnail = UIImage(named: "channel_youtube")
+        var previewRepresentations: [TelegramMediaImageRepresentation] = []
+        var finalDimensions = CGSize(width:1280,height:720)
+        finalDimensions = TGFitSize(finalDimensions,CGSize(width:1280,height:720))*/
         
         let size = CGSize(width:1280,height:720)
-        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: "video", websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
-        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: 0, id: 1), content: updatedContent)
+        let updatedContent: TelegramMediaWebpageContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: nil, file: nil, attributes: [], instantPage: nil))
+
+        
+        /*if let thumbnail = thumbnail {
+            let resource = LocalFileMediaResource(fileId: Int64.random(in: Int64.min ... Int64.max))
+            let thumbnailSize = finalDimensions.aspectFitted(CGSize(width:1280,height:720))
+            let thumbnailImage = TGScaleImageToPixelSize(thumbnail, thumbnailSize)!
+            if let thumbnailData = thumbnailImage.jpegData(compressionQuality: 0.4) {
+                //account.postbox.mediaBox.storeResourceData(resource.id, data: thumbnailData)
+                previewRepresentations.append(TelegramMediaImageRepresentation(dimensions: PixelDimensions(thumbnailSize), resource: resource, progressiveSizes: [], immediateThumbnailData: nil))
+            //}
+            //let data = thumbnail.pngData()
+            let media = TelegramMediaImage(imageId: MediaId(namespace: 0, id: 0), representations: previewRepresentations, immediateThumbnailData: thumbnailData, reference: nil, partialReference: nil, flags: [])
+            
+            updatedContent = .Loaded(TelegramMediaWebpageLoadedContent(url: url, displayUrl: url, hash: 0, type: nil, websiteName: websiteName, title: videoTitle, text: videoDescription, embedUrl: url, embedType: "iframe", embedSize: PixelDimensions(size), duration: nil, author: nil, image: media, file: nil, attributes: [], instantPage: nil))
+            }
+
+        }*/
+        
+       // let media = TelegramMediaFile(fileId: MediaId(namespace: Namespaces.Media.LocalFile, id: Int64.random(in: Int64.min ... Int64.max)), partialReference: nil, resource: resource, previewRepresentations: previewRepresentations, videoThumbnails: [], immediateThumbnailData: nil, mimeType: "video/mp4", size: nil, attributes: fileAttributes)
+
+
+
+        let webPage = TelegramMediaWebpage(webpageId: MediaId(namespace: Namespaces.Media.CloudWebpage, id: 0), content: updatedContent)
         
         //let messageAttribute = MessageAttribute
         //JP HACK
         // attributes = ishdidden / type = Url / reactions
-        let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: Namespaces.Message.Local, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: "", attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
+        let message = Message(stableId: 1, stableVersion: 1, id: MessageId(peerId: PeerId(0), namespace: 0, id: 0), globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: 0, flags: [MessageFlags(rawValue: 64)], tags: [], globalTags: [], localTags: [], forwardInfo: nil, author: nil, text: url, attributes: [], media: [webPage], peers: SimpleDictionary(), associatedMessages: SimpleDictionary(), associatedMessageIds: [], associatedMedia: [:])
         
         
         // Source is message?
         let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: 0, playbackRate: 1, synchronousLoad: false, replaceRootController: { _, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, isVideoLiked: isLikedVideo, replaceRootController: { controller, ready in
             print("👹  we're in replaceRootController....")
-            self.controller?.navigationController?.popToRootViewController(animated: true)
+            if let baseNavigationController = self.navigationController {
+                baseNavigationController.replaceTopController(controller, animated: false, ready: ready)
+            }
         }, baseNavigationController: navigationController, actionInteraction: nil)
-        //galleryVC.isChannel = true
-        galleryVC.temporaryDoNotWaitForReady = false
+        galleryVC.temporaryDoNotWaitForReady = true
+        galleryVC.temporaryDoNotWaitForReady = true
+        galleryVC.useSimpleAnimation = true
+
+        /*navigationController?.view.endEditing(true)
+
+        (navigationController?.topViewController as? ViewController)?.present(galleryVC, in: .window(.root), with: GalleryControllerPresentationArguments(transitionArguments: { id, media in
+            return nil
+        }))*/
+
         
-        //let nv = NavigationController(/
-        //self.controller.push(galleryVC)
+        galleryVC.onLike = {
+            print("user liked video")
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: true)
+        }
+        
+        galleryVC.onDislike = {
+            print("user unliked video")
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: false)
+        }
         
         self.controller.present(galleryVC, in: .window(.root))
-
     }
     
-    
+    func likeVideo(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, isLiked: Bool) {
+        if let ytVideo = video {
+            if isLiked {
+                arrLikeVideoIds.append(ytVideo.id)
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == ytVideo.id}) {
+                arrLikeVideoIds.remove(at: index)
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            }
+        } else if let twitch = clip {
+            if isLiked {
+                arrLikeVideoIds.append(String(twitch.id))
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == (String(twitch.id))}) {
+                arrLikeVideoIds.remove(at: index)
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            }
+        } else if let rumble = rumbleVideo {
+            if isLiked {
+                arrLikeVideoIds.append(String(rumble.id))
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == (String(rumble.id))}) {
+                arrLikeVideoIds.remove(at: index)
+                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
+                UserDefaults.standard.synchronize()
+            }
+
+        }
+    }
 }
 extension WEVDiscoverRootNode {
     /// 搜索状态

@@ -1957,6 +1957,7 @@ ios_application(
         ":Main",
         ":Lib",
         "//third-party/Alamofire",
+        "//third-party/Kingfisher",
         "//third-party/MBProgressHUD:MBProgressHUD",
         "//third-party/MJRefresh:MJRefresh",
         "//third-party/MXSegmentedControl",

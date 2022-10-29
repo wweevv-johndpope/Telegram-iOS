@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "tabbar_feed_unselect.png",
       "idiom" : "universal",
       "scale" : "1x"
     },

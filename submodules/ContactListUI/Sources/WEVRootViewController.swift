@@ -91,6 +91,9 @@ public class WEVRootViewController: ViewController {
                             self.contactsNode.refreshEmptyView()
                         }
                     }
+                    if let likedVideosIds = UserDefaults.standard.object(forKey: "likedVideosIds") as? [String] {
+                        self.contactsNode.arrLikeVideoIds.append(contentsOf: likedVideosIds)
+                    }
                     //Need to Fix delete issues for real time
                     //May be that should be crash
                     self.contactsNode.youTubeRealTimeSync()
@@ -188,7 +191,7 @@ public class WEVRootViewController: ViewController {
     }
     
     private func updateThemeAndStrings() {
-        //        self.sortButton.update(theme: self.presentationData.theme, strings: self.presentationData.strings)
+        //self.sortButton.update(theme: self.presentationData.theme, strings: self.presentationData.strings)
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
@@ -203,7 +206,7 @@ public class WEVRootViewController: ViewController {
         }*/
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         if self.navigationItem.rightBarButtonItem != nil {
-            //            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
+            //self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(self.presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
             self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.presentationData.strings.Contacts_VoiceOver_AddContact
         }
         self.contactsNode.presentationData = self.presentationData
