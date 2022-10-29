@@ -443,6 +443,8 @@ private enum PeerInfoSettingsSection {
     case addAccount
     case logout
     case rememberPassword
+    case watchLater
+    case shareEarn
 }
 
 private final class PeerInfoInteraction {
@@ -588,6 +590,7 @@ private enum SettingsSection: Int, CaseIterable {
     case proxy
     case shortcuts
     case advanced
+    case wev
     case payment
     case extra
     case support
@@ -747,6 +750,19 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
     /*items[.payment]!.append(PeerInfoScreenDisclosureItem(id: 100, label: .text(""), text: "Payment Method", icon: PresentationResourcesSettings.language, action: {
         interaction.openPaymentMethod()
     }))*/
+    
+    //add Watch Later
+    let watchLaterLabel = "100 videos"
+    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 18, label: .badge(watchLaterLabel, presentationData.theme.list.itemAccentColor), text: presentationData.strings.WEV_WatchLater, icon: PresentationResourcesSettings.watchLater, action: {
+        interaction.openSettings(.watchLater)
+    }))
+    
+    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 19, text: presentationData.strings.WEV_ShareAndEarn, icon: PresentationResourcesSettings.shareEarn, action: {
+        interaction.openSettings(.shareEarn)
+    }))
+    
+    //add share and earn
+    
     
     let stickersLabel: String
     if let settings = data.globalSettings {
@@ -6280,6 +6296,10 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewDelegate 
                         self?.archivedPacks.set(.single(packs))
                     }))
                 }
+            case .watchLater:
+                break
+            case .shareEarn:
+                push(WEVShareEarnController(context: self.context))
             case .passport:
                 self.controller?.push(SecureIdAuthController(context: self.context, mode: .list))
             case .watch:

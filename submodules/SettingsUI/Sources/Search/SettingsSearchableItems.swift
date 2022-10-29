@@ -36,6 +36,8 @@ enum SettingsSearchableItemIcon {
     case faq
     case chatFolders
     case deleteAccount
+    case watchLater
+    case shareEarn
 }
 
 public enum SettingsSearchableItemId: Hashable {
@@ -56,6 +58,8 @@ public enum SettingsSearchableItemId: Hashable {
     case faq(Int32)
     case chatFolders(Int32)
     case deleteAccount(Int32)
+    case watchLater(Int32)
+    case shareEarn(Int32)
     
     private var namespace: Int32 {
         switch self {
@@ -93,6 +97,10 @@ public enum SettingsSearchableItemId: Hashable {
                 return 16
             case .deleteAccount:
                 return 17
+            case .watchLater:
+                return 18
+            case .shareEarn:
+                return 19
         }
     }
     
@@ -114,8 +122,10 @@ public enum SettingsSearchableItemId: Hashable {
                  let .support(id),
                  let .faq(id),
                  let .chatFolders(id),
-                 let .deleteAccount(id):
-                return id
+                 let .deleteAccount(id),
+                 let .watchLater(id),
+                 let .shareEarn(id):
+                 return id
         }
     }
     
@@ -161,6 +171,10 @@ public enum SettingsSearchableItemId: Hashable {
                 self = .chatFolders(id)
             case 17:
                 self = .deleteAccount(id)
+            case 18:
+                self = .watchLater(id)
+            case 19:
+                self = .shareEarn(id)
             default:
                 return nil
         }

@@ -103,6 +103,8 @@ swift_library(
         "//submodules/PremiumUI:PremiumUI",
         "//submodules/InviteLinksUI:InviteLinksUI",
         "//submodules/HorizontalPeerItem:HorizontalPeerItem",
+        "//third-party/MBProgressHUD:MBProgressHUD",
+        "//third-party/MJRefresh:MJRefresh",
     ],
     visibility = [
         "//visibility:public",
