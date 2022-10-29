@@ -57,7 +57,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var twichVideos: [SlimTwitchVideo] = []
     var rumbleVideos: [RumbleVideo] = []
     var isLaunchSync: Bool = false
-    var arrLikeVideoIds: [String] = []
+    var arrVideoWatchLists: [VideoWathcList] = []
 
     
     /// 根据状态返回该显示的视频
@@ -71,6 +71,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             case .twitch:
                 return []
             case .rumble:
+                return []
+            case .liked:
                 return []
             case .filtered:
                 return dataArray
@@ -87,6 +89,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             case .twitch:
                 break
             case .rumble:
+                break
+            case .liked:
                 break
             case .filtered:
                 dataArray = newValue
@@ -160,9 +164,14 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             .set(image: #imageLiteral(resourceName: "segment-rumble"))
             .set(image: .left)
             .set(padding: 16)
+        segment.append(title: "Liked")
+            .set(image: #imageLiteral(resourceName: "likevideo"))
+            .set(image: .left)
+            .set(padding: 16)
         segment.indicatorHeight = 3
         segment.indicatorColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
         segment.separatorWidth = 0.5
+        segment.segmentWidth = 140
         segment.backgroundColor = self.presentationData.theme.contextMenu.backgroundColor
         segment.separatorColor = .systemGroupedBackground
         segment.addTarget(self, action: #selector(segementChanged(sender:)), for: UIControl.Event.valueChanged)
@@ -405,6 +414,14 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 } else {
                     emptyView.removeFromSuperview()
                 }
+            case .liked:
+                if arrVideoWatchLists.isEmpty && isLaunchSync {
+                    let model = WEVEmptyHintView.Model.init(title: "No videos live", image: "empty_discover_list", desc: "There are no videos live at\nthis moment!")
+                    emptyView.model = model
+                    self.showEmptyView()
+                } else {
+                    emptyView.removeFromSuperview()
+                }
             case .searchCompleted, .filtered:
                 if showDataArray.isEmpty {
                     let model = WEVEmptyHintView.Model.init(title: "Oops!... no results found", image: "empty_discover_search", desc: "There are no results matching your search. Check your spelling or try another keyword.")
@@ -495,6 +512,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
             searchStatus = .twitch
         case 2:
             searchStatus = .rumble
+        case 3:
+            searchStatus = .liked
         default:
             return
         }
@@ -1039,6 +1058,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return twichVideos.count
         case .rumble:
             return rumbleVideos.count
+        case .liked:
+            return arrVideoWatchLists.count
         default:
             return showDataArray.count
         }
@@ -1053,6 +1074,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             cell.twitchModel = twichVideos[indexPath.row]
         case .rumble:
             cell.rumbleModel = rumbleVideos[indexPath.row]
+        case .liked:
+            cell.likedVideoModel = arrVideoWatchLists[indexPath.row]
         default:
             cell.model = showDataArray[indexPath.row]
         }
@@ -1095,6 +1118,8 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             self.playClips(clip: twichVideos[indexPath.row])
         case .rumble:
             self.playClips(rumbleVideo: rumbleVideos[indexPath.row])
+        case .liked:
+            self.playClips(likedVideo: arrVideoWatchLists[indexPath.row])
         default:
             self.playVideo(video: showDataArray[indexPath.row])
         }
@@ -1130,7 +1155,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         }
     }
     
-    func playClips(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil) {
+    func playClips(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, likedVideo: VideoWathcList? = nil) {
         
         var videoTitle = ""
         var videoDescription = ""
@@ -1141,11 +1166,11 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             videoTitle = ytVideo.title
             videoDescription = ytVideo.description ?? ""
             url = "https://www.youtube.com/watch?v=" + ytVideo.id
-            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == ytVideo.id}) == nil ? false : true
+            isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == ytVideo.id}) == nil ? false : true
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
-            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == String(twitch.id)}) == nil ? false : true
+            isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == String(twitch.id)}) == nil ? false : true
             //let thumbURL = URL(string: twitch.clipThumbnailUrl)
             //KingfisherManager.shared.cache.retrieveImage(forKey: twitch.clipThumbnailUrl) { result in
                 //print(result)
@@ -1153,7 +1178,23 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         } else if let rumble = rumbleVideo {
             url = rumble.embedUrl
             videoTitle = rumble.title
-            isLikedVideo = arrLikeVideoIds.firstIndex(where: {$0 == String(rumble.id)}) == nil ? false : true
+            isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == String(rumble.id)}) == nil ? false : true
+        } else if let likevideo = likedVideo {
+            videoTitle = likevideo.title
+            videoDescription = likevideo.description
+            switch likevideo.type {
+                case WEVChannel.youtube.rawValue:
+                    url = likevideo.videoURL
+                case WEVChannel.twitch.rawValue:
+                    url = likevideo.videoURL + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
+                case WEVChannel.rumble.rawValue:
+                    url = likevideo.videoURL
+                case WEVChannel.liked.rawValue:
+                    url = likevideo.videoURL
+                default:
+                    break
+            }
+            isLikedVideo = true
         } else {
             return
         }
@@ -1217,50 +1258,61 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         
         galleryVC.onLike = {
             print("user liked video")
-            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: true)
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, likedVideo: likedVideo, isLiked: true)
         }
         
         galleryVC.onDislike = {
             print("user unliked video")
-            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: false)
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, likedVideo: likedVideo, isLiked: false)
         }
         
         self.controller.present(galleryVC, in: .window(.root))
     }
     
-    func likeVideo(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, isLiked: Bool) {
+    func likeVideo(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, likedVideo: VideoWathcList? = nil, isLiked: Bool) {
         if let ytVideo = video {
             if isLiked {
-                arrLikeVideoIds.append(ytVideo.id)
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
-            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == ytVideo.id}) {
-                arrLikeVideoIds.remove(at: index)
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
+                let video = VideoWathcList(id: ytVideo.id, title: ytVideo.title, description: ytVideo.description ?? "", startTime: 0.0, thumbnailURL: ytVideo.thumbnails[0]?.url ?? "", videoURL: ("https://www.youtube.com/watch?v=" + ytVideo.id), type: WEVChannel.youtube.rawValue, videoViews: Int64(ytVideo.viewCount ?? 0))
+                arrVideoWatchLists.append(video)
+                saveWatchList(arrVideoWatchLists)
+            } else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == ytVideo.id}) {
+                arrVideoWatchLists.remove(at: index)
+                saveWatchList(arrVideoWatchLists)
             }
         } else if let twitch = clip {
             if isLiked {
-                arrLikeVideoIds.append(String(twitch.id))
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
-            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == (String(twitch.id))}) {
-                arrLikeVideoIds.remove(at: index)
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
+                let video = VideoWathcList(id: String(twitch.id), title: twitch.clipTitle, description: "", startTime: 0.0, thumbnailURL: twitch.clipThumbnailUrl, videoURL: twitch.clipEmbedUrl, type: WEVChannel.twitch.rawValue, videoViews: twitch.clipViewCount)
+                arrVideoWatchLists.append(video)
+                saveWatchList(arrVideoWatchLists)
+            } else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == String(twitch.id)}) {
+                arrVideoWatchLists.remove(at: index)
+                saveWatchList(arrVideoWatchLists)
             }
         } else if let rumble = rumbleVideo {
             if isLiked {
-                arrLikeVideoIds.append(String(rumble.id))
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
-            } else if let index = arrLikeVideoIds.firstIndex(where: {$0 == (String(rumble.id))}) {
-                arrLikeVideoIds.remove(at: index)
-                UserDefaults.standard.set(arrLikeVideoIds, forKey: "likedVideosIds")
-                UserDefaults.standard.synchronize()
+                let video = VideoWathcList(id: String(rumble.id), title: rumble.title, description: "", startTime: 0.0, thumbnailURL: rumble.thumbnailUrl, videoURL: rumble.embedUrl, type: WEVChannel.rumble.rawValue, videoViews: rumble.viewerCount)
+                arrVideoWatchLists.append(video)
+                saveWatchList(arrVideoWatchLists)
+            } else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == String(rumble.id)}) {
+                arrVideoWatchLists.remove(at: index)
+                saveWatchList(arrVideoWatchLists)
             }
-
+        } else if let likeVideo = likedVideo {
+            if isLiked {
+                let video = VideoWathcList(id: likeVideo.id, title: likeVideo.title, description: likeVideo.description, startTime: 0.0, thumbnailURL: likeVideo.thumbnailURL, videoURL: likeVideo.thumbnailURL, type: likeVideo.type, videoViews: likeVideo.videoViews)
+                arrVideoWatchLists.append(video)
+                saveWatchList(arrVideoWatchLists)
+            } else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == likeVideo.id}) {
+                arrVideoWatchLists.remove(at: index)
+                saveWatchList(arrVideoWatchLists)
+            }
+            
+            DispatchQueue.main.async {
+                self.collectionView?.reloadData()
+                self.refreshEmptyView()
+            }
         }
+        
     }
 }
 extension WEVDiscoverRootNode {
@@ -1276,6 +1328,8 @@ extension WEVDiscoverRootNode {
         case twitch
         
         case rumble
+        
+        case liked
         
         case filtered
     }
