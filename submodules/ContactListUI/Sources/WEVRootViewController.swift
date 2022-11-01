@@ -65,13 +65,9 @@ public class WEVRootViewController: ViewController {
     //var realtimeClient:RealtimeClient?
     //var allUsersUpdateChanges:Realtime.Channel?
     
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
     
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
-    
-    
-
-
     public init(context: AccountContext) {
         self.context = context
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
@@ -91,12 +87,13 @@ public class WEVRootViewController: ViewController {
                             self.contactsNode.refreshEmptyView()
                         }
                     }
-                    self.contactsNode.arrVideoWatchLists.append(contentsOf: fetchWatchList())
+                    //self.contactsNode.arrVideoWatchLists.append(contentsOf: fetchWatchList())
                     //Need to Fix delete issues for real time
                     //May be that should be crash
                     self.contactsNode.youTubeRealTimeSync()
                     self.contactsNode.twitchRealTimeSync()
                     self.contactsNode.rumbleRealTimeSync()
+                    self.contactsNode.doWatchLaterFetch()
                 }
             }
         }

@@ -752,7 +752,8 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
     }))*/
     
     //add Watch Later
-    let watchLaterLabel = "100 videos"
+    let count = fetchWatchList().count
+    let watchLaterLabel = count == 0 ? "" : "\(count)"
     items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 18, label: .badge(watchLaterLabel, presentationData.theme.list.itemAccentColor), text: presentationData.strings.WEV_WatchLater, icon: PresentationResourcesSettings.watchLater, action: {
         interaction.openSettings(.watchLater)
     }))
@@ -6297,7 +6298,7 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewDelegate 
                     }))
                 }
             case .watchLater:
-                break
+                push(WEVWatchLaterController(context: self.context))
             case .shareEarn:
                 push(WEVShareEarnController(context: self.context))
             case .passport:

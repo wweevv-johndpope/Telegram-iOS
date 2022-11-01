@@ -1,39 +1,11 @@
 //
-//  WEVChannel.swift
-//  _idx_ContactListUI_1D7887AF_ios_min13.0
+//  WEVWatchLater.swift
+//  _idx_TelegramUI_Lib_001C0785_ios_min13.0
 //
-//  Created by Apple on 15/09/22.
+//  Created by Apple on 01/11/22.
 //
 
 import Foundation
-import UIKit
-
-/*struct VideoWathcList: Codable {
-    let id: String
-    let title: String
-    let description: String
-    let startTime: Double
-    let thumbnailURL: String
-    let videoURL: String
-    let type: String
-    let videoViews: Int64
-}
-
-let KeyForUserDefaults = "watchList"
-
-func saveWatchList(_ videowatchList: [VideoWathcList]) {
-    let data = videowatchList.map { try? JSONEncoder().encode($0) }
-    UserDefaults.standard.set(data, forKey: KeyForUserDefaults)
-}
-
-func fetchWatchList() -> [VideoWathcList] {
-    guard let encodedData = UserDefaults.standard.array(forKey: KeyForUserDefaults) as? [Data] else {
-        return []
-    }
-
-    return encodedData.map { try! JSONDecoder().decode(VideoWathcList.self, from: $0) }
-}*/
-//insert WatchLater Model
 struct NewWatchLaterVideo: Codable, Hashable {
   
     let videoType: Int
@@ -106,4 +78,23 @@ func fetchWatchList() -> [WatchLaterVideo] {
         return []
     }
     return encodedData.map { try! JSONDecoder().decode(WatchLaterVideo.self, from: $0) }
+}
+public struct SlimVideo: Codable {
+    let id: String // youtube id
+    let blob:String  // youtube payload
+}
+
+public struct Thumbnail: Codable {
+    let url: String? // youtube id
+    let width:Int  // youtube payload
+    let height:Int
+}
+public struct YoutubeVideo: Codable {
+    let id: String // youtube id
+    let title:String  // youtube payload
+    let thumbnails:[Thumbnail?]
+    let description:String?
+    let duration:String?
+    let isLive:Bool?
+    let viewCount:Int?
 }
