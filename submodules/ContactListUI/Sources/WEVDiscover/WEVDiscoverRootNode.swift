@@ -60,8 +60,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var isLaunchSync: Bool = false
     var arrWatchLater: [WatchLaterVideo] = []
 
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     
     /// 根据状态返回该显示的视频
     private var showDataArray: [WEVVideoModel] {
@@ -663,6 +663,37 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         rt.connect()
     }
     
+    func watchLaterRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
+        
+        rt.onOpen {
+            print("Socket opened.")
+            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.watchLater, schema: "public"))
+
+            allUsersUpdateChanges.on(.all) { message in
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+                case .insert, .update, .delete:
+                    self.doWatchLaterFetch()
+                default:
+                    break
+            }
+         }
+        rt.connect()
+    }
+    
     func rumbleRealTimeSync() {
         let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
         
@@ -1139,16 +1170,16 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         var videoDescription = ""
         let websiteName = "YouTube"
         var url = ""
-        let isLikedVideo = false
+        var isLikedVideo = false
         if let ytVideo = video {
             videoTitle = ytVideo.title
             videoDescription = ytVideo.description ?? ""
             url = "https://www.youtube.com/watch?v=" + ytVideo.id
-            //isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == ytVideo.id}) == nil ? false : true
+            isLikedVideo = arrWatchLater.firstIndex(where: {$0.youtubeId == ytVideo.id}) == nil ? false : true
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
-            //isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == String(twitch.id)}) == nil ? false : true
+            isLikedVideo = arrWatchLater.firstIndex(where: {$0.twitchId == twitch.id}) == nil ? false : true
             //let thumbURL = URL(string: twitch.clipThumbnailUrl)
             //KingfisherManager.shared.cache.retrieveImage(forKey: twitch.clipThumbnailUrl) { result in
                 //print(result)
@@ -1156,7 +1187,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         } else if let rumble = rumbleVideo {
             url = rumble.embedUrl
             videoTitle = rumble.title
-            //isLikedVideo = arrVideoWatchLists.firstIndex(where: {$0.id == String(rumble.id)}) == nil ? false : true
+            isLikedVideo = arrWatchLater.firstIndex(where: {$0.rumbleId == rumble.id}) == nil ? false : true
         } else {
             return
         }
@@ -1220,64 +1251,82 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         
         galleryVC.onLike = {
             print("user liked video")
-            //self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, likedVideo: likedVideo, isLiked: true)
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: true)
         }
         
         galleryVC.onDislike = {
             print("user unliked video")
-            //self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, likedVideo: likedVideo, isLiked: false)
+            self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: false)
         }
         
         self.controller.present(galleryVC, in: .window(.root))
     }
     
-    /*func likeVideo(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, likedVideo: VideoWathcList? = nil, isLiked: Bool) {
+    func likeVideo(video: YoutubeVideo? = nil, clip: SlimTwitchVideo? = nil, rumbleVideo: RumbleVideo? = nil, isLiked: Bool) {
         if let ytVideo = video {
             if isLiked {
                 let video = NewWatchLaterVideo(videoType: 1, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: nil, youtubeId: ytVideo.id, rumbleId: nil)
-                /*let video = VideoWathcList(id: ytVideo.id, title: ytVideo.title, description: ytVideo.description ?? "", startTime: 0.0, thumbnailURL: ytVideo.thumbnails[0]?.url ?? "", videoURL: ("https://www.youtube.com/watch?v=" + ytVideo.id), type: WEVChannel.youtube.rawValue, videoViews: Int64(ytVideo.viewCount ?? 0))
-                arrVideoWatchLists.append(video)
-                saveWatchList(arrVideoWatchLists)*/
-            } /*else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == ytVideo.id}) {
-                /*arrVideoWatchLists.remove(at: index)
-                saveWatchList(arrVideoWatchLists)*/
-            }*/
+                self.doPerformAddWatchLater(videoObj: video)
+            } else if let index = arrWatchLater.firstIndex(where: {$0.youtubeId == ytVideo.id}) {
+                self.doPerformRemoveWatchLater(id: arrWatchLater[index].id)
+            }
         } else if let twitch = clip {
             if isLiked {
                 let video = NewWatchLaterVideo(videoType: 2, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: twitch.id, youtubeId: nil, rumbleId: nil)
-                /*let video = VideoWathcList(id: String(twitch.id), title: twitch.clipTitle, description: "", startTime: 0.0, thumbnailURL: twitch.clipThumbnailUrl, videoURL: twitch.clipEmbedUrl, type: WEVChannel.twitch.rawValue, videoViews: twitch.clipViewCount)
-                arrVideoWatchLists.append(video)
-                saveWatchList(arrVideoWatchLists)*/
-            } //else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == String(twitch.id)}) {
-                /*arrVideoWatchLists.remove(at: index)
-                saveWatchList(arrVideoWatchLists)*/
-            //}
+                self.doPerformAddWatchLater(videoObj: video)
+            } else if let index = arrWatchLater.firstIndex(where: {$0.twitchId == twitch.id}) {
+                self.doPerformRemoveWatchLater(id: arrWatchLater[index].id)
+            }
         } else if let rumble = rumbleVideo {
             if isLiked {
-                let video = NewWatchLaterVideo(videoType: 2, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: nil, youtubeId: nil, rumbleId: rumble.id)
-                /*let video = VideoWathcList(id: String(rumble.id), title: rumble.title, description: "", startTime: 0.0, thumbnailURL: rumble.thumbnailUrl, videoURL: rumble.embedUrl, type: WEVChannel.rumble.rawValue, videoViews: rumble.viewerCount)
-                arrVideoWatchLists.append(video)
-                saveWatchList(arrVideoWatchLists)*/
-            } //else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == String(rumble.id)}) {
-                /*arrVideoWatchLists.remove(at: index)
-                saveWatchList(arrVideoWatchLists)*/
-            //}
-        } else if let likeVideo = likedVideo {
-            if isLiked {
-                /*let video = VideoWathcList(id: likeVideo.id, title: likeVideo.title, description: likeVideo.description, startTime: 0.0, thumbnailURL: likeVideo.thumbnailURL, videoURL: likeVideo.thumbnailURL, type: likeVideo.type, videoViews: likeVideo.videoViews)
-                arrVideoWatchLists.append(video)
-                saveWatchList(arrVideoWatchLists)*/
-            } //else if let index = arrVideoWatchLists.firstIndex(where: {$0.id == likeVideo.id}) {
-                /*arrVideoWatchLists.remove(at: index)
-                saveWatchList(arrVideoWatchLists)*/
-            //}
-            
-            DispatchQueue.main.async {
-                self.collectionView?.reloadData()
-                self.refreshEmptyView()
+                let video = NewWatchLaterVideo(videoType: 3, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: nil, youtubeId: nil, rumbleId: rumble.id)
+                self.doPerformAddWatchLater(videoObj: video)
+            } else if let index = arrWatchLater.firstIndex(where: {$0.rumbleId == rumble.id}) {
+                self.doPerformRemoveWatchLater(id: arrWatchLater[index].id)
             }
         }
-    }*/
+    }
+    
+    func doPerformAddWatchLater(videoObj: NewWatchLaterVideo) {
+        Task {
+            await performAddWatchLater(videoObj: videoObj)
+        }
+    }
+    
+    func performAddWatchLater(videoObj: NewWatchLaterVideo) async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            let insertedVideo = try await client.from("watch_later")
+                .insert(
+                    values: videoObj,
+                    returning: .representation
+                )
+                .execute()
+                .json()
+            print(insertedVideo)
+        } catch  {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func doPerformRemoveWatchLater(id: Int64) {
+        Task {
+            await performRemoveWatchLater(id: id)
+        }
+    }
+    
+    func performRemoveWatchLater(id: Int64) async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            try await client.from("watch_later").delete().eq(column: "id", value: "\(id)").execute()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
     
     func doWatchLaterFetch() {
         Task {
@@ -1287,17 +1336,17 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
 
     
     func fetchWatchLater() async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        
         var errMsg = ""
-        let client = PostgrestClient(
-            url: "\(supabaseUrl)/rest/v1",
-            headers: ["apikey": supabaseKey],
-            schema: "public")
         // Get twitch videos
         do {
              let watchLater = try await client
             .from("watch_later_view")
             .select()
-            .eq(column: "user_id", value: 1725238)
+            .eq(column: "user_id", value: "\(context.account.peerId.id._internalGetInt64Value())")
             .execute()
             .decoded(to: [WatchLaterVideo].self)
             
@@ -1309,7 +1358,10 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
                     do {
                         let video:YoutubeVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
                         print("video:",video)
-                        arrWatchLater[index].youtubeData = video
+                        arrWatchLater[index].youTubeTitle = video.title
+                        arrWatchLater[index].youTubeDescription = video.description
+                        arrWatchLater[index].youTubeThumbnail = video.thumbnails[0]?.url ?? ""
+                        arrWatchLater[index].youTubeViewCounts = video.viewCount
                     } catch {
                         print(error.localizedDescription)
                     }

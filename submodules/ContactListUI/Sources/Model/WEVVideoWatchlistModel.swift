@@ -8,31 +8,6 @@
 import Foundation
 import UIKit
 
-/*struct VideoWathcList: Codable {
-    let id: String
-    let title: String
-    let description: String
-    let startTime: Double
-    let thumbnailURL: String
-    let videoURL: String
-    let type: String
-    let videoViews: Int64
-}
-
-let KeyForUserDefaults = "watchList"
-
-func saveWatchList(_ videowatchList: [VideoWathcList]) {
-    let data = videowatchList.map { try? JSONEncoder().encode($0) }
-    UserDefaults.standard.set(data, forKey: KeyForUserDefaults)
-}
-
-func fetchWatchList() -> [VideoWathcList] {
-    guard let encodedData = UserDefaults.standard.array(forKey: KeyForUserDefaults) as? [Data] else {
-        return []
-    }
-
-    return encodedData.map { try! JSONDecoder().decode(VideoWathcList.self, from: $0) }
-}*/
 //insert WatchLater Model
 struct NewWatchLaterVideo: Codable, Hashable {
   
@@ -65,7 +40,10 @@ struct WatchLaterVideo: Codable {
     let clipThumbnailUrl: String?
     let clipsUsername: String?
     let blob: String?
-    var youtubeData: YoutubeVideo?
+    var youTubeTitle: String?
+    var youTubeDescription: String?
+    var youTubeThumbnail: String?
+    var youTubeViewCounts: Int64?
     let rumbleTitle: String?
     let rumbleThumbnailUrl: String?
     let rumbleEmbedUrl: String?
@@ -75,6 +53,10 @@ struct WatchLaterVideo: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case blob
+        case youTubeTitle
+        case youTubeDescription
+        case youTubeThumbnail
+        case youTubeViewCounts
         case userId = "user_id"
         case youtubeId = "youtube_id"
         case rumbleId = "rumble_id"
@@ -94,7 +76,7 @@ struct WatchLaterVideo: Codable {
     }
         
 }
-let KeyForUserDefaults = "watchList"
+let KeyForUserDefaults = "watchLaterList"
 
 func saveWatchList(_ videowatchList: [WatchLaterVideo]) {
     let data = videowatchList.map { try? JSONEncoder().encode($0) }

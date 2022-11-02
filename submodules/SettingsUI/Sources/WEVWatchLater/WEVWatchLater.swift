@@ -37,7 +37,10 @@ struct WatchLaterVideo: Codable {
     let clipThumbnailUrl: String?
     let clipsUsername: String?
     let blob: String?
-    var youtubeData: YoutubeVideo?
+    var youTubeTitle: String?
+    var youTubeDescription: String?
+    var youTubeThumbnail: String?
+    var youTubeViewCounts: Int64?
     let rumbleTitle: String?
     let rumbleThumbnailUrl: String?
     let rumbleEmbedUrl: String?
@@ -47,6 +50,10 @@ struct WatchLaterVideo: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case blob
+        case youTubeTitle
+        case youTubeDescription
+        case youTubeThumbnail
+        case youTubeViewCounts
         case userId = "user_id"
         case youtubeId = "youtube_id"
         case rumbleId = "rumble_id"
@@ -66,7 +73,7 @@ struct WatchLaterVideo: Codable {
     }
         
 }
-let KeyForUserDefaults = "watchList"
+let KeyForUserDefaults = "watchLaterList"
 
 func saveWatchList(_ videowatchList: [WatchLaterVideo]) {
     let data = videowatchList.map { try? JSONEncoder().encode($0) }
@@ -96,5 +103,5 @@ public struct YoutubeVideo: Codable {
     let description:String?
     let duration:String?
     let isLive:Bool?
-    let viewCount:Int?
+    let viewCount:Int64?
 }

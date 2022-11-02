@@ -27,5 +27,5 @@ public struct YoutubeVideo: Codable {
     let description:String?
     let duration:String?
     let isLive:Bool?
-    let viewCount:Int?
+    let viewCount:Int64?
 }

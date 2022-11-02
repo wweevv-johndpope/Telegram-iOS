@@ -90,7 +90,7 @@ public class WEVWatchLaterController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVWatchLaterControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, requestActivateSearch: { [weak self] in
+        self.displayNode = WEVWatchLaterControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!,controller: self, requestActivateSearch: { [weak self] in
             self?.activateSearch()
         }, requestDeactivateSearch: { [weak self] in
             self?.deactivateSearch()
@@ -112,32 +112,7 @@ public class WEVWatchLaterController: ViewController {
         }, push: { [weak self] c in
             self?.push(c)
         })
-    
-        /*self.controllerNode.listNode.visibleContentOffsetChanged = { [weak self] offset in
-            if let strongSelf = self {
-                
-                var previousContentOffsetValue: CGFloat?
-                if let previousContentOffset = strongSelf.previousContentOffset, case let .known(value) = previousContentOffset {
-                    previousContentOffsetValue = value
-                }
-                switch offset {
-                    case let .known(value):
-                        let transition: ContainedViewLayoutTransition
-                        if let previousContentOffsetValue = previousContentOffsetValue, value <= 0.0, previousContentOffsetValue > 30.0 {
-                            transition = .animated(duration: 0.2, curve: .easeInOut)
-                        } else {
-                            transition = .immediate
-                        }
-                        strongSelf.navigationBar?.updateBackgroundAlpha(min(30.0, max(0.0, value - 54.0)) / 30.0, transition: transition)
-                    case .unknown, .none:
-                        strongSelf.navigationBar?.updateBackgroundAlpha(1.0, transition: .immediate)
-                }
-                
-                strongSelf.previousContentOffset = offset
-            }
-        }*/
         
-                
         self._ready.set(self.controllerNode._ready.get())
         
         self.navigationBar?.updateBackgroundAlpha(1.0, transition: .immediate)

@@ -65,8 +65,8 @@ public class WEVRootViewController: ViewController {
     //var realtimeClient:RealtimeClient?
     //var allUsersUpdateChanges:Realtime.Channel?
     
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     
     public init(context: AccountContext) {
         self.context = context
@@ -94,6 +94,7 @@ public class WEVRootViewController: ViewController {
                     self.contactsNode.twitchRealTimeSync()
                     self.contactsNode.rumbleRealTimeSync()
                     self.contactsNode.doWatchLaterFetch()
+                    self.contactsNode.watchLaterRealTimeSync()
                 }
             }
         }
