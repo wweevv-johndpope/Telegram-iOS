@@ -1,15 +1,11 @@
 //
-//  WEVChannel.swift
-//  _idx_ContactListUI_1D7887AF_ios_min13.0
+//  YoutubeVideo.swift
+//  _idx_TelegramUI_Lib_001C0785_ios_min13.0
 //
-//  Created by Apple on 15/09/22.
+//  Created by Apple on 01/11/22.
 //
 
 import Foundation
-import HandyJSON
-import UIKit
-
-
 public struct SlimVideo: Codable {
     let id: String // youtube id
     let blob:String  // youtube payload
@@ -27,5 +23,5 @@ public struct YoutubeVideo: Codable {
     let description:String?
     let duration:String?
     let isLive:Bool?
-    let viewCount:Int64?
+    let viewCount:Int?
 }

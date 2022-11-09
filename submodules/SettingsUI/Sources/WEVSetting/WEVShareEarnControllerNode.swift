@@ -49,7 +49,9 @@ final class WEVShareEarnControllerNode: ASDisplayNode {
         self.requestDeactivateSearch = requestDeactivateSearch
         self.present = present
         self.push = push
-
+        print(context.account.id.int64)
+        print(context.account.peerId.id._internalGetInt64Value())
+        print(context.account.peerId)
         super.init()
         
         self.backgroundColor = presentationData.theme.list.blocksBackgroundColor

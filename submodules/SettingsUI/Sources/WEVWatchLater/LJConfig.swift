@@ -91,20 +91,5 @@ struct LJConfig {
         static let youtube = "slim_video"
         static let clips = "clips"
         static let rumble = "rumble"
-        static let watchLater = "watch_later"
-    }
-}
-
-func printLog<T>(_ message: T,
-                 file: String = #file,
-                 method: String = #function,
-                 line: Int = #line) {
-    switch LJConfig.environment {
-    case .debug:
-        let log = "\(Date()), \((file as NSString).lastPathComponent)[\(line)], \(method):\n \(message)"
-        print(log)
-        LJDebugTool.share.appendLog(log)
-    case .release:
-        break
     }
 }

@@ -1444,11 +1444,11 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
             if item.isShowLike {
                 if item.isVideoLiked {
                     //Show like button over here
-                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_selected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "watchlater_selected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
                     barButtonItems.append(rightBarButtonItem)
                 } else {
                     //Show like button over here
-                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "watchlater_unselected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
                     barButtonItems.append(rightBarButtonItem)
                 }
             }
@@ -2213,7 +2213,7 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
         @objc func likeButtonPressed() {
             if let item = self.item {
                 item.isVideoLiked = !item.isVideoLiked
-                let rightBarButtonItem = UIBarButtonItem(image: item.isVideoLiked ? UIImage(named: "tabbar_feed_selected") : UIImage(named: "tabbar_feed_unselect"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                let rightBarButtonItem = UIBarButtonItem(image: item.isVideoLiked ? UIImage(named: "watchlater_selected") : UIImage(named: "watchlater_unselected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
                 
                 var barButtonItems: [UIBarButtonItem] = []
                 self._rightBarButtonItems.get().start { itemsArray in

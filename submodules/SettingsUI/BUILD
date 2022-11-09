@@ -101,6 +101,7 @@ swift_library(
         "//submodules/ListMessageItem:ListMessageItem",
         "//submodules/PaymentMethodUI:PaymentMethodUI",
         "//submodules/PremiumUI:PremiumUI",
+        "//submodules/ContactListUI:ContactListUI",
         "//submodules/InviteLinksUI:InviteLinksUI",
         "//submodules/HorizontalPeerItem:HorizontalPeerItem",
         "//third-party/MBProgressHUD:MBProgressHUD",

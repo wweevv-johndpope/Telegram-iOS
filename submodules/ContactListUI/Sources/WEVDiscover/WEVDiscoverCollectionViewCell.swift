@@ -68,12 +68,6 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    public var likedVideoModel: VideoWathcList? = nil {
-        didSet {
-            updateLikedVideo()
-        }
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         initView()
@@ -254,35 +248,6 @@ class WEVDiscoverCollectionViewCell: UICollectionViewCell {
         amountLabel.text = "  \(numberStr) \(unit)  "
         
         imageView.kf.setImage(with: URL.init(string: model.thumbnailUrl), placeholder: nil)
-    }
-
-    private func updateLikedVideo() {
-        guard let model = likedVideoModel else { return }
-        switch model.type {
-            case WEVChannel.youtube.rawValue:
-                channelImageView.image = WEVChannel.youtube.smallImage
-            case WEVChannel.twitch.rawValue:
-                channelImageView.image = WEVChannel.twitch.smallImage
-            case WEVChannel.rumble.rawValue:
-                channelImageView.image = WEVChannel.rumble.smallImage
-            case WEVChannel.liked.rawValue:
-                channelImageView.image = WEVChannel.liked.smallImage
-            default:
-                break
-        }
-        channelNameLabel.text = model.title
-        liveLabel.isHidden = false
-        var numberStr = "\(model.videoViews)"
-        var unit = "viewers"
-        if model.videoViews == 1 {
-            unit = "viewer"
-        }
-        if model.videoViews >= 1000 {
-            numberStr = String.init(format: "%.1fk", Double(model.videoViews) / 1000.0)
-        }
-        amountLabel.text = "  \(numberStr) \(unit)  "
-        
-        imageView.kf.setImage(with: URL.init(string: model.thumbnailURL), placeholder: nil)
     }
 
     
