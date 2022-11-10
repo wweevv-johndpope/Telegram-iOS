@@ -59,6 +59,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var rumbleVideos: [RumbleVideo] = []
     var isLaunchSync: Bool = false
     var arrWatchLater: [WatchLaterVideo] = []
+    var arrSubscribedVideos: [SubscribedVideo] = []
 
     private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
     private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
@@ -276,8 +277,10 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                     for  vid in videos{
                         do {
                             if let data = vid.blob.data(using: .utf8) {
-                                let video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
+                                var video:YoutubeVideo = try decoder.decode(YoutubeVideo.self, from:data )
                                 print("video:",video)
+                                video.channelId = vid.channelId
+                                video.channelTitle = vid.channelTitle
                                 self.ytVideos.append(video)
                             }
                         }catch (let ex){
@@ -694,6 +697,37 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         rt.connect()
     }
     
+    func subscribeRealTimeSync() {
+        let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
+        
+        rt.onOpen {
+            print("Socket opened.")
+            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.subscribeVideo, schema: "public"))
+
+            allUsersUpdateChanges.on(.all) { message in
+            }
+            allUsersUpdateChanges.subscribe()
+        }
+        
+        rt.onError{error in
+            print("Socket error: ", error.localizedDescription)
+        }
+        
+        rt.onClose {
+            print("Socket closed")
+        }
+        
+        rt.onMessage{message in
+            switch message.event {
+                case .insert, .update, .delete:
+                    self.doFetchSubscribeVideo()
+                default:
+                    break
+            }
+         }
+        rt.connect()
+    }
+    
     func rumbleRealTimeSync() {
         let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
         
@@ -831,7 +865,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                                         do {
                                             let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
                                             if let data = video.blob.data(using: .utf8) {
-                                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                var ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                ytVideo.channelId = video.channelId
+                                                ytVideo.channelTitle = video.channelTitle
                                                 self.ytVideos.insert(ytVideo, at: 0)
                                                 let indertIndexPaths = IndexPath(item: 0, section: 0)
                                                 collectionView.insertItems(at: [indertIndexPaths])
@@ -847,7 +883,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                         } else {
                             let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
                             if let data = video.blob.data(using: .utf8) {
-                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data )
+                                var ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data )
+                                ytVideo.channelId = video.channelId
+                                ytVideo.channelTitle = video.channelTitle
                                 self.ytVideos.insert(ytVideo, at: 0)
                             }
                         }
@@ -865,7 +903,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                                             if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
                                                 let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
                                                 if let data = video.blob.data(using: .utf8) {
-                                                    let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                    var ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                                    ytVideo.channelId = video.channelId
+                                                    ytVideo.channelTitle = video.channelTitle
                                                     self.ytVideos[index] = ytVideo
                                                     let indertIndexPaths = IndexPath(item: index, section: 0)
                                                     collectionView.reloadItems(at: [indertIndexPaths])
@@ -881,7 +921,9 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                         } else if let index = self.ytVideos.firstIndex(where: {$0.id == id}) {
                             let video = try DictionaryDecoder().decode(SlimVideo.self, from: record)
                             if let data = video.blob.data(using: .utf8) {
-                                let ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                var ytVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                                ytVideo.channelId = video.channelId
+                                ytVideo.channelTitle = video.channelTitle
                                 self.ytVideos[index] = ytVideo
                             }
                         }
@@ -1171,11 +1213,15 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         let websiteName = "YouTube"
         var url = ""
         var isLikedVideo = false
+        var isSubscribed = false
+        var isShowSubscribe = false
         if let ytVideo = video {
             videoTitle = ytVideo.title
             videoDescription = ytVideo.description ?? ""
             url = "https://www.youtube.com/watch?v=" + ytVideo.id
             isLikedVideo = arrWatchLater.firstIndex(where: {$0.youtubeId == ytVideo.id}) == nil ? false : true
+            isSubscribed = arrSubscribedVideos.firstIndex(where: {$0.youTubeChannelId == ytVideo.channelId})  == nil ? false : true
+            isShowSubscribe = true
         } else if let twitch = clip {
             url = twitch.clipEmbedUrl + "&autoplay=true&parent=streamernews.example.com&parent=embed.example.com"
             videoTitle = twitch.clipTitle
@@ -1232,7 +1278,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         // Source is message?
         let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.controller.accountContext()
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, isVideoLiked: isLikedVideo, replaceRootController: { controller, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, isVideoLiked: isLikedVideo, isShowSubcribe: isShowSubscribe, isVideoSubscribed: isSubscribed, replaceRootController: { controller, ready in
             print("👹  we're in replaceRootController....")
             if let baseNavigationController = self.navigationController {
                 baseNavigationController.replaceTopController(controller, animated: false, ready: ready)
@@ -1257,6 +1303,16 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         galleryVC.onDislike = {
             print("user unliked video")
             self.likeVideo(video: video, clip: clip, rumbleVideo: rumbleVideo, isLiked: false)
+        }
+        
+        galleryVC.onSubscribe = {
+            print("Pressed subscribe")
+            self.subscribeYTVideo(video: video, isSubscribe: true)
+        }
+        
+        galleryVC.onDesubscribe = {
+            print("Pressed onDesubscribe")
+            self.subscribeYTVideo(video: video, isSubscribe: false)
         }
         
         self.controller.present(galleryVC, in: .window(.root))
@@ -1287,6 +1343,55 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         }
     }
     
+    func subscribeYTVideo(video: YoutubeVideo? = nil, isSubscribe: Bool) {
+        if let ytVideo = video {
+            if isSubscribe {
+                let video = NewWatchLaterVideo(videoType: 1, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: nil, youtubeId: ytVideo.id, rumbleId: nil)
+                self.doPerformSubscribeVideo(videoObj: video)
+            } else if let index = arrSubscribedVideos.firstIndex(where: {$0.youtubeId == ytVideo.id}) {
+                self.doPerformRemoveSubscribe(id: arrSubscribedVideos[index].id)
+            }
+        } /*else if let twitch = clip {
+            if isLiked {
+                let video = NewWatchLaterVideo(videoType: 2, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: twitch.id, youtubeId: nil, rumbleId: nil)
+                self.doPerformAddWatchLater(videoObj: video)
+            } else if let index = arrSubscribedVideos.firstIndex(where: {$0.twitchId == twitch.id}) {
+                self.doPerformRemoveWatchLater(id: arrSubscribedVideos[index].id)
+            }
+        } else if let rumble = rumbleVideo {
+            if isLiked {
+                let video = NewWatchLaterVideo(videoType: 3, userId: context.account.peerId.id._internalGetInt64Value(), twitchId: nil, youtubeId: nil, rumbleId: rumble.id)
+                self.doPerformAddWatchLater(videoObj: video)
+            } else if let index = arrSubscribedVideos.firstIndex(where: {$0.rumbleId == rumble.id}) {
+                self.doPerformRemoveWatchLater(id: arrSubscribedVideos[index].id)
+            }
+        }*/
+    }
+    
+    func doPerformSubscribeVideo(videoObj: NewWatchLaterVideo) {
+        Task {
+            await performSubscribeVideo(videoObj: videoObj)
+        }
+    }
+    
+    func performSubscribeVideo(videoObj: NewWatchLaterVideo) async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            let insertedVideo = try await client.from(LJConfig.SupabaseTablesName.subscribeVideo)
+                .insert(
+                    values: videoObj,
+                    returning: .representation
+                )
+                .execute()
+                .json()
+            print(insertedVideo)
+        } catch  {
+            print(error.localizedDescription)
+        }
+    }
+    
     func doPerformAddWatchLater(videoObj: NewWatchLaterVideo) {
         Task {
             await performAddWatchLater(videoObj: videoObj)
@@ -1298,7 +1403,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return
         }
         do {
-            let insertedVideo = try await client.from("watch_later")
+            let insertedVideo = try await client.from(LJConfig.SupabaseTablesName.watchLater)
                 .insert(
                     values: videoObj,
                     returning: .representation
@@ -1322,7 +1427,24 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
             return
         }
         do {
-            try await client.from("watch_later").delete().eq(column: "id", value: "\(id)").execute()
+            try await client.from(LJConfig.SupabaseTablesName.watchLater).delete().eq(column: "id", value: "\(id)").execute()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func doPerformRemoveSubscribe(id: Int64) {
+        Task {
+            await performRemoveSubscribe(id: id)
+        }
+    }
+    
+    func performRemoveSubscribe(id: Int64) async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            try await client.from(LJConfig.SupabaseTablesName.subscribeVideo).delete().eq(column: "id", value: "\(id)").execute()
         } catch {
             print(error.localizedDescription)
         }
@@ -1344,7 +1466,7 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         // Get twitch videos
         do {
              let watchLater = try await client
-            .from("watch_later_view")
+                .from(LJConfig.SupabaseViews.watchLater)
             .select()
             .eq(column: "user_id", value: "\(context.account.peerId.id._internalGetInt64Value())")
             .execute()
@@ -1368,6 +1490,64 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
                 }
             }
             saveWatchList(arrWatchLater)
+        } catch let DecodingError.dataCorrupted(context) {
+            errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
+                
+        } catch let DecodingError.keyNotFound(key, context) {
+            errMsg = "Key '\(key)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+        } catch let DecodingError.valueNotFound(value, context) {
+            errMsg = "Value '\(value)' not found:" + context.debugDescription + "\n\( context.codingPath)"
+
+        } catch let DecodingError.typeMismatch(type, context)  {
+            errMsg = "Type '\(type)' mismatch:" + context.debugDescription + "\n\( context.codingPath)"
+        } catch {
+            errMsg = "error: " + error.localizedDescription
+        }
+        if !errMsg.isEmpty {
+            print("<<<<<<<<",errMsg,">>>>>>")
+        }
+    }
+    
+    func doFetchSubscribeVideo() {
+        Task {
+            await fetchSubscribedVideos()
+        }
+    }
+
+    
+    func fetchSubscribedVideos() async {
+        guard let client = await self.controller.database else {
+            return
+        }
+        
+        var errMsg = ""
+        // Get twitch videos
+        do {
+             let subscribedVideo = try await client
+                .from(LJConfig.SupabaseViews.subscribeView)
+            .select()
+            .eq(column: "user_id", value: "\(context.account.peerId.id._internalGetInt64Value())")
+            .execute()
+            .decoded(to: [SubscribedVideo].self)
+            
+            //assign watch later data to array
+            self.arrSubscribedVideos = subscribedVideo
+            //get watch later object
+            for index in 0..<arrSubscribedVideos.count where arrSubscribedVideos[index].videoType == 1 {
+                if let blob = arrSubscribedVideos[index].blob, let data = blob.data(using: .utf8) {
+                    do {
+                        let video:YoutubeVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
+                        print("video:",video)
+                        arrSubscribedVideos[index].youTubeTitle = video.title
+                        arrSubscribedVideos[index].youTubeDescription = video.description
+                        arrSubscribedVideos[index].youTubeThumbnail = video.thumbnails[0]?.url ?? ""
+                        arrSubscribedVideos[index].youTubeViewCounts = video.viewCount
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+            saveSubscribedVideoList(self.arrSubscribedVideos)
         } catch let DecodingError.dataCorrupted(context) {
             errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
                 

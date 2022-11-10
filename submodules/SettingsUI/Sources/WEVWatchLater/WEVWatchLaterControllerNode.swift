@@ -218,7 +218,7 @@ extension WEVWatchLaterControllerNode {
         // Get twitch videos
         do {
             let watchLater = try await client
-                .from("watch_later_view")
+                .from(LJConfig.SupabaseViews.watchLater)
                 .select()
                 .eq(column: "user_id", value: "\(context.account.peerId.id._internalGetInt64Value())")
                 .execute()
@@ -274,7 +274,7 @@ extension WEVWatchLaterControllerNode {
             return
         }
         do {
-            let insertedVideo = try await client.from("watch_later")
+            let insertedVideo = try await client.from(LJConfig.SupabaseTablesName.watchLater)
                 .insert(
                     values: videoObj,
                     returning: .representation
@@ -298,7 +298,7 @@ extension WEVWatchLaterControllerNode {
             return
         }
         do {
-            try await client.from("watch_later").delete().eq(column: "id", value: "\(id)").execute()
+            try await client.from(LJConfig.SupabaseTablesName.watchLater).delete().eq(column: "id", value: "\(id)").execute()
             self.doWatchLaterFetch()
         } catch {
             print(error.localizedDescription)

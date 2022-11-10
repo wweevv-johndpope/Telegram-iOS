@@ -13,6 +13,8 @@ import UIKit
 public struct SlimVideo: Codable {
     let id: String // youtube id
     let blob:String  // youtube payload
+    let channelId: String?
+    let channelTitle: String?
 }
 
 public struct Thumbnail: Codable {
@@ -28,4 +30,6 @@ public struct YoutubeVideo: Codable {
     let duration:String?
     let isLive:Bool?
     let viewCount:Int64?
+    var channelId: String?
+    var channelTitle: String?
 }
