@@ -753,7 +753,7 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
     
     //add Watch Later
     let count = fetchWatchList().count
-    let watchLaterLabel = count == 0 ? "" : "\(count)"
+    let watchLaterLabel = count == 0 ? "0" : "\(count)"
     items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 18, label: .badge(watchLaterLabel, presentationData.theme.list.itemAccentColor), text: presentationData.strings.WEV_WatchLater, icon: PresentationResourcesSettings.watchLater, action: {
         interaction.openSettings(.watchLater)
     }))

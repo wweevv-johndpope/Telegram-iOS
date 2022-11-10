@@ -91,5 +91,11 @@ struct LJConfig {
         static let youtube = "slim_video"
         static let clips = "clips"
         static let rumble = "rumble"
+        static let watchLater = "watch_later"
+        static let subscribeVideo = "subscribed_channel"
+    }
+    
+    struct SupabaseViews {
+        static let watchLater = "watch_later_view"
     }
 }

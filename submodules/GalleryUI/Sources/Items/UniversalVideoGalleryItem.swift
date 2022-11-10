@@ -50,6 +50,8 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let timecode: Double?
     let isShowLike: Bool
     var isVideoLiked: Bool
+    let isShowSubcribe: Bool
+    var isVideoSubscribed: Bool
     let playbackRate: () -> Double?
     let configuration: GalleryConfiguration?
     let playbackCompleted: () -> Void
@@ -59,9 +61,11 @@ public class UniversalVideoGalleryItem: GalleryItem {
     let present: (ViewController, Any?) -> Void
     public var onLike: (() -> Void)?
     public var onDislike: (() -> Void)?
+    public var onSubscribe: (() -> Void)?
+    public var onDesubscribe: (() -> Void)?
 
 
-    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, isVideoLiked: Bool = false, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
+    public init(context: AccountContext, presentationData: PresentationData, content: UniversalVideoContent, originData: GalleryItemOriginData?, indexData: GalleryItemIndexData?, contentInfo: UniversalVideoGalleryItemContentInfo?, caption: NSAttributedString, description: NSAttributedString? = nil, credit: NSAttributedString? = nil, displayInfoOnTop: Bool = false, hideControls: Bool = false, fromPlayingVideo: Bool = false, isSecret: Bool = false, landscape: Bool = false, timecode: Double? = nil, isShowLike: Bool = false, isVideoLiked: Bool = false, isShowSubcribe: Bool = false, isVideoSubscribed: Bool = false, playbackRate: @escaping () -> Double?, configuration: GalleryConfiguration? = nil, playbackCompleted: @escaping () -> Void = {}, performAction: @escaping (GalleryControllerInteractionTapAction) -> Void, openActionOptions: @escaping (GalleryControllerInteractionTapAction, Message) -> Void, storeMediaPlaybackState: @escaping (MessageId, Double?, Double) -> Void, present: @escaping (ViewController, Any?) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.content = content
@@ -79,6 +83,8 @@ public class UniversalVideoGalleryItem: GalleryItem {
         self.timecode = timecode
         self.isShowLike = isShowLike
         self.isVideoLiked = isVideoLiked
+        self.isShowSubcribe = isShowSubcribe
+        self.isVideoSubscribed = isVideoSubscribed
         self.playbackRate = playbackRate
         self.configuration = configuration
         self.playbackCompleted = playbackCompleted
@@ -109,6 +115,13 @@ public class UniversalVideoGalleryItem: GalleryItem {
             self.onDislike?()
         }
         
+        node.onSubscribe = {
+            self.onSubscribe?()
+        }
+        
+        node.onDesubscribe = {
+            self.onDesubscribe?()
+        }
         return node
     }
     
@@ -774,6 +787,9 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
     
     public var onLike: (() -> Void)?
     public var onDislike: (() -> Void)?
+    
+    public var onSubscribe: (() -> Void)?
+    public var onDesubscribe: (() -> Void)?
     
     private var requiresDownload = false
     
@@ -1449,6 +1465,19 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
                 } else {
                     //Show like button over here
                     let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "watchlater_unselected"), style: .plain, target: self, action: #selector(self.likeButtonPressed))
+                    barButtonItems.append(rightBarButtonItem)
+                }
+            }
+            
+            //code for add like button
+            if item.isShowSubcribe {
+                if item.isVideoSubscribed {
+                    //Show like button over here
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "notification_selected"), style: .plain, target: self, action: #selector(self.subScribeButtonPressed))
+                    barButtonItems.append(rightBarButtonItem)
+                } else {
+                    //Show like button over here
+                    let rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "notification"), style: .plain, target: self, action: #selector(self.subScribeButtonPressed))
                     barButtonItems.append(rightBarButtonItem)
                 }
             }
@@ -2234,6 +2263,31 @@ final class UniversalVideoGalleryItemNode: ZoomableContentGalleryItemNode {
                 }
             }
         }
+    
+    @objc func subScribeButtonPressed() {
+        if let item = self.item {
+            item.isVideoSubscribed = !item.isVideoSubscribed
+            let rightBarButtonItem = UIBarButtonItem(image: item.isVideoSubscribed ? UIImage(named: "notification_selected") : UIImage(named: "notification"), style: .plain, target: self, action: #selector(self.subScribeButtonPressed))
+            
+            var barButtonItems: [UIBarButtonItem] = []
+            self._rightBarButtonItems.get().start { itemsArray in
+                if let barItems = itemsArray {
+                    barButtonItems.append(contentsOf: barItems)
+                    barButtonItems[1] = rightBarButtonItem
+                }
+            } error: { error in
+            } completed: {
+                print("Compelted")
+            }
+            
+            self._rightBarButtonItems.set(.single(barButtonItems))
+            if item.isVideoSubscribed {
+                self.onSubscribe?()
+            } else {
+                self.onDesubscribe?()
+            }
+        }
+    }
     
     @objc func pictureInPictureButtonPressed() {
         var isNativePictureInPictureSupported = false

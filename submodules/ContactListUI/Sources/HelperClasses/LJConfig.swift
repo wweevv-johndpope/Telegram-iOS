@@ -83,7 +83,7 @@ struct LJConfig {
     
     struct SupabaseColumns {
         static let clips = "id,user_id,user_name,profile_image_url,clip_id,clip_embed_url,clip_title,clip_view_count,clip_thumbnail_url"
-        static let youtube = "id,blob"
+        static let youtube = "id,blob,channelId,channelTitle"
         static let rumble = "id,title,thumbnail_url,embed_url,m3u8,viewer_count"
     }
     
@@ -92,6 +92,12 @@ struct LJConfig {
         static let clips = "clips"
         static let rumble = "rumble"
         static let watchLater = "watch_later"
+        static let subscribeVideo = "subscribed_channel"
+    }
+    
+    struct SupabaseViews {
+        static let watchLater = "watch_later_view"
+        static let subscribeView = "subscribed_channels_view"
     }
 }
 

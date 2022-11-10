@@ -95,6 +95,7 @@ public class WEVRootViewController: ViewController {
                     self.contactsNode.rumbleRealTimeSync()
                     self.contactsNode.doWatchLaterFetch()
                     self.contactsNode.watchLaterRealTimeSync()
+                    self.contactsNode.subscribeRealTimeSync()
                 }
             }
         }
