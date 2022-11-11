@@ -61,8 +61,8 @@ public class WEVDiscoverRootNode: ASDisplayNode {
     var arrWatchLater: [WatchLaterVideo] = []
     var arrSubscribedVideos: [SubscribedVideo] = []
 
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
     
     /// 根据状态返回该显示的视频
     private var showDataArray: [WEVVideoModel] {

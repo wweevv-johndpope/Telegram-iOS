@@ -109,6 +109,42 @@ class WEVWatchLaterTableViewCell: UITableViewCell {
         lblViews.textColor = presentationData.theme.list.itemSecondaryTextColor
     }
     
+    func configureCell(video: Item, presentationData: PresentationData) {
+        //switch watchLater.videoType {
+        //case 1:
+            titleLabel.text = video.snippet.title
+            //if let imageURL = video.snippet.thumbnails.maxres {
+        imgView.kf.setImage(with: URL(string: video.snippet.thumbnails.maxres.url))
+            //}
+            imgTypeView.image = UIImage(named: "segment_youtube")
+            videoTypeLabel.text = "Youtube"
+            //self.setViews(count: watchLater.youTubeViewCounts)
+        /*case 2:
+            titleLabel.text = watchLater.clipTitle ?? ""
+            if let imageURL = watchLater.clipThumbnailUrl {
+                imgView.kf.setImage(with: URL(string: imageURL))
+            }
+            imgTypeView.image = UIImage(named: "segemnt_twitch")
+            videoTypeLabel.text = "Twitch"
+            self.setViews(count: watchLater.clipViewCount)
+        case 3:
+            titleLabel.text = watchLater.rumbleTitle ?? ""
+            if let imageURL = watchLater.rumbleThumbnailUrl {
+                imgView.kf.setImage(with: URL(string: imageURL))
+            }
+            imgTypeView.image = UIImage(named: "segment-rumble")
+            videoTypeLabel.text = "Rumble"
+            self.setViews(count: watchLater.rumbleViewerCount)
+        default:
+            titleLabel.text = ""
+        }*/
+        imgView.layer.cornerRadius = 5
+        imgView.layer.masksToBounds = true
+        titleLabel.textColor = presentationData.theme.list.itemPrimaryTextColor
+        videoTypeLabel.textColor = presentationData.theme.list.itemSecondaryTextColor
+        lblViews.textColor = presentationData.theme.list.itemSecondaryTextColor
+    }
+    
     func setViews(count: Int64?) {
         var numberStr = "\(count ?? 0)"
         var unit = "views"
