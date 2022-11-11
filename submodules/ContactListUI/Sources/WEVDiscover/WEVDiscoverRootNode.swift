@@ -205,7 +205,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.presentationData = self.presentationData
         view.filterAction = {[weak self] in
             guard let self = self else {return}
-            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
+            /*let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
             vc.selectedArray = self.selectedChannelArray
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
@@ -225,8 +225,23 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 //fetch filter data
                 self.selectedChannelArray = channelArray
                 self.scrollViewLoadData(isHeadRefesh: true)
+            }*/
+            let push: (ViewController) -> Void = { [weak self] c in
+                guard let strongSelf = self, let navigationController = strongSelf.controller?.navigationController as? NavigationController else {
+                    return
+                }
+                var updatedControllers = navigationController.viewControllers
+                for controller in navigationController.viewControllers.reversed() {
+                    if controller !== strongSelf && !(controller is TabBarController) {
+                        updatedControllers.removeLast()
+                    } else {
+                        break
+                    }
+                }
+                updatedControllers.append(c)
+                navigationController.setViewControllers(updatedControllers, animated: true)
             }
-            self.controller.present(vc, animated: true, completion: nil)
+            push(WEVSubscribeController(context: self.context))
         }
         
         view.cancelAction = {[weak self] in
