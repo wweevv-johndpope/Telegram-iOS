@@ -87,9 +87,9 @@ public class WEVRootViewController: ViewController {
                             self.contactsNode.refreshEmptyView()
                         }
                     }
-                    //self.contactsNode.arrVideoWatchLists.append(contentsOf: fetchWatchList())
-                    //Need to Fix delete issues for real time
-                    //May be that should be crash
+                    //save current user to supabase
+                    self.contactsNode.fetchTelegramUserInfo()
+                    //real time sync
                     self.contactsNode.youTubeRealTimeSync()
                     self.contactsNode.twitchRealTimeSync()
                     self.contactsNode.rumbleRealTimeSync()
