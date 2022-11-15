@@ -20,7 +20,7 @@ import ContactListUI
 import PostgREST
 import GalleryUI
 
-final class WEVWatchLaterControllerNode: ASDisplayNode {
+final class WEVWatchLaterControllerNode: ViewControllerTracingNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?

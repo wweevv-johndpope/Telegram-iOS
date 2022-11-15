@@ -7211,6 +7211,7 @@ Sorry for the inconvenience.";
 "WEV.ShareAndEarn" = "Share to Earn";
 "WEV.WatchLater" = "Watch Later";
 "WEV.Subscribe" = "Subscribed";
+"WEV.ApplyReferral" = "Apply Referral Code";
 "Localization.TranslateMessages" = "Translate Messages";
 "Localization.ShowTranslate" = "Show Translate Button";
 "Localization.ShowTranslateInfo" = "Show a 'Translate' button in the message action menu.";

@@ -74,7 +74,7 @@ public class WEVWatchLaterController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         //self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = self.presentationData.strings.Settings_AppLanguage
+        self.title = self.presentationData.strings.WEV_WatchLater
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.controllerNode.updatePresentationData(self.presentationData)
         

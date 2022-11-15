@@ -9,11 +9,11 @@ import TelegramPresentationData
 import AccountContext
 import SearchUI
 
-public class WEVShareEarnController: ViewController {
+public class WEVApplyReferalController: ViewController {
     private let context: AccountContext
     
-    private var controllerNode: WEVShareEarnControllerNode {
-        return self.displayNode as! WEVShareEarnControllerNode
+    private var controllerNode: WEVApplyReferalControllerNode {
+        return self.displayNode as! WEVApplyReferalControllerNode
     }
     
     private var _ready = Promise<Bool>()
@@ -39,7 +39,7 @@ public class WEVShareEarnController: ViewController {
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title = self.presentationData.strings.WEV_ShareAndEarn
+        self.title = self.presentationData.strings.WEV_ApplyReferral
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
@@ -71,7 +71,7 @@ public class WEVShareEarnController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         //self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = self.presentationData.strings.WEV_ShareAndEarn
+        self.title = self.presentationData.strings.WEV_ApplyReferral
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.controllerNode.updatePresentationData(self.presentationData)
         
@@ -87,7 +87,7 @@ public class WEVShareEarnController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVShareEarnControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, requestActivateSearch: { [weak self] in
+        self.displayNode = WEVApplyReferalControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, requestActivateSearch: { [weak self] in
             self?.activateSearch()
         }, requestDeactivateSearch: { [weak self] in
             self?.deactivateSearch()

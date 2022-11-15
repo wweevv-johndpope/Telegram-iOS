@@ -17,9 +17,9 @@ import UndoUI
 import TelegramUIPreferences
 import TranslateUI
 import ContactListUI
+import Realtime
 
-
-final class WEVShareEarnControllerNode: ViewControllerTracingNode {
+final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?
@@ -34,14 +34,14 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
     private var containerLayout: (ContainerViewLayout, CGFloat)?
     private let presentationDataValue = Promise<PresentationData>()
     private let isEditing = ValuePromise<Bool>(false)
-    private var nodeView = UIView(frame: .zero)
-    private var currentLayout: CGSize = .zero
-
     private var isEditingValue: Bool = false {
         didSet {
             self.isEditing.set(self.isEditingValue)
         }
     }
+    
+    private var nodeView = UIView(frame: .zero)
+    private var currentLayout: CGSize = .zero
     
     init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
         self.context = context
@@ -80,6 +80,15 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         self.currentLayout = layout.size
     }
     
+    
+    private func updateConstriant(navigationBarHeight: CGFloat) {
+        nodeView.snp.remakeConstraints { (make) in
+            make.top.equalToSuperview().offset(navigationBarHeight)
+            make.left.bottom.right.equalToSuperview()
+        }
+    }
+
+    
     private func dequeueTransitions(navigationBarHeight: CGFloat) {
         guard let _ = self.containerLayout else {
             return
@@ -92,21 +101,21 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
             self.updateView()
         }
     }
-    
-    private func updateConstriant(navigationBarHeight: CGFloat) {
-            nodeView.snp.remakeConstraints { (make) in
-                make.top.equalToSuperview().offset(navigationBarHeight)
-                make.left.bottom.right.equalToSuperview()
-            }
-        }
 
     func toggleEditing() {
         self.isEditingValue = !self.isEditingValue
     }
     
-    private lazy var inviteCodeLabel: UILabel = {
-        let view = UILabel.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: LJColor.black)
+    private lazy var applyCodeTextField: UITextField = {
+        //let view = UIlable.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: LJColor.black)
+        
+        let view = UITextField(frame: CGRect.zero)
+        view.textColor = LJColor.black
+        view.font = LJFont.medium(28 * LJScreen.scaleWidthLessOfIX)
         view.textAlignment = .center
+        view.returnKeyType = .done
+        view.tintColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
+        view.delegate = self
         return view
     }()
     
@@ -131,13 +140,13 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         }
         
         
-        let shareButton = UIButton.lj.configure(title: "Share my code", fontSize: 14)
+        let shareButton = UIButton.lj.configure(title: "Submit", fontSize: 14)
         shareButton.addTarget(self, action: #selector(shareButtonAction), for: .touchUpInside)
         //view.addSubview(shareButton)
         //Filter view to select channel
         /*let shareButtonNode =  ASDisplayNode { () -> UIView in
-            return shareButton
-        }*/
+         return shareButton
+         }*/
         self.nodeView.addSubview(shareButton)
         shareButton.snp.makeConstraints { (make) in
             make.bottom.equalToSuperview().offset(-LJScreen.safeAreaBottomHeight - 8)
@@ -149,15 +158,15 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         let scrollView = UIScrollView()
         //view.addSubview(scrollView)
         /*let scrollViewNode =  ASDisplayNode { () -> UIView in
-            return scrollView
-        }*/
+         return scrollView
+         }*/
         self.nodeView.addSubview(scrollView)
         scrollView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()//.offset(LJScreen.navigationBarHeight)
-            make.bottom.equalTo(shareButton.snp.top).offset(-30)
+            make.bottom.equalTo(shareButton.snp.top)
             make.left.right.equalToSuperview()
         }
-
+        
         let containView = UIView()
         scrollView.addSubview(containView)
         containView.snp.makeConstraints { (make) in
@@ -177,7 +186,7 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
             let codeBgView = UIView()
             codeBgView.backgroundColor = .clear //LJColor.hex(0xEFF0F2, 0.79)
             codeBgView.layer.cornerRadius = 16
-           
+            
             let descLabel = UILabel.lj.configure(font: LJFont.regular(14), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Share your code with a friend. When they use it to register to Wweevv you will earn points!\nThe more you refer, the better the points.")
             descLabel.lj.setLineSpacing()
             descLabel.textAlignment = .center
@@ -188,7 +197,7 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
                 make.left.equalToSuperview().offset(15)
                 make.right.equalToSuperview().offset(-15)
             }
-            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Your code")
+            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Apply referral code")
             codeBgView.addSubview(youCode)
             youCode.snp.makeConstraints { (make) in
                 make.top.equalTo(descLabel.snp.bottom).offset(24)
@@ -197,15 +206,15 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
             
             let codeImageBgView: UIImageView = {
                 let imageView = UIImageView(image: UIImage.init(named: "share_invite_code_bg"))
-                imageView.addSubview(inviteCodeLabel)
+                imageView.addSubview(applyCodeTextField)
                 imageView.isUserInteractionEnabled = true
-                inviteCodeLabel.snp.makeConstraints { (make) in
-                    make.center.equalToSuperview()
+                applyCodeTextField.snp.makeConstraints { (make) in
+                    make.top.bottom.left.right.equalToSuperview()
                 }
                 
                 imageView.addSubview(inviteCodeEditButton)
                 inviteCodeEditButton.snp.makeConstraints { (make) in
-                    make.left.equalTo(inviteCodeLabel.snp.right).offset(0)
+                    make.left.equalTo(applyCodeTextField.snp.right).offset(0)
                     make.size.equalTo(CGSize(width: 40, height: 40))
                     make.centerY.equalToSuperview()
                 }
@@ -241,12 +250,14 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
             make.left.equalToSuperview().offset(15)
             make.right.equalToSuperview().offset(-15)
             make.top.equalTo(codeBgView.snp.bottom).offset(24)
-            make.bottom.equalToSuperview().offset(-20)
+            make.bottom.equalToSuperview().offset(-50)
         }
+        
+        applyCodeTextField.becomeFirstResponder()
     }
     
     private func updateView() {
-        inviteCodeLabel.text = "hl9prv" //LJUser.user.inviteCode
+        applyCodeTextField.text = "" //LJUser.user.inviteCode
         inviteCodeEditButton.isHidden = true //LJUser.user.editInviteCode
     }
     
@@ -336,3 +347,47 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
 
 }
 
+extension WEVApplyReferalControllerNode: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
+    }
+    
+    func doSaveUserData(peer: TelegramUser) {
+        Task {
+            await saveUserData(peer: peer)
+        }
+    }
+    
+    func saveUserData(peer: TelegramUser) async {
+        //check client is not a nil
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            
+            let cuurentUser = try await client
+               .from("user")
+           .select()
+           .eq(column: "user_id", value: "\(peer.id.id._internalGetInt64Value())")
+           .execute()
+           .decoded(to: [WevUser].self)
+
+            //if referralcode is there use existing otherwise create a new code
+            let refralCode = cuurentUser.first?.referralcode ?? referalCode.generateRefferalCode()
+            
+            let _ = try await client.from("user")
+                .upsert(
+                    values: WevUser(userId: peer.id.id._internalGetInt64Value(), firstname: peer.firstName, lastname: peer.lastName, username: peer.username, phone: peer.phone, referralcode: refralCode),
+                    onConflict: "user_id",
+                    returning: .representation,
+                    ignoreDuplicates: false
+                )
+                .execute()
+                .json()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+}
