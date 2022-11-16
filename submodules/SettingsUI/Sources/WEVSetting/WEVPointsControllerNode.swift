@@ -18,9 +18,8 @@ import TelegramUIPreferences
 import TranslateUI
 import ContactListUI
 import PostgREST
-import MBProgressHUD
 
-final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
+final class WEVShareEarnControllerNode: ViewControllerTracingNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?
@@ -35,21 +34,17 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
     private var containerLayout: (ContainerViewLayout, CGFloat)?
     private let presentationDataValue = Promise<PresentationData>()
     private let isEditing = ValuePromise<Bool>(false)
+    private var nodeView = UIView(frame: .zero)
+    private var currentLayout: CGSize = .zero
+    private var client: PostgrestClient?
+
     private var isEditingValue: Bool = false {
         didSet {
             self.isEditing.set(self.isEditingValue)
         }
     }
     
-    private var nodeView = UIView(frame: .zero)
-    private var currentLayout: CGSize = .zero
-    private var client: PostgrestClient?
-    private var shareButton = UIButton(frame: .zero)
-    private let controller: WEVApplyReferalController?
-    private var descLabel = UILabel(frame: .zero)
-    
-    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, controller: WEVApplyReferalController, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
-        self.controller = controller
+    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.presentationDataValue.set(.single(presentationData))
@@ -86,15 +81,6 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
         self.currentLayout = layout.size
     }
     
-    
-    private func updateConstriant(navigationBarHeight: CGFloat) {
-        nodeView.snp.remakeConstraints { (make) in
-            make.top.equalToSuperview().offset(navigationBarHeight)
-            make.left.bottom.right.equalToSuperview()
-        }
-    }
-
-    
     private func dequeueTransitions(navigationBarHeight: CGFloat) {
         guard let _ = self.containerLayout else {
             return
@@ -108,27 +94,26 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
                 url: "\(LJConfig.SupabaseKeys.supabaseUrlDev)/rest/v1",
                 headers: ["apikey": LJConfig.SupabaseKeys.supabaseKeyDev],
                 schema: "public")
-
-            self.initView(navigationBarHeight: navigationBarHeight)
-            self.updateView()
+            //get user Data and set referral code
             self.doGetUserData()
+            self.initView(navigationBarHeight: navigationBarHeight)
         }
     }
+    
+    private func updateConstriant(navigationBarHeight: CGFloat) {
+            nodeView.snp.remakeConstraints { (make) in
+                make.top.equalToSuperview().offset(navigationBarHeight)
+                make.left.bottom.right.equalToSuperview()
+            }
+        }
 
     func toggleEditing() {
         self.isEditingValue = !self.isEditingValue
     }
     
-    private lazy var applyCodeTextField: UITextField = {
-        //let view = UIlable.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: LJColor.black)
-        
-        let view = UITextField(frame: CGRect.zero)
-        view.textColor = LJColor.black
-        view.font = LJFont.medium(28 * LJScreen.scaleWidthLessOfIX)
+    private lazy var inviteCodeLabel: UILabel = {
+        let view = UILabel.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: LJColor.black)
         view.textAlignment = .center
-        view.returnKeyType = .done
-        view.tintColor = self.presentationData.theme.rootController.tabBar.selectedIconColor
-        view.delegate = self
         return view
     }()
     
@@ -137,6 +122,7 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
         let view = UIButton.init(type: .custom)
         view.setImage(UIImage.init(named: "share_invite_code_edit"), for: .normal)
         view.addTarget(self, action: #selector(editButtonAction), for: .touchUpInside)
+        view.isHidden = true
         return view
     }()
     
@@ -153,13 +139,13 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
         }
         
         
-        shareButton = UIButton.lj.configure(title: "Submit", fontSize: 14)
+        let shareButton = UIButton.lj.configure(title: "Share my code", fontSize: 14)
         shareButton.addTarget(self, action: #selector(shareButtonAction), for: .touchUpInside)
         //view.addSubview(shareButton)
         //Filter view to select channel
         /*let shareButtonNode =  ASDisplayNode { () -> UIView in
-         return shareButton
-         }*/
+            return shareButton
+        }*/
         self.nodeView.addSubview(shareButton)
         shareButton.snp.makeConstraints { (make) in
             make.bottom.equalToSuperview().offset(-LJScreen.safeAreaBottomHeight - 8)
@@ -171,15 +157,15 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
         let scrollView = UIScrollView()
         //view.addSubview(scrollView)
         /*let scrollViewNode =  ASDisplayNode { () -> UIView in
-         return scrollView
-         }*/
+            return scrollView
+        }*/
         self.nodeView.addSubview(scrollView)
         scrollView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()//.offset(LJScreen.navigationBarHeight)
-            make.bottom.equalTo(shareButton.snp.top)
+            make.bottom.equalTo(shareButton.snp.top).offset(-30)
             make.left.right.equalToSuperview()
         }
-        
+
         let containView = UIView()
         scrollView.addSubview(containView)
         containView.snp.makeConstraints { (make) in
@@ -199,19 +185,18 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             let codeBgView = UIView()
             codeBgView.backgroundColor = .clear //LJColor.hex(0xEFF0F2, 0.79)
             codeBgView.layer.cornerRadius = 16
-            
-            descLabel = UILabel.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Points")
+           
+            let descLabel = UILabel.lj.configure(font: LJFont.regular(14), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Share your code with a friend. When they use it to register to Wweevv you will earn points!\nThe more you refer, the better the points.")
             descLabel.lj.setLineSpacing()
             descLabel.textAlignment = .center
             descLabel.numberOfLines = 0
             codeBgView.addSubview(descLabel)
-            
             descLabel.snp.makeConstraints { (make) in
                 make.top.equalToSuperview().offset(24)
                 make.left.equalToSuperview().offset(15)
                 make.right.equalToSuperview().offset(-15)
             }
-            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Apply referral code")
+            let youCode = UILabel.lj.configure(font: LJFont.medium(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Your code")
             codeBgView.addSubview(youCode)
             youCode.snp.makeConstraints { (make) in
                 make.top.equalTo(descLabel.snp.bottom).offset(24)
@@ -220,15 +205,15 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             
             let codeImageBgView: UIImageView = {
                 let imageView = UIImageView(image: UIImage.init(named: "share_invite_code_bg"))
-                imageView.addSubview(applyCodeTextField)
+                imageView.addSubview(inviteCodeLabel)
                 imageView.isUserInteractionEnabled = true
-                applyCodeTextField.snp.makeConstraints { (make) in
-                    make.top.bottom.left.right.equalToSuperview()
+                inviteCodeLabel.snp.makeConstraints { (make) in
+                    make.center.equalToSuperview()
                 }
                 
                 imageView.addSubview(inviteCodeEditButton)
                 inviteCodeEditButton.snp.makeConstraints { (make) in
-                    make.left.equalTo(applyCodeTextField.snp.right).offset(0)
+                    make.left.equalTo(inviteCodeLabel.snp.right).offset(0)
                     make.size.equalTo(CGSize(width: 40, height: 40))
                     make.centerY.equalToSuperview()
                 }
@@ -264,14 +249,12 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             make.left.equalToSuperview().offset(15)
             make.right.equalToSuperview().offset(-15)
             make.top.equalTo(codeBgView.snp.bottom).offset(24)
-            make.bottom.equalToSuperview().offset(-50)
+            make.bottom.equalToSuperview().offset(-20)
         }
-        
-        applyCodeTextField.becomeFirstResponder()
     }
     
-    private func updateView() {
-        applyCodeTextField.text = "" //LJUser.user.inviteCode
+    private func updateView(code: String) {
+        inviteCodeLabel.text = code //LJUser.user.inviteCode
         inviteCodeEditButton.isHidden = true //LJUser.user.editInviteCode
     }
     
@@ -283,16 +266,6 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             guard let self = self else {return}
             MBProgressHUD.hide(for: self.view, animated: true)
         }*/
-        
-        guard let code = applyCodeTextField.text, code.count >= 5 else {
-            DispatchQueue.main.async {
-                MBProgressHUD.lj.showHint("Please enter valid referral code")
-            }
-            return
-        }
-        //call function to apply referral code
-        self.shareButton.isEnabled = false
-        self.doApplyReferralCode(code: code)
     }
     
     weak var editAlertAction: UIAlertAction?
@@ -368,116 +341,10 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             completion(result.isSuccess)
         }*/
     }
+
 }
 
-extension WEVApplyReferalControllerNode: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return false
-    }
-    
-    func doApplyReferralCode(code: String) {
-        Task {
-            await applyReferralCode(code: code)
-        }
-    }
-    
-    func applyReferralCode(code: String) async {
-        //check client is not a nil
-        guard let client = client else {
-            DispatchQueue.main.async {
-                self.shareButton.isEnabled = true
-            }
-            return
-        }
-        do {
-            
-            let currentUser = try await client
-               .from("user")
-           .select()
-           .eq(column: "referral_code", value: code.uppercased())
-           .execute()
-           .decoded(to: [WevUser].self)
-
-            guard let user = currentUser.first else {
-                DispatchQueue.main.async {
-                    MBProgressHUD.lj.showHint("Please enter valid referral code")
-                    self.shareButton.isEnabled = true
-                }
-                return
-            }
-            
-            if user.userId == self.context.account.peerId.id._internalGetInt64Value() {
-                DispatchQueue.main.async {
-                    MBProgressHUD.lj.showHint("You can't use your referral code your self")
-                    self.shareButton.isEnabled = true
-                }
-                return
-            }
-            
-            let point = try await client.from("points")
-                .select()
-                .match(query: ["user_id":"\(self.context.account.peerId.id._internalGetInt64Value())","point_type": 1])
-                .execute()
-                .decoded(to: [Points].self)
-            
-            guard point.isEmpty else {
-                DispatchQueue.main.async {
-                    MBProgressHUD.lj.showHint("You have already used redeem points")
-                    self.shareButton.isEnabled = true
-                }
-                return
-            }
-            
-            let pointType = try await client.from("points_type")
-           .select()
-           .execute()
-           .decoded(to: [PointsType].self)
-            
-            guard let type1 = pointType.first(where: {$0.type == 1}), let type2 = pointType.first(where: {$0.type == 2}) else {
-                DispatchQueue.main.async {
-                    MBProgressHUD.lj.showHint("Point type data are missing")
-                    self.shareButton.isEnabled = true
-                }
-                return
-            }
-            
-            let insertedPoints = try await client.from("points")
-              .insert(
-                values:[
-                    PointsInsert(userId: self.context.account.peerId.id._internalGetInt64Value(), pointType: type1.type, points: type1.points, friendUserId: user.userId),
-                    PointsInsert(userId: user.userId, pointType: type2.type, points: type2.points, friendUserId: self.context.account.peerId.id._internalGetInt64Value()),
-                  ],
-                returning: .representation
-              )
-              .execute()
-              .decoded(to: [Points].self).first
-            
-            guard let pointIds = insertedPoints else {
-                DispatchQueue.main.async {
-                    MBProgressHUD.lj.showHint("something went wrong")
-                    self.shareButton.isEnabled = true
-                }
-                return
-            }
-            
-            print(pointIds)
-            DispatchQueue.main.async {
-                MBProgressHUD.lj.showHint("You have successfully applied referral code.")
-                self.shareButton.isEnabled = true
-                self.applyCodeTextField.text = ""
-                /*guard let navController = self.controller?.navigationController else {
-                    return
-                }*/
-                //navController.popViewController(animated: true)
-                self.doGetUserData()
-            }
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-}
-extension WEVApplyReferalControllerNode {
+extension WEVShareEarnControllerNode {
     
     func doGetUserData() {
         Task {
@@ -493,14 +360,18 @@ extension WEVApplyReferalControllerNode {
         
         do {
             let currentUser = try await client
-               .from("fetch_pointscount_view")
+               .from("user")
            .select()
            .eq(column: "user_id", value: "\(self.context.account.peerId.id._internalGetInt64Value())")
            .execute()
-           .decoded(to: [UserPoints].self).first
-            
+           .decoded(to: [WevUser].self).first
+
+            guard let code = currentUser?.referralcode else {
+                return
+            }
+            //Set referral code
             DispatchQueue.main.async {
-                self.descLabel.text = "\(currentUser?.points ?? 0) Points"
+                self.updateView(code: code)
             }
             
         } catch {

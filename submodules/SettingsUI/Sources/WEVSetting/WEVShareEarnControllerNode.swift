@@ -17,9 +17,9 @@ import UndoUI
 import TelegramUIPreferences
 import TranslateUI
 import ContactListUI
+import PostgREST
 
-
-final class WEVShareEarnControllerNode: ViewControllerTracingNode {
+final class WEVPointsControllerNode: ViewControllerTracingNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?
@@ -36,6 +36,7 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
     private let isEditing = ValuePromise<Bool>(false)
     private var nodeView = UIView(frame: .zero)
     private var currentLayout: CGSize = .zero
+    private var client: PostgrestClient?
 
     private var isEditingValue: Bool = false {
         didSet {
@@ -88,8 +89,14 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         if !self.didSetReady {
             self.didSetReady = true
             self._ready.set(true)
+            //set postgress client
+            client = PostgrestClient(
+                url: "\(LJConfig.SupabaseKeys.supabaseUrlDev)/rest/v1",
+                headers: ["apikey": LJConfig.SupabaseKeys.supabaseKeyDev],
+                schema: "public")
+            //get user Data and set referral code
+            self.doGetUserData()
             self.initView(navigationBarHeight: navigationBarHeight)
-            self.updateView()
         }
     }
     
@@ -115,6 +122,7 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         let view = UIButton.init(type: .custom)
         view.setImage(UIImage.init(named: "share_invite_code_edit"), for: .normal)
         view.addTarget(self, action: #selector(editButtonAction), for: .touchUpInside)
+        view.isHidden = true
         return view
     }()
     
@@ -245,8 +253,8 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
         }
     }
     
-    private func updateView() {
-        inviteCodeLabel.text = "hl9prv" //LJUser.user.inviteCode
+    private func updateView(code: String) {
+        inviteCodeLabel.text = code //LJUser.user.inviteCode
         inviteCodeEditButton.isHidden = true //LJUser.user.editInviteCode
     }
     
@@ -336,3 +344,38 @@ final class WEVShareEarnControllerNode: ViewControllerTracingNode {
 
 }
 
+extension WEVPointsControllerNode {
+    
+    func doGetUserData() {
+        Task {
+            await getUserData()
+        }
+    }
+    
+    func getUserData() async {
+        //check client is not a nil
+        guard let client = client else {
+            return
+        }
+        
+        do {
+            let currentUser = try await client
+               .from("user")
+           .select()
+           .eq(column: "user_id", value: "\(self.context.account.peerId.id._internalGetInt64Value())")
+           .execute()
+           .decoded(to: [WevUser].self).first
+
+            guard let code = currentUser?.referralcode else {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.updateView(code: code)
+            }
+            
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+}

@@ -87,7 +87,7 @@ public class WEVApplyReferalController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVApplyReferalControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, requestActivateSearch: { [weak self] in
+        self.displayNode = WEVApplyReferalControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, controller: self, requestActivateSearch: { [weak self] in
             self?.activateSearch()
         }, requestDeactivateSearch: { [weak self] in
             self?.deactivateSearch()

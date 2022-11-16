@@ -26,61 +26,56 @@ struct WevUser: Codable {
         case referralcode = "referral_code"
     }
 }
-/**
- * Generate a random referral code
- */
-class referalCode {
-  static let digits = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9"
-  ];
-  
-  static let letters = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-  ];
+// MARK: - Crew
+struct Points: Codable {
+    let id: Int64
+    let userId: Int64?
+    let pointType: Int?
+    let points: Int64?
+    let friendUserId: Int64?
 
-    static func generateRefferalCode() -> String {
-        var code = ""
-        for _ in 0..<4 {
-            code += letters.randomElement() ?? ""
-        }
-        for _ in 0..<1 {
-            code += digits.randomElement() ?? ""
-        }
-        return code
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case pointType = "point_type"
+        case points = "points"
+        case friendUserId = "friend_user_id"
     }
+}
 
+struct PointsInsert: Codable {
+    let userId: Int64?
+    let pointType: Int?
+    let points: Int64?
+    let friendUserId: Int64?
+
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case pointType = "point_type"
+        case points = "points"
+        case friendUserId = "friend_user_id"
+    }
+}
+
+struct PointsType: Codable {
+    let id: Int64
+    let type: Int
+    let message: String
+    let points: Int64
+    let isdeleted: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case type
+        case message
+        case points
+        case isdeleted = "is_deleted"
+    }
+}
+struct UserPoints: Codable {
+    let points: Int64?
+
+    enum CodingKeys: String, CodingKey {
+        case points = "sum"
+    }
 }
