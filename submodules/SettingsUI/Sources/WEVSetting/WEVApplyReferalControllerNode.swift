@@ -151,7 +151,7 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
         }
         
         
-        shareButton = let shareButton = UIButton.lj.configure(font: LJFont.medium(14), backgroundColor: UIColor(red: 191/255, green: 48/255, blue: 113/255, alpha: 1), title: "Share my code")
+        shareButton = UIButton.lj.configure(font: LJFont.medium(14), backgroundColor: UIColor(red: 191/255, green: 48/255, blue: 113/255, alpha: 1), title: "Share my code")
         shareButton.addTarget(self, action: #selector(shareButtonAction), for: .touchUpInside)
         //view.addSubview(shareButton)
         //Filter view to select channel
