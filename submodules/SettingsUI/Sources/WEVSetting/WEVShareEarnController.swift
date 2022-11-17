@@ -87,7 +87,7 @@ public class WEVShareEarnController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVShareEarnControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, requestActivateSearch: { [weak self] in
+        self.displayNode = WEVShareEarnControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, controller: self, requestActivateSearch: { [weak self] in
             self?.activateSearch()
         }, requestDeactivateSearch: { [weak self] in
             self?.deactivateSearch()

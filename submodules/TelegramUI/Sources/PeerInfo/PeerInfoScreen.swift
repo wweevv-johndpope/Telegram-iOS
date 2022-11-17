@@ -759,7 +759,7 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
         interaction.openSettings(.watchLater)
     }))
     
-    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 19, text: presentationData.strings.WEV_ShareAndEarn, icon: PresentationResourcesSettings.shareEarn, action: {
+    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 19, text: presentationData.strings.WEV_Reward, icon: PresentationResourcesSettings.shareEarn, action: {
         interaction.openSettings(.shareEarn)
     }))
     
@@ -6305,7 +6305,7 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewDelegate 
             case .watchLater:
                 push(WEVWatchLaterController(context: self.context))
             case .shareEarn:
-                push(WEVShareEarnController(context: self.context))
+                push(WEVPointsController(context: self.context))
             case .applyReferral:
                 push(WEVApplyReferalController(context: self.context))
             case .passport:

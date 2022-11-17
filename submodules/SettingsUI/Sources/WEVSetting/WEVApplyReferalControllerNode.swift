@@ -46,7 +46,6 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
     private var client: PostgrestClient?
     private var shareButton = UIButton(frame: .zero)
     private let controller: WEVApplyReferalController?
-    private var descLabel = UILabel(frame: .zero)
     
     init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, controller: WEVApplyReferalController, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
         self.controller = controller
@@ -111,7 +110,6 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
 
             self.initView(navigationBarHeight: navigationBarHeight)
             self.updateView()
-            self.doGetUserData()
         }
     }
 
@@ -200,7 +198,7 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             codeBgView.backgroundColor = .clear //LJColor.hex(0xEFF0F2, 0.79)
             codeBgView.layer.cornerRadius = 16
             
-            descLabel = UILabel.lj.configure(font: LJFont.medium(28 * LJScreen.scaleWidthLessOfIX), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Points")
+            let descLabel = UILabel.lj.configure(font: LJFont.regular(16), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Apply your friend referral code. You and your friend will earn points!\nThe more you refer, the better the points.")
             descLabel.lj.setLineSpacing()
             descLabel.textAlignment = .center
             descLabel.numberOfLines = 0
@@ -466,43 +464,11 @@ extension WEVApplyReferalControllerNode: UITextFieldDelegate {
                 MBProgressHUD.lj.showHint("You have successfully applied referral code.")
                 self.shareButton.isEnabled = true
                 self.applyCodeTextField.text = ""
-                /*guard let navController = self.controller?.navigationController else {
+                guard let navController = self.controller?.navigationController else {
                     return
-                }*/
-                //navController.popViewController(animated: true)
-                self.doGetUserData()
+                }
+                navController.popViewController(animated: true)
             }
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-}
-extension WEVApplyReferalControllerNode {
-    
-    func doGetUserData() {
-        Task {
-            await getUserData()
-        }
-    }
-    
-    func getUserData() async {
-        //check client is not a nil
-        guard let client = client else {
-            return
-        }
-        
-        do {
-            let currentUser = try await client
-               .from("fetch_pointscount_view")
-           .select()
-           .eq(column: "user_id", value: "\(self.context.account.peerId.id._internalGetInt64Value())")
-           .execute()
-           .decoded(to: [UserPoints].self).first
-            
-            DispatchQueue.main.async {
-                self.descLabel.text = "\(currentUser?.points ?? 0) Points"
-            }
-            
         } catch {
             print(error.localizedDescription)
         }

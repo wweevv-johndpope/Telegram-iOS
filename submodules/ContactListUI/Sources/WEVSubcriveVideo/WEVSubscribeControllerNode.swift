@@ -180,6 +180,13 @@ final class WEVSubscribeControllerNode: ASDisplayNode {
                         }
                     } catch let error {
                         print(error)
+                        totalVideos -= 1
+                        if totalVideos == 0 {
+                            self.arrSubsribedVideo = arrSubVideo.sorted(by: {$0.snippet.publishedAt.timeIntervalSince1970 < $1.snippet.publishedAt.timeIntervalSince1970})
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
                     }
                 }
             } else {

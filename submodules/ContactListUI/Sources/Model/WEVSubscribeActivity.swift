@@ -60,8 +60,9 @@ struct Snippet: Codable {
 
 // MARK: - Thumbnails
 struct Thumbnails: Codable {
-    let thumbnailsDefault, medium, high, standard: Default
-    let maxres: Default
+    let thumbnailsDefault, medium, high: Default
+    let standard: Default?
+    let maxres: Default?
 
     enum CodingKeys: String, CodingKey {
         case thumbnailsDefault = "default"

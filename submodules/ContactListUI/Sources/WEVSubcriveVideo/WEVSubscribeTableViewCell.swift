@@ -114,7 +114,7 @@ class WEVWatchLaterTableViewCell: UITableViewCell {
         //case 1:
             titleLabel.text = video.snippet.title
             //if let imageURL = video.snippet.thumbnails.maxres {
-        imgView.kf.setImage(with: URL(string: video.snippet.thumbnails.maxres.url))
+        imgView.kf.setImage(with: URL(string: video.snippet.thumbnails.maxres?.url ?? video.snippet.thumbnails.standard?.url ?? video.snippet.thumbnails.high.url))
             //}
             imgTypeView.image = UIImage(named: "segment_youtube")
             videoTypeLabel.text = "Youtube"

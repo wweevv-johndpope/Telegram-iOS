@@ -19,7 +19,7 @@ import TranslateUI
 import ContactListUI
 import PostgREST
 
-final class WEVPointsControllerNode: ViewControllerTracingNode {
+final class WEVShareEarnControllerNode: ViewControllerTracingNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?
@@ -37,18 +37,19 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
     private var nodeView = UIView(frame: .zero)
     private var currentLayout: CGSize = .zero
     private var client: PostgrestClient?
-
+    private let controller: WEVShareEarnController?
     private var isEditingValue: Bool = false {
         didSet {
             self.isEditing.set(self.isEditingValue)
         }
     }
     
-    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
+    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, controller: WEVShareEarnController, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.presentationDataValue.set(.single(presentationData))
         self.navigationBar = navigationBar
+        self.controller = controller
         self.requestActivateSearch = requestActivateSearch
         self.requestDeactivateSearch = requestDeactivateSearch
         self.present = present
@@ -101,12 +102,12 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
     }
     
     private func updateConstriant(navigationBarHeight: CGFloat) {
-            nodeView.snp.remakeConstraints { (make) in
-                make.top.equalToSuperview().offset(navigationBarHeight)
-                make.left.bottom.right.equalToSuperview()
-            }
+        nodeView.snp.remakeConstraints { (make) in
+            make.top.equalToSuperview().offset(navigationBarHeight)
+            make.left.bottom.right.equalToSuperview()
         }
-
+    }
+    
     func toggleEditing() {
         self.isEditingValue = !self.isEditingValue
     }
@@ -117,14 +118,6 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
         return view
     }()
     
-    /// 编辑按键
-    private lazy var inviteCodeEditButton: UIButton = {
-        let view = UIButton.init(type: .custom)
-        view.setImage(UIImage.init(named: "share_invite_code_edit"), for: .normal)
-        view.addTarget(self, action: #selector(editButtonAction), for: .touchUpInside)
-        view.isHidden = true
-        return view
-    }()
     
     private func initView(navigationBarHeight: CGFloat) {
         
@@ -139,13 +132,13 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
         }
         
         
-        let shareButton = UIButton.lj.configure(title: "Share my code", fontSize: 14)
+        let shareButton = UIButton.lj.configure(font: LJFont.medium(14), backgroundColor: UIColor(red: 191/255, green: 48/255, blue: 113/255, alpha: 1), title: "Share my code")
         shareButton.addTarget(self, action: #selector(shareButtonAction), for: .touchUpInside)
         //view.addSubview(shareButton)
         //Filter view to select channel
         /*let shareButtonNode =  ASDisplayNode { () -> UIView in
-            return shareButton
-        }*/
+         return shareButton
+         }*/
         self.nodeView.addSubview(shareButton)
         shareButton.snp.makeConstraints { (make) in
             make.bottom.equalToSuperview().offset(-LJScreen.safeAreaBottomHeight - 8)
@@ -157,15 +150,15 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
         let scrollView = UIScrollView()
         //view.addSubview(scrollView)
         /*let scrollViewNode =  ASDisplayNode { () -> UIView in
-            return scrollView
-        }*/
+         return scrollView
+         }*/
         self.nodeView.addSubview(scrollView)
         scrollView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()//.offset(LJScreen.navigationBarHeight)
             make.bottom.equalTo(shareButton.snp.top).offset(-30)
             make.left.right.equalToSuperview()
         }
-
+        
         let containView = UIView()
         scrollView.addSubview(containView)
         containView.snp.makeConstraints { (make) in
@@ -185,7 +178,7 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
             let codeBgView = UIView()
             codeBgView.backgroundColor = .clear //LJColor.hex(0xEFF0F2, 0.79)
             codeBgView.layer.cornerRadius = 16
-           
+            
             let descLabel = UILabel.lj.configure(font: LJFont.regular(14), textColor: presentationData.theme.list.itemPrimaryTextColor, text: "Share your code with a friend. When they use it to register to Wweevv you will earn points!\nThe more you refer, the better the points.")
             descLabel.lj.setLineSpacing()
             descLabel.textAlignment = .center
@@ -209,13 +202,6 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
                 imageView.isUserInteractionEnabled = true
                 inviteCodeLabel.snp.makeConstraints { (make) in
                     make.center.equalToSuperview()
-                }
-                
-                imageView.addSubview(inviteCodeEditButton)
-                inviteCodeEditButton.snp.makeConstraints { (make) in
-                    make.left.equalTo(inviteCodeLabel.snp.right).offset(0)
-                    make.size.equalTo(CGSize(width: 40, height: 40))
-                    make.centerY.equalToSuperview()
                 }
                 return imageView
             }()
@@ -255,96 +241,26 @@ final class WEVPointsControllerNode: ViewControllerTracingNode {
     
     private func updateView(code: String) {
         inviteCodeLabel.text = code //LJUser.user.inviteCode
-        inviteCodeEditButton.isHidden = true //LJUser.user.editInviteCode
     }
     
     //MARK: - Action
-
+    
     @objc private func shareButtonAction() {
         /*MBProgressHUD.showAdded(to: self.view, animated: true)
-        WEVShareManager.manger.shareApp(from: self) {[weak self] (isSuccess) in
-            guard let self = self else {return}
-            MBProgressHUD.hide(for: self.view, animated: true)
-        }*/
-    }
-    
-    weak var editAlertAction: UIAlertAction?
-    
-    /// 点击编辑按键
-    @objc private func editButtonAction() {
-        /*let alert = UIAlertController.init(title: "Please note that each account is only allowed to edit the Referral code once.", message: nil, preferredStyle: .alert)
-        alert.addAction(.init(title: "OK", style: .default, handler: { (_) in
-            self.showEditInviteCodeAlert(code: LJUser.user.inviteCode)
-        }))
-        present(alert, animated: true, completion: nil)*/
-    }
-    
-    /// 显示编辑弹窗
-    /// - Parameter code: 已经填写的邀请码
-    private func showEditInviteCodeAlert(code: String?) {
-        /*let editAlert = UIAlertController.init(title: "Referral Code", message: nil, preferredStyle: .alert)
-        editAlert.addTextField { (textField) in
-            textField.textColor = LJColor.hex(0x141419)
-            textField.font = LJFont.regular(13)
-            textField.addTarget(self, action: #selector(self.textFieldDidChanged(_:)), for: .editingChanged)
-            textField.text = code
+         WEVShareManager.manger.shareApp(from: self) {[weak self] (isSuccess) in
+         guard let self = self else {return}
+         MBProgressHUD.hide(for: self.view, animated: true)
+         }*/
+        guard let referralCode = inviteCodeLabel.text else {
+            return
         }
-        let editAction = UIAlertAction.init(title: "Save", style: .default, handler: {[weak editAlert] (_) in
-            guard let code = editAlert?.textFields?.first?.text else {return}
-            self.editInvieteCodeRequest(code) { (isSuccess) in
-                if !isSuccess {
-                    // 修改接口失败，重新显示旧的弹窗
-                    self.showEditInviteCodeAlert(code: code)
-                }
-            }
-        })
-        editAlert.addAction(.init(title: "Cancel", style: .cancel, handler: nil))
-        editAlert.addAction(editAction)
-        editAlertAction = editAction
-        present(editAlert, animated: true, completion: nil)
-        checkEditingInviteCode(code ?? "")*/
+        let code = "I’m inviting you to use Wweevv. Here’s my code (\(referralCode)) - just enter it settings apply referral code."
+        let controller = ShareController(context: self.context, subject: .text(code), preferredAction: .default)
+        self.controller?.present(controller, in: .window(.root), blockInteraction: true)
     }
-    
-    @objc private func textFieldDidChanged(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        let max = 10
-        if text.count > max {
-            textField.text = String(text.prefix(max))
-        }
-        checkEditingInviteCode(text)
-    }
-    
-    @discardableResult
-    private func checkEditingInviteCode(_ code: String) -> Bool {
-        let min = 4
-        let isEnabled = code.count >= min
-        editAlertAction?.isEnabled = isEnabled
-        return isEnabled
-    }
-    
-    //MARK: - Request
-    
-    /// 更改邀请码请求
-    private func editInvieteCodeRequest(_ code: String, completion: @escaping (Bool) -> ()) {
-        /*MBProgressHUD.showAdded(to: self.view, animated: true)
-        LJNetManager.Profile.editInviteCode(inviteCode: code) {[weak self] (result) in
-            guard let self = self else {return}
-            MBProgressHUD.hide(for: self.view, animated: true)
-            if result.isSuccess {
-                LJUser.user.inviteCode = code
-                LJUser.user.editInviteCode = true
-                LJUser.user.saveLocalData()
-                self.updateView()
-            }else {
-                MBProgressHUD.lj.showHint(result.message)
-            }
-            completion(result.isSuccess)
-        }*/
-    }
-
 }
 
-extension WEVPointsControllerNode {
+extension WEVShareEarnControllerNode {
     
     func doGetUserData() {
         Task {
