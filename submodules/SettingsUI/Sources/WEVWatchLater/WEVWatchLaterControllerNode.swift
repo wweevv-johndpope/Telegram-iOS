@@ -42,8 +42,8 @@ final class WEVWatchLaterControllerNode: ViewControllerTracingNode {
         }
     }
     
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     var arrWatchLater: [WatchLaterVideo] = []
     private let tableView = UITableView(frame: CGRect.zero, style: .plain)
     private var currentLayout: CGSize = .zero

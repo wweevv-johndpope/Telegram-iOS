@@ -104,8 +104,8 @@ final class WEVApplyReferalControllerNode: ViewControllerTracingNode {
             self._ready.set(true)
             //set postgress client
             client = PostgrestClient(
-                url: "\(LJConfig.SupabaseKeys.supabaseUrlDev)/rest/v1",
-                headers: ["apikey": LJConfig.SupabaseKeys.supabaseKeyDev],
+                url: "\(LJConfig.SupabaseKeys.supabaseUrl)/rest/v1",
+                headers: ["apikey": LJConfig.SupabaseKeys.supabaseKey],
                 schema: "public")
 
             self.initView(navigationBarHeight: navigationBarHeight)

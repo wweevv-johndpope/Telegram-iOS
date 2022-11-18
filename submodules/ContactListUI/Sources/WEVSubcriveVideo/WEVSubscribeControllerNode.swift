@@ -42,8 +42,8 @@ final class WEVSubscribeControllerNode: ASDisplayNode {
         }
     }
     
-    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrlDev
-    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKeyDev
+    private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
+    private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
     var arrSubsribedVideo: [Item] = []
     var activity: WEVSubscribeActivity? = nil
     private let tableView = UITableView(frame: CGRect.zero, style: .plain)
