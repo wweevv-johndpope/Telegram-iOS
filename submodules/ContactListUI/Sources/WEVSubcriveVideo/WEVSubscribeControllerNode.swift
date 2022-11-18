@@ -16,15 +16,15 @@ import SearchUI
 import UndoUI
 import TelegramUIPreferences
 import TranslateUI
-import ContactListUI
 import PostgREST
 import GalleryUI
+import Alamofire
 
-final class WEVWatchLaterControllerNode: ViewControllerTracingNode {
+final class WEVSubscribeControllerNode: ASDisplayNode {
     private let context: AccountContext
     private var presentationData: PresentationData
     private weak var navigationBar: NavigationBar?
-    private var controller: WEVWatchLaterController!
+    private var controller: WEVSubscribeController!
     private let requestActivateSearch: () -> Void
     private let requestDeactivateSearch: () -> Void
     private let present: (ViewController, Any?) -> Void
@@ -44,11 +44,13 @@ final class WEVWatchLaterControllerNode: ViewControllerTracingNode {
     
     private let supabaseUrl = LJConfig.SupabaseKeys.supabaseUrl
     private let supabaseKey = LJConfig.SupabaseKeys.supabaseKey
-    var arrWatchLater: [WatchLaterVideo] = []
+    var arrSubsribedVideo: [Item] = []
+    var activity: WEVSubscribeActivity? = nil
     private let tableView = UITableView(frame: CGRect.zero, style: .plain)
     private var currentLayout: CGSize = .zero
     private var client: PostgrestClient?
-    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, controller: WEVWatchLaterController, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
+
+    init(context: AccountContext, presentationData: PresentationData, navigationBar: NavigationBar, controller: WEVSubscribeController, requestActivateSearch: @escaping () -> Void, requestDeactivateSearch: @escaping () -> Void, updateCanStartEditing: @escaping (Bool?) -> Void, present: @escaping (ViewController, Any?) -> Void, push: @escaping (ViewController) -> Void) {
         self.context = context
         self.presentationData = presentationData
         self.presentationDataValue.set(.single(presentationData))
@@ -145,175 +147,92 @@ final class WEVWatchLaterControllerNode: ViewControllerTracingNode {
         }
         tableView.register(WEVWatchLaterTableViewCell.self, forCellReuseIdentifier: "WEVWatchLaterTableViewCell")
         
-        self.arrWatchLater = fetchWatchList()
-        DispatchQueue.main.async {
+        //self.arrSubsribedVideo = fetchSubscribedList()
+        
+        /*DispatchQueue.main.async {
             self.tableView.reloadData()
+        }*/
+        let subscribes = fetchSubscribedList()
+        var totalVideos = subscribes.count
+        var arrSubVideo: [Item] = []
+        for index in 0..<subscribes.count where subscribes[index].videoType == 1 {
+            if let channelId = subscribes[index].youTubeChannelId {
+                Alamofire.request("https://www.googleapis.com/youtube/v3/activities", method: .get, parameters: ["part":"snippet,id,contentDetails","channelId": channelId,"key":"AIzaSyCAZjYdBW5zV8ULYvjni3lqOV_URiZVfzU"]).responseJSON { response in
+                    /*switch response.result {
+                     case .success(let data):
+                     print(data)
+                     case .failure(let error):
+                     print(error.localizedDescription)
+                     }*/
+                    guard let data = response.data else { return }
+                    do {
+                        let decoder = JSONDecoder()
+                        decoder.dateDecodingStrategy = .iso8601
+                        let subscribeParsedData = try decoder.decode(WEVSubscribeActivity.self, from: data)
+                        print(subscribeParsedData.items.count)
+                        arrSubVideo.append(contentsOf: subscribeParsedData.items)
+                        totalVideos -= 1
+                        if totalVideos == 0 {
+                            self.arrSubsribedVideo = arrSubVideo.sorted(by: {$0.snippet.publishedAt.timeIntervalSince1970 < $1.snippet.publishedAt.timeIntervalSince1970})
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
+                    } catch let error {
+                        print(error)
+                        totalVideos -= 1
+                        if totalVideos == 0 {
+                            self.arrSubsribedVideo = arrSubVideo.sorted(by: {$0.snippet.publishedAt.timeIntervalSince1970 < $1.snippet.publishedAt.timeIntervalSince1970})
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
+                    }
+                }
+            } else {
+                totalVideos -= 1
+                if totalVideos == 0 {
+                    self.arrSubsribedVideo = arrSubVideo.sorted(by: {$0.snippet.publishedAt.timeIntervalSince1970 < $1.snippet.publishedAt.timeIntervalSince1970})
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                }
+            }
         }
     }
 }
-extension WEVWatchLaterControllerNode: UITableViewDelegate, UITableViewDataSource {
+extension WEVSubscribeControllerNode: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrWatchLater.count
+        return arrSubsribedVideo.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "WEVWatchLaterTableViewCell", for: indexPath) as? WEVWatchLaterTableViewCell else {
             return UITableViewCell()
         }
-        cell.configureCell(watchLater: arrWatchLater[indexPath.row], presentationData: self.presentationData)
+        cell.configureCell(video: arrSubsribedVideo[indexPath.item], presentationData: self.presentationData)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("PlayVideo")
-        self.playVideo(video: arrWatchLater[indexPath.row])
+        self.playVideo(video: arrSubsribedVideo[indexPath.row])
     }
 }
-extension WEVWatchLaterControllerNode {
+extension WEVSubscribeControllerNode {
     
-    /*func watchLaterRealTimeSync() {
-        let rt = RealtimeClient(endPoint: "\(supabaseUrl)/realtime/v1", params: ["apikey": supabaseKey])
+}
+extension WEVSubscribeControllerNode {
+    
+    func playVideo(video: Item) {
         
-        rt.onOpen {
-            print("Socket opened.")
-            let allUsersUpdateChanges =  rt.channel(.table(LJConfig.SupabaseTablesName.watchLater, schema: "public"))
-            
-            allUsersUpdateChanges.on(.all) { message in
-            }
-            allUsersUpdateChanges.subscribe()
-        }
-        
-        rt.onError{error in
-            print("Socket error: ", error.localizedDescription)
-        }
-        
-        rt.onClose {
-            print("Socket closed")
-        }
-        
-        rt.onMessage{message in
-            switch message.event {
-            case .insert, .update, .delete:
-                self.doWatchLaterFetch()
-            default:
-                break
-            }
-        }
-        rt.connect()
-    }*/
-    
-    func doWatchLaterFetch() {
-        Task {
-            await fetchWatchLater()
-        }
-    }
-    
-    
-    func fetchWatchLater() async {
-        guard let client = self.client else {
-            return
-        }
-        
-        var errMsg = ""
-        // Get twitch videos
-        do {
-            let watchLater = try await client
-                .from(LJConfig.SupabaseViews.watchLater)
-                .select()
-                .eq(column: "user_id", value: "\(context.account.peerId.id._internalGetInt64Value())")
-                .execute()
-                .decoded(to: [WatchLaterVideo].self)
-            
-            //assign watch later data to array
-            self.arrWatchLater = watchLater
-            //get watch later object
-            for index in 0..<arrWatchLater.count where arrWatchLater[index].videoType == 1 {
-                if let blob = arrWatchLater[index].blob, let data = blob.data(using: .utf8) {
-                    do {
-                        let video:YoutubeVideo = try JSONDecoder().decode(YoutubeVideo.self, from:data)
-                        print("video:",video)
-                        arrWatchLater[index].youTubeTitle = video.title
-                        arrWatchLater[index].youTubeDescription = video.description
-                        arrWatchLater[index].youTubeThumbnail = video.thumbnails[0]?.url ?? ""
-                        arrWatchLater[index].youTubeViewCounts = video.viewCount
-                    } catch {
-                        print(error.localizedDescription)
-                    }
-                }
-            }
-            saveWatchList(arrWatchLater)
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-        } catch let DecodingError.dataCorrupted(context) {
-            errMsg = "Decoding Error: " + context.debugDescription + "\n\( context.codingPath)"
-            
-        } catch let DecodingError.keyNotFound(key, context) {
-            errMsg = "Key '\(key)' not found:" + context.debugDescription + "\n\( context.codingPath)"
-        } catch let DecodingError.valueNotFound(value, context) {
-            errMsg = "Value '\(value)' not found:" + context.debugDescription + "\n\( context.codingPath)"
-            
-        } catch let DecodingError.typeMismatch(type, context)  {
-            errMsg = "Type '\(type)' mismatch:" + context.debugDescription + "\n\( context.codingPath)"
-        } catch {
-            errMsg = "error: " + error.localizedDescription
-        }
-        if !errMsg.isEmpty {
-            print("<<<<<<<<",errMsg,">>>>>>")
-        }
-    }
-    
-    func doPerformAddWatchLater(videoObj: NewWatchLaterVideo) {
-        Task {
-            await performAddWatchLater(videoObj: videoObj)
-        }
-    }
-    
-    func performAddWatchLater(videoObj: NewWatchLaterVideo) async {
-        guard let client = self.client else {
-            return
-        }
-        do {
-            let insertedVideo = try await client.from(LJConfig.SupabaseTablesName.watchLater)
-                .insert(
-                    values: videoObj,
-                    returning: .representation
-                )
-                .execute()
-            print(insertedVideo)
-            self.doWatchLaterFetch()
-        } catch  {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func doPerformRemoveWatchLater(id: Int64) {
-        Task {
-            await performRemoveWatchLater(id: id)
-        }
-    }
-    
-    func performRemoveWatchLater(id: Int64) async {
-        guard let client = self.client else {
-            return
-        }
-        do {
-            try await client.from(LJConfig.SupabaseTablesName.watchLater).delete().eq(column: "id", value: "\(id)").execute()
-            self.doWatchLaterFetch()
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func playVideo(video: WatchLaterVideo) {
-        
-        var videoTitle = ""
-        var videoDescription = ""
+        let videoTitle = video.snippet.title
+        let videoDescription = ""
         let websiteName = "YouTube"
-        var url = ""
-        let isLikedVideo = true
-        switch video.videoType {
-        case 1:
+        let url = "https://www.youtube.com/watch?v=" + video.contentDetails.upload.videoID
+        let isLikedVideo = false
+        //switch video.videoType {
+        /*case 1:
             guard let title = video.youTubeTitle, let ytId = video.youtubeId else  {
                 return
             }
@@ -334,7 +253,7 @@ extension WEVWatchLaterControllerNode {
             videoTitle = title
         default:
             return
-        }
+        }*/
         
         /*let thumbnail = UIImage(named: "channel_youtube")
          var previewRepresentations: [TelegramMediaImageRepresentation] = []
@@ -376,7 +295,7 @@ extension WEVWatchLaterControllerNode {
         // Source is message?
         let source = GalleryControllerItemSource.standaloneMessage(message)
         let context = self.context
-        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: true, isVideoLiked: isLikedVideo, replaceRootController: { controller, ready in
+        let galleryVC = GalleryController(context: context, source: source , invertItemOrder: false, streamSingleVideo: true, fromPlayingVideo: false, landscape: false, timecode: nil, playbackRate: 1, synchronousLoad: false, isShowLike: false, isVideoLiked: isLikedVideo, replaceRootController: { controller, ready in
             print("👹  we're in replaceRootController....")
             if let baseNavigationController = self.navigationController {
                 baseNavigationController.replaceTopController(controller, animated: false, ready: ready)
@@ -395,12 +314,12 @@ extension WEVWatchLaterControllerNode {
         
         galleryVC.onLike = {
             print("user liked video")
-            self.doPerformAddWatchLater(videoObj: NewWatchLaterVideo(videoType: video.videoType, userId: self.context.account.peerId.id._internalGetInt64Value(), twitchId: video.twitchId, youtubeId: video.youtubeId, rumbleId: video.rumbleId))
+            //self.doPerformAddWatchLater(videoObj: NewWatchLaterVideo(videoType: video.videoType, userId: self.context.account.peerId.id._internalGetInt64Value(), twitchId: video.twitchId, youtubeId: video.youtubeId, rumbleId: video.rumbleId))
         }
         
         galleryVC.onDislike = {
             print("user unliked video")
-            self.doPerformRemoveWatchLater(id: video.id)
+            //self.doPerformRemoveWatchLater(id: video.id)
         }
         
         self.controller.present(galleryVC, in: .window(.root))

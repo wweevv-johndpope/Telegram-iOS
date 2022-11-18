@@ -39,6 +39,7 @@ public struct PresentationResourcesSettings {
     
     public static let watchLater = renderIcon(name: "Settings/Menu/watchLater")
     public static let shareEarn = renderIcon(name: "Settings/Menu/shareEarn")
+    public static let applyReferral = renderIcon(name: "Settings/Menu/shareEarn")
     
     public static let deleteAccount = renderIcon(name: "Chat/Info/GroupRemovedIcon")
 

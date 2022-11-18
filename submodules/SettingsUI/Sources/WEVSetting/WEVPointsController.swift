@@ -8,13 +8,12 @@ import TelegramCore
 import TelegramPresentationData
 import AccountContext
 import SearchUI
-import PostgREST
 
-public class WEVWatchLaterController: ViewController {
+public class WEVPointsController: ViewController {
     private let context: AccountContext
     
-    private var controllerNode: WEVWatchLaterControllerNode {
-        return self.displayNode as! WEVWatchLaterControllerNode
+    private var controllerNode: WEVPointsControllerNode {
+        return self.displayNode as! WEVPointsControllerNode
     }
     
     private var _ready = Promise<Bool>()
@@ -28,9 +27,6 @@ public class WEVWatchLaterController: ViewController {
     private var editItem: UIBarButtonItem!
     private var doneItem: UIBarButtonItem!
     
-    private var previousContentOffset: ListViewVisibleContentOffset?
-
-    
     public init(context: AccountContext) {
         self.context = context
         
@@ -43,7 +39,7 @@ public class WEVWatchLaterController: ViewController {
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title = self.presentationData.strings.WEV_WatchLater
+        self.title = self.presentationData.strings.WEV_Reward
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         
@@ -75,7 +71,7 @@ public class WEVWatchLaterController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         //self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = self.presentationData.strings.WEV_WatchLater
+        self.title = self.presentationData.strings.WEV_Reward
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.controllerNode.updatePresentationData(self.presentationData)
         
@@ -91,7 +87,7 @@ public class WEVWatchLaterController: ViewController {
     }
     
     override public func loadDisplayNode() {
-        self.displayNode = WEVWatchLaterControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!,controller: self, requestActivateSearch: { [weak self] in
+        self.displayNode = WEVPointsControllerNode(context: self.context, presentationData: self.presentationData, navigationBar: self.navigationBar!, controller: self, requestActivateSearch: { [weak self] in
             self?.activateSearch()
         }, requestDeactivateSearch: { [weak self] in
             self?.deactivateSearch()
@@ -113,10 +109,11 @@ public class WEVWatchLaterController: ViewController {
         }, push: { [weak self] c in
             self?.push(c)
         })
+    
         
         self._ready.set(self.controllerNode._ready.get())
         
-        self.navigationBar?.updateBackgroundAlpha(1.0, transition: .immediate)
+        self.navigationBar?.updateBackgroundAlpha(0.0, transition: .immediate)
         
         self.displayNodeDidLoad()
     }

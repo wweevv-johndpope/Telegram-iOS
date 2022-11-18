@@ -55,6 +55,8 @@ extension SettingsSearchableItemIcon {
                 return PresentationResourcesSettings.watchLater
             case .shareEarn:
                 return PresentationResourcesSettings.shareEarn
+            case .applyReferral:
+                return PresentationResourcesSettings.applyReferral
         }
     }
 }

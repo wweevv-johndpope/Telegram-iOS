@@ -256,9 +256,15 @@ class WEVDiscoverSearchBar: UIView {
         guard let presentationData = self.presentationData else {
             return
         }
-        textField.backgroundColor = presentationData.theme.chatList.backgroundColor
-        textField.textColor = presentationData.theme.list.itemPrimaryTextColor
+        textField.textColor = presentationData.theme.rootController.navigationSearchBar.inputPlaceholderTextColor //presentationData.theme.list.itemPrimaryTextColor
         textField.tintColor = presentationData.theme.rootController.tabBar.selectedIconColor
+        //self.theme?.rootController.navigationBar.opaqueBackgroundColor ?? .clear
+        let fillColor = presentationData.theme.rootController.navigationSearchBar.inputFillColor
+        /*if fillColor.distance(to: presentationData.theme.list.blocksBackgroundColor) < 100 {
+            fillColor = fillColor.withMultipliedBrightnessBy(1.0)
+        }*/
+        textField.backgroundColor = fillColor
+        filterButton.backgroundColor = fillColor
         cancelSearchButton.setTitleColor(presentationData.theme.rootController.tabBar.selectedIconColor, for: .normal)
     }
     /// 筛选按键
@@ -341,8 +347,9 @@ class WEVDiscoverSearchBar: UIView {
     /// 筛选按键
     private lazy var filterButton: UIButton = {
         let button = UIButton.init(type: .custom)
-        button.setImage(UIImage.init(named: "discover_search_filter"), for: .normal)
+        button.setImage(UIImage.init(named: "RSS_Feed"), for: .normal)
         button.addTarget(self, action: #selector(filterButtonAction), for: .touchUpInside)
+        button.layer.cornerRadius = 5
         return button
     }()
     
@@ -357,12 +364,12 @@ class WEVDiscoverSearchBar: UIView {
     }()
     
     private func initView() {
-        /*addSubview(filterButton)
+        addSubview(filterButton)
         filterButton.snp.makeConstraints { (make) in
             make.right.equalToSuperview().offset(-10)
             make.size.equalTo(CGSize(width: 40, height: 40))
             make.centerY.equalToSuperview()
-        }*/
+        }
         
         addSubview(cancelSearchButton)
         cancelSearchButton.snp.makeConstraints { (make) in
@@ -374,7 +381,7 @@ class WEVDiscoverSearchBar: UIView {
         addSubview(textField)
         textField.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(10)
-            make.right.equalToSuperview().offset(-10)
+            make.right.equalToSuperview().offset(-60)
             make.centerY.equalToSuperview()
             make.height.equalTo(40)
         }
@@ -391,7 +398,7 @@ class WEVDiscoverSearchBar: UIView {
             cancelSearchButton.isHidden = true
             filterButton.isHidden = false
             textField.snp.updateConstraints { (make) in
-                make.right.equalToSuperview().offset(-10)
+                make.right.equalToSuperview().offset(-60)
             }
         case .searching, .searchCompleted:
             cancelSearchButton.isHidden = false

@@ -205,7 +205,7 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         view.presentationData = self.presentationData
         view.filterAction = {[weak self] in
             guard let self = self else {return}
-            let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
+            /*let vc = WEVDiscoverFilterViewController(allChannel: WEVChannel.allCases, selectedArray: self.selectedChannelArray)
             vc.selectedArray = self.selectedChannelArray
             vc.didSelected = {[weak self] channelArray in
                 guard let self = self else {return}
@@ -225,8 +225,23 @@ public class WEVDiscoverRootNode: ASDisplayNode {
                 //fetch filter data
                 self.selectedChannelArray = channelArray
                 self.scrollViewLoadData(isHeadRefesh: true)
+            }*/
+            let push: (ViewController) -> Void = { [weak self] c in
+                guard let strongSelf = self, let navigationController = strongSelf.controller?.navigationController as? NavigationController else {
+                    return
+                }
+                var updatedControllers = navigationController.viewControllers
+                for controller in navigationController.viewControllers.reversed() {
+                    if controller !== strongSelf && !(controller is TabBarController) {
+                        updatedControllers.removeLast()
+                    } else {
+                        break
+                    }
+                }
+                updatedControllers.append(c)
+                navigationController.setViewControllers(updatedControllers, animated: true)
             }
-            self.controller.present(vc, animated: true, completion: nil)
+            push(WEVSubscribeController(context: self.context))
         }
         
         view.cancelAction = {[weak self] in
@@ -558,7 +573,20 @@ public class WEVDiscoverRootNode: ASDisplayNode {
         })
         
         self.backgroundColor = presentationData.theme.chatList.backgroundColor
-        
+    }
+    
+    private func getUserPeer(engine: TelegramEngine, peerId: EnginePeer.Id) -> Signal<EnginePeer?, NoError> {
+        return engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: peerId))
+        |> mapToSignal { peer -> Signal<EnginePeer?, NoError> in
+            guard let peer = peer else {
+                return .single(nil)
+            }
+            if case let .secretChat(secretChat) = peer {
+                return engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: secretChat.regularPeerId))
+            } else {
+                return .single(peer)
+            }
+        }
     }
     
     func twitchRealTimeSync() {
@@ -1563,6 +1591,59 @@ extension WEVDiscoverRootNode: UICollectionViewDataSource {
         }
         if !errMsg.isEmpty {
             print("<<<<<<<<",errMsg,">>>>>>")
+        }
+    }
+}
+extension WEVDiscoverRootNode {
+    
+    func fetchTelegramUserInfo() {
+        let _ = (getUserPeer(engine: self.context.engine, peerId: self.context.account.peerId)
+        |> deliverOnMainQueue).start(next: { [weak self] peer in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            if case let .user(peer) = peer {
+                print(peer.lastName ?? "")
+                strongSelf.doSaveUserData(peer: peer)
+            }
+        })
+    }
+    
+    func doSaveUserData(peer: TelegramUser) {
+        Task {
+            await saveUserData(peer: peer)
+        }
+    }
+    
+    func saveUserData(peer: TelegramUser) async {
+        //check client is not a nil
+        guard let client = await self.controller.database else {
+            return
+        }
+        do {
+            
+            let cuurentUser = try await client
+               .from("user")
+           .select()
+           .eq(column: "user_id", value: "\(peer.id.id._internalGetInt64Value())")
+           .execute()
+           .decoded(to: [WevUser].self)
+
+            //if referralcode is there use existing otherwise create a new code
+            let refralCode = cuurentUser.first?.referralcode ?? referalCode.generateRefferalCode()
+            
+            let _ = try await client.from("user")
+                .upsert(
+                    values: WevUser(userId: peer.id.id._internalGetInt64Value(), firstname: peer.firstName, lastname: peer.lastName, username: peer.username, phone: peer.phone, referralcode: refralCode),
+                    onConflict: "user_id",
+                    returning: .representation,
+                    ignoreDuplicates: false
+                )
+                .execute()
+                .json()
+        } catch {
+            print(error.localizedDescription)
         }
     }
 }

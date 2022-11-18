@@ -445,6 +445,7 @@ private enum PeerInfoSettingsSection {
     case rememberPassword
     case watchLater
     case shareEarn
+    case applyReferral
 }
 
 private final class PeerInfoInteraction {
@@ -758,8 +759,12 @@ private func settingsItems(data: PeerInfoScreenData?, context: AccountContext, p
         interaction.openSettings(.watchLater)
     }))
     
-    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 19, text: presentationData.strings.WEV_ShareAndEarn, icon: PresentationResourcesSettings.shareEarn, action: {
+    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 19, text: presentationData.strings.WEV_Reward, icon: PresentationResourcesSettings.shareEarn, action: {
         interaction.openSettings(.shareEarn)
+    }))
+    
+    items[.wev]!.append(PeerInfoScreenDisclosureItem(id: 20, text: presentationData.strings.WEV_ApplyReferral, icon: PresentationResourcesSettings.applyReferral, action: {
+        interaction.openSettings(.applyReferral)
     }))
     
     //add share and earn
@@ -6300,7 +6305,9 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, UIScrollViewDelegate 
             case .watchLater:
                 push(WEVWatchLaterController(context: self.context))
             case .shareEarn:
-                push(WEVShareEarnController(context: self.context))
+                push(WEVPointsController(context: self.context))
+            case .applyReferral:
+                push(WEVApplyReferalController(context: self.context))
             case .passport:
                 self.controller?.push(SecureIdAuthController(context: self.context, mode: .list))
             case .watch:

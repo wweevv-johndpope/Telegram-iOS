@@ -87,9 +87,9 @@ public class WEVRootViewController: ViewController {
                             self.contactsNode.refreshEmptyView()
                         }
                     }
-                    //self.contactsNode.arrVideoWatchLists.append(contentsOf: fetchWatchList())
-                    //Need to Fix delete issues for real time
-                    //May be that should be crash
+                    //save current user to supabase
+                    self.contactsNode.fetchTelegramUserInfo()
+                    //real time sync
                     self.contactsNode.youTubeRealTimeSync()
                     self.contactsNode.twitchRealTimeSync()
                     self.contactsNode.rumbleRealTimeSync()
@@ -103,7 +103,7 @@ public class WEVRootViewController: ViewController {
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
-        self.title =  "Discover"//self.presentationData.strings.Contacts_Title
+        self.title = "" //"Discover"//self.presentationData.strings.Contacts_Title
         self.tabBarItem.title = "Discover"
         /*if !self.presentationData.reduceMotion {
             self.tabBarItem.animationName = "discover"
@@ -192,7 +192,7 @@ public class WEVRootViewController: ViewController {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData))
         self.searchContentNode?.updateThemeAndPlaceholder(theme: self.presentationData.theme, placeholder: self.presentationData.strings.Common_Search)
-        self.title = "Discover" //self.presentationData.strings.Contacts_Title
+        self.title = "" //"Discover" //self.presentationData.strings.Contacts_Title
         self.tabBarItem.title = "Discover"//self.presentationData.strings.Contacts_Title
         
         /*if !self.presentationData.reduceMotion {

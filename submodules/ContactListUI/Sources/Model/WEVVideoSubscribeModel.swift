@@ -70,7 +70,7 @@ func saveSubscribedVideoList(_ videowatchList: [SubscribedVideo]) {
     UserDefaults.standard.set(data, forKey: KeySubsribeForUserDefaults)
 }
 
-func fetchWatchList() -> [SubscribedVideo] {
+func fetchSubscribedList() -> [SubscribedVideo] {
     guard let encodedData = UserDefaults.standard.array(forKey: KeySubsribeForUserDefaults) as? [Data] else {
         return []
     }
